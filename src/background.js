@@ -24,8 +24,10 @@ function createWindow() {
 		x: 32,
 		y: 18,
 		// frame: false,
-		title: '歌詞爬蟲',
-		autoHideMenuBar: true,
+		title: 'test',
+		// transparent: true,
+		// autoHideMenuBar: true,
+		frame: true,
 		resizable: false,
 		// resizable: false,
 		webPreferences: {

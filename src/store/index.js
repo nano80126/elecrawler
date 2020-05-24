@@ -7,12 +7,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
 	state: {
-		isLogin: false,
-		///
-		isConnected: false,
-		sampling: false,
-		///
-		isWebsocket: false,
+		overlay: false,
 		///
 		snackbars: [],
 		///
@@ -28,25 +23,8 @@ export default new Vuex.Store({
 		}
 	},
 	mutations: {
-		loginCheck(state, login) {
-			state.isLogin = login;
-		},
-
-		changeConnected(state, value) {
-			if (value) {
-				state.isConnected = value;
-			} else {
-				// 否則 取消取樣
-				state.isConnected = value;
-				state.sampling = false;
-			}
-		},
-		changeSampling(state, value) {
-			state.sampling = value;
-		},
-
-		changeWebsocket(state, value) {
-			state.isWebsocket = value;
+		changeOverlay(state, bool) {
+			state.overlay = bool;
 		},
 
 		snackbar(state, bar) {

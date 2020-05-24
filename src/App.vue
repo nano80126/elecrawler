@@ -13,12 +13,12 @@
 
 				<v-btn text to="/" active-class="font-weight--black">
 					<v-icon small>fas fa-search</v-icon>
-					<!-- <span class="ml-2">検索</span> -->
+					<span class="ml-2">検索</span>
 				</v-btn>
 
-				<v-btn v-if="$store.state.isElectron" text to="/connect" active-class="font-weight--black">
+				<v-btn text to="/list" active-class="font-weight--black">
 					<v-icon small>fas fa-list</v-icon>
-					<!-- <span class="ml-2">リスト</span> -->
+					<span class="ml-2">リスト</span>
 				</v-btn>
 
 				<!-- below for login -->
@@ -33,6 +33,7 @@
 				</v-btn> -->
 			</v-app-bar>
 
+			<!-- <v-content class="grey lighten-3"> -->
 			<v-content class="grey lighten-3">
 				<div
 					ref="scrollPage"
@@ -63,8 +64,12 @@
 				</template>
 			</transition-group>
 
+			<v-overlay v-model="$store.state.overlay" opacity="0.3">
+				<v-progress-circular indeterminate color="purple" />
+			</v-overlay>
+
 			<!-- no used -->
-			<div class="fixed-right-bottom">
+			<div class="fixed-right-bottom d-none">
 				<span>Resolution:</span>
 				{{ webWidth }} x {{ webHeight }} &lt; = &gt; {{ screenWidth }} x
 				{{ screenHeight }}
@@ -85,11 +90,12 @@ export default {
 
 	data: () => ({
 		SHOW: false,
+
 		// drawer: true,
 		// miniVariant: true,
 		//
 		// Title: process.env.IS_ELECTRON ? '伺服端' : '客戶端',
-		Title: '歌詞檢索',
+		Title: '歌詞検索',
 		// ActivePage: 'SubTitle',
 		//
 		webWidth: window.innerWidth,

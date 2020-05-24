@@ -12,8 +12,9 @@ const routes = [
 		component: () => import(/* webpackChunkName */ '@/views/Search.vue')
 	},
 	{
-		path: '/',
-		name: 'Keep'
+		path: '/list',
+		name: 'List',
+		component: () => import(/* webpackChunkName */ '@/views/List.vue')
 	}
 ];
 

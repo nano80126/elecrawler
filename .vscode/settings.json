@@ -10,9 +10,9 @@
 	"[json]": {
 		"editor.formatOnSave": true // 針對 json
 	},
-	// "[javascript]": {
-	// 	"editor.formatOnSave": true // 針對 .prettierrc.js & .eslintrc.js
-	// },
+	"[javascript]": {
+		"editor.formatOnSave": true // 針對 .prettierrc.js & .eslintrc.js
+	},
 	"editor.tabSize": 4,
 	"vetur.validation.template": false
 }

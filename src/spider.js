@@ -6,10 +6,9 @@ import cheerio from 'cheerio';
 import { ipcMain } from 'electron';
 
 // const axios = require('axios');
-// const cheerio = require('cheerio');
 // const { ipcMain } = require('electron');
 
-async function scrape(text, type) {
+async function listScraper(text, type) {
 	const str = encodeURI(text);
 	const url = `https://utaten.com/search/=/show_artists=1/layout_search_text=${str}/layout_search_type=${type}/`;
 
@@ -21,11 +20,13 @@ async function scrape(text, type) {
 		.get(url)
 		.then(res => {
 			const $ = cheerio.load(res.data);
-			const h2 = $('body h2.contentBox__title');
+			const h2 = $('body div#container > div#contents > main h2.contentBox__title').first(); // first child
 			const table = h2.next('div.contentBox__body').children('table');
 			const trs = table.children('tbody').children('tr');
 			// const trs = contextBody.children('table');
 			// console.log($('body div.contentBox__body table tbody').html());
+			console.log(trs.length);
+
 			for (let i = 1; i < trs.length; i++) {
 				if (trs.eq(i).children().length >= 2) {
 					const eq = trs.eq(i).children('td');
@@ -45,17 +46,56 @@ async function scrape(text, type) {
 
 					// console.log(songTitle, href, songSinger);
 					// console.log(lyric);
-					data.list.push(
-						Object.freeze({
-							title: songTitle,
-							href: href,
-							artist: songSinger,
-							lyric: lyric,
-							expanded: false
-						})
-					);
+					data.list.push({
+						id: i,
+						title: songTitle,
+						href: href,
+						artist: songSinger,
+						lyric: lyric
+						// expanded: false
+					});
 				}
 			}
+		})
+		.catch(err => {
+			data.error = err;
+		});
+
+	return data;
+}
+
+async function lyricGetter(subUrl) {
+	const url = `https://utaten.com/${subUrl}`;
+
+	const data = { error: null };
+
+	await axios
+		.get(url)
+		.then(res => {
+			const $ = cheerio.load(res.data);
+			const main = $('body div#container > div#contents > main');
+
+			const title = main.find('h1.movieTtl');
+			const mainTxt = title
+				.children('span.movieTtl_mainTxt')
+				.text()
+				.replace(/^「|」$/g, '');
+			const artist = title
+				.children('a.boxArea_artists_move_top')
+				.text()
+				.replace(/^\s+|\s+$/g, '');
+
+			const lyricBody = main.find('div.lyricBody');
+			const lyricContent = lyricBody
+				.children('.medium')
+				.children('.hiragana')
+				.html();
+
+			Object.assign(data, {
+				mainTxt,
+				artist,
+				lyricContent
+			});
 		})
 		.catch(err => {
 			data.error = err;
@@ -67,10 +107,17 @@ async function scrape(text, type) {
 ipcMain.on('searchReq', async (e, args) => {
 	const { type, text } = args;
 	console.log(type, text);
-	const ret = await scrape(text, type);
+	const ret = await listScraper(text, type);
 	e.sender.send('searchRes', ret);
 });
 
+ipcMain.on('getLyric', async (e, args) => {
+	const { url } = args;
+	const ret = await lyricGetter(url);
+	// console.log(url);
+
+	e.sender.send('lyricRes', ret);
+});
 // // Print the full HTML
 // console.log(`Site HTML: ${$.html()}\n\n`);
 

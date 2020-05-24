@@ -35,8 +35,8 @@ module.exports = {
 				// Chain webpack config for electron main process only
 				config.externals({
 					// express: 'express',
-					bufferutil: 'commonjs bufferutil',
-					'utf-8-validate': 'commonjs utf-8-validate'
+					// bufferutil: 'commonjs bufferutil',
+					// 'utf-8-validate': 'commonjs utf-8-validate'
 				});
 			},
 			mainProcessWatch: ['src/spider.js'],
