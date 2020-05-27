@@ -15,12 +15,12 @@ Object.defineProperties(Vue.prototype, {
 	$lodash: {
 		value: require('lodash')
 	},
+	$dbHistory: {
+		value: require('./plugins/nedb').historyDB
+	},
 	$dbList: {
 		value: require('./plugins/nedb').listDB
 	},
-	// $dbError: {
-	// 	value: errorDB
-	// },
 	$ipcRenderer: {
 		value: require('electron').ipcRenderer
 	},
@@ -35,7 +35,22 @@ new Vue({
 	vuetify,
 	render: h => h(App),
 	///
-	mounted() {},
-	watch: {},
+	mounted() {
+		// 刪除5天前的搜尋紀錄
+		this.$dbHistory.remove(
+			{
+				datetime: {
+					$lt: this.$moment()
+						.add(-15, 'days')
+						.format('YYYY-MM-DD HH:mm:ss')
+				}
+			},
+			{ multi: true },
+			(err, num) => {
+				if (err) console.warn(err);
+				console.log(num);
+			}
+		);
+	},
 	methods: {}
 }).$mount('#app');

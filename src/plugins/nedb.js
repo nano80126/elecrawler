@@ -5,6 +5,11 @@ import { remote } from 'electron';
 // console.log(remote.app.getPath('userData'));
 // console.log(remote.app.getAppPath());
 
+const historyDB = new database({
+	filename: path.resolve(remote.app.getPath('userData'), 'history.db'),
+	autoload: true
+});
+
 const listDB = new database({
 	filename: path.resolve(remote.app.getPath('userData'), 'list.db'),
 	autoload: true
@@ -15,4 +20,4 @@ const listDB = new database({
 // 	autoload: true
 // });
 
-export { listDB };
+export { historyDB, listDB };

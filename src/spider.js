@@ -8,9 +8,10 @@ import { ipcMain } from 'electron';
 // const axios = require('axios');
 // const { ipcMain } = require('electron');
 
-async function listScraper(text, type) {
-	const str = encodeURI(text);
-	const url = `https://utaten.com/search/=/show_artists=1/layout_search_text=${str}/layout_search_type=${type}/`;
+async function listScraper(artist, title) {
+	const att = artist ? encodeURI(artist) : '';
+	const tle = title ? encodeURI(title) : '';
+	const url = `https://utaten.com/lyric/search?sort=&artist_name=${att}&title=${tle}&form_open=0&show_artists=1`;
 
 	const data = {
 		error: null,
@@ -25,7 +26,6 @@ async function listScraper(text, type) {
 			const trs = table.children('tbody').children('tr');
 			// const trs = contextBody.children('table');
 			// console.log($('body div.contentBox__body table tbody').html());
-			console.log(trs.length);
 
 			for (let i = 1; i < trs.length; i++) {
 				if (trs.eq(i).children().length >= 2) {
@@ -105,9 +105,10 @@ async function lyricGetter(subUrl) {
 }
 
 ipcMain.on('searchReq', async (e, args) => {
-	const { type, text } = args;
-	console.log(type, text);
-	const ret = await listScraper(text, type);
+	const { artist, title } = args;
+	console.log(artist, title);
+
+	const ret = await listScraper(artist, title);
 	e.sender.send('searchRes', ret);
 });
 
