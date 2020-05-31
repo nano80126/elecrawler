@@ -24,6 +24,29 @@ body {
 	// width: 640px;
 }
 
+.window-drag {
+	-webkit-app-region: drag;
+	position: absolute;
+	// background: red;
+
+	&.header {
+		width: calc(100% - 4px);
+		height: 28px;
+		bottom: 0;
+	}
+
+	&.left {
+		width: 60px;
+		height: calc(100% - 8px);
+		top: 4px;
+		right: 0;
+	}
+}
+
+.no-drag {
+	-webkit-app-region: no-drag;
+}
+
 .w-25 {
 	width: 25%;
 }

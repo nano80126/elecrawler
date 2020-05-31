@@ -19,17 +19,24 @@ protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: tru
 function createWindow() {
 	// Create the browser window.
 	win = new BrowserWindow({
+		backgroundColor: '#ddd',
+		minWidth: 540,
 		width: 640,
+		// maxWidth: 720,
+		minHeight: 720,
 		height: 960,
-		x: 32,
+		///
+		x: 1920 - 672,
 		y: 18,
 		// frame: false,
-		title: 'test',
-		// transparent: true,
+		title: 'electron searcher',
+		// opacity: 0.5,
 		// autoHideMenuBar: true,
-		frame: true,
-		resizable: false,
-		// resizable: false,
+		// transparent: true,
+		autoHideMenuBar: true,
+		frame: false,
+		resizable: true,
+		show: false,
 		webPreferences: {
 			nodeIntegration: true
 		}
@@ -44,6 +51,10 @@ function createWindow() {
 		// Load the index.html when not in development
 		win.loadURL('app://./index.html');
 	}
+
+	win.on('ready-to-show', () => {
+		win.show();
+	});
 
 	win.on('closed', () => {
 		win = null;

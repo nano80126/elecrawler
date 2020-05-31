@@ -1,17 +1,72 @@
 <template>
 	<div v-show="SHOW">
-		<v-app>
-			<v-app-bar app color="success darken-3" dark height="38">
-				<!-- <v-app-bar-nav-icon class="hidden-lg-and-up" @click.stop="drawer = !drawer">
-				<v-icon small>fas fa-bars</v-icon>
-				</v-app-bar-nav-icon> -->
+		<!-- <div style="height:38px;"></div> -->
+		<!-- <div class="sizer">
+			<div class="left" />
+			<div class="top" />
+			<div class="right" />
+			<div class="bottom" />
+		</div> -->
 
-				<v-toolbar-title class="mr-10">
+		<v-app>
+			<v-app-bar app flat height="32" color="grey lighten-4">
+				<div class="window-drag header ml-n4" />
+				<!--  -->
+				<div class="" style="width:90px;">
+					<v-slider ref="slider1" class="no-drag" value="100" hide-details />
+				</div>
+				<v-spacer />
+				<!--  -->
+				<v-btn min-width="24" width="36" text class="no-drag" small @click="windowMin">
+					<v-icon x-small>far fa-window-minimize</v-icon>
+				</v-btn>
+				<!--  -->
+				<v-btn v-if="!windowIsMax" min-width="24" width="36" text class="no-drag" small @click="windowMax">
+					<v-icon x-small>far fa-window-maximize</v-icon>
+				</v-btn>
+				<v-btn v-else min-width="24" width="36" text class="no-drag" small @click="windowRestore">
+					<v-icon x-small>far fa-window-restore</v-icon>
+				</v-btn>
+				<!--  -->
+				<v-btn min-width="24" width="36" text class="no-drag mr-n4" small @click="windowHide">
+					<v-icon small>fas fa-times</v-icon>
+				</v-btn>
+			</v-app-bar>
+
+			<v-navigation-drawer app dark permanent mini-variant mini-variant-width="64" class="success darken-4">
+				<div class="window-drag left" />
+				<!--  -->
+				<v-list flat class="no-drag">
+					<v-tooltip right transition="scroll-x-transition" open-delay="300">
+						<template v-slot:activator="{ on }">
+							<v-list-item to="/" exact v-on="on" class="px-auto">
+								<v-list-item-content>
+									<v-icon small>fas fa-search</v-icon>
+								</v-list-item-content>
+							</v-list-item>
+						</template>
+						<span>検索</span>
+					</v-tooltip>
+					<!--  -->
+					<v-tooltip right transition="scroll-x-transition" open-delay="300">
+						<template v-slot:activator="{ on }">
+							<v-list-item to="/list" exact v-on="on">
+								<v-list-item-content>
+									<v-icon small>fas fa-list</v-icon>
+								</v-list-item-content>
+							</v-list-item>
+						</template>
+						<span>リスト</span>
+					</v-tooltip>
+				</v-list>
+			</v-navigation-drawer>
+
+			<!-- <v-toolbar v-if="false" dense color="success darken-3" dark height="36">
+				<v-toolbar-title class="mr-10 window-drag">
 					<span>{{ Title }}</span>
-					<!-- <small class="ml-4">{{ ActivePage }}</small> -->
 				</v-toolbar-title>
 
-				<v-btn text to="/" active-class="font-weight--black">
+				<v-btn text to="/" active-class="font-weight--black" style="z-index:1;">
 					<v-icon small>fas fa-search</v-icon>
 					<span class="ml-2">検索</span>
 				</v-btn>
@@ -20,21 +75,10 @@
 					<v-icon small>fas fa-list</v-icon>
 					<span class="ml-2">リスト</span>
 				</v-btn>
-
-				<!-- below for login -->
-				<!-- <v-btn v-if="isLogin" text @click="logout">
-					<span class="mr-2">登出</span>
-					<v-icon small>fas fa-walking</v-icon>
-				</v-btn>
-
-				<v-btn v-else text @click="dialogModal = true">
-					<span class="mr-2">登入</span>
-					<v-icon small>fas fa-user</v-icon>
-				</v-btn> -->
-			</v-app-bar>
+			</v-toolbar> -->
 
 			<!-- <v-content class="grey lighten-3"> -->
-			<v-content class="grey lighten-3">
+			<v-content class="grey lighten-4">
 				<div
 					ref="scrollPage"
 					class="min-scroll primary-scroll"
@@ -44,6 +88,15 @@
 					<router-view class="pa-3" />
 				</div>
 			</v-content>
+
+			<!-- <v-footer app inset color="success">
+				<v-row no-gutters align="center">
+					<v-spacer />
+					<v-col cols="auto">
+						&copy; 2020
+					</v-col>
+				</v-row>
+			</v-footer> -->
 
 			<!--  snackbar  -->
 			<transition-group name="slideRight">
@@ -91,6 +144,9 @@ export default {
 	data: () => ({
 		SHOW: false,
 
+		windowIsMax: false,
+
+		bottomNav: null,
 		// drawer: true,
 		// miniVariant: true,
 		//
@@ -112,6 +168,10 @@ export default {
 		barsHidden() {
 			return this.$store.getters.barsHidden;
 		}
+
+		// windowState() {
+		// 	// return this.$remote.BrowserWindow.getFocusedWindow().isMaximized();
+		// }
 	},
 	watch: {
 		// 若 snackbars 全部 timeout 則清空
@@ -121,7 +181,7 @@ export default {
 	},
 	created() {
 		// console.log(this.$vuetify);
-		console.log('env', process.env);
+		if (process.env.NODE_ENV == 'development') console.log('env', process.env);
 		// ////
 
 		this.$router.beforeEach((to, from, next) => {
@@ -139,6 +199,8 @@ export default {
 		window.onresize = () => {
 			this.webWidth = window.innerWidth;
 			this.webHeight = window.innerHeight;
+
+			this.windowIsMax = this.$remote.BrowserWindow.getFocusedWindow().isMaximized();
 		};
 
 		// this.$dbAdmin.remove({}, { multi: true }, (err, doc) => {
@@ -170,11 +232,65 @@ export default {
 		// 	});
 		// }
 	},
-	methods: {}
+	methods: {
+		windowMin() {
+			this.$remote.BrowserWindow.getFocusedWindow().minimize();
+		},
+
+		windowMax() {
+			this.windowIsMax = true;
+			this.$remote.BrowserWindow.getFocusedWindow().maximize();
+		},
+
+		windowRestore() {
+			this.windowIsMax = false;
+			this.$remote.BrowserWindow.getFocusedWindow().restore();
+		},
+
+		windowHide() {
+			this.$remote.BrowserWindow.getFocusedWindow().hide();
+		}
+	}
 };
 </script>
 
 <style lang="scss" scoped>
+.sizer {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	opacity: 0.3;
+	z-index: 9999;
+
+	> div {
+		-webkit-app-region: no-drag;
+		position: fixed;
+		background: red;
+		z-index: 9999;
+	}
+
+	> .top {
+		top: 0;
+		width: 100%;
+		height: 4px;
+	}
+	> .left {
+		left: 0;
+		width: 4px;
+		height: 100%;
+	}
+	> .right {
+		right: 0;
+		width: 4px;
+		height: 100%;
+	}
+	> .bottom {
+		bottom: 0;
+		width: 100%;
+		height: 4px;
+	}
+}
+
 .fixed-right-bottom {
 	position: fixed;
 	font-weight: bold;

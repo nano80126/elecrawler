@@ -24,8 +24,8 @@ Object.defineProperties(Vue.prototype, {
 	$ipcRenderer: {
 		value: require('electron').ipcRenderer
 	},
-	$dialog: {
-		value: require('electron').remote.dialog
+	$remote: {
+		value: require('electron').remote
 	}
 });
 

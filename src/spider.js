@@ -92,6 +92,8 @@ async function lyricGetter(subUrl) {
 				.html();
 
 			Object.assign(data, {
+				lyricKey: subUrl.match(/(?<=^\/lyric\/)\w+(?=\/$)/)[0],
+				url: subUrl,
 				mainTxt,
 				artist,
 				lyricContent
@@ -106,8 +108,6 @@ async function lyricGetter(subUrl) {
 
 ipcMain.on('searchReq', async (e, args) => {
 	const { artist, title } = args;
-	console.log(artist, title);
-
 	const ret = await listScraper(artist, title);
 	e.sender.send('searchRes', ret);
 });

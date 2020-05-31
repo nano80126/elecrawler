@@ -4,16 +4,17 @@
 			<v-col>
 				<v-text-field
 					v-model="artist"
-					outlined
+					filled
+					rounded
 					dense
 					hide-details
-					label="歌手名"
-					class="mr-3"
+					placeholder="歌手名"
+					class="mx-1"
 					color="success"
 					@keyup.enter="lyricSearch"
 				>
 					<template v-slot:prepend-inner>
-						<v-icon small class="mt-1">fas fa-microphone-alt</v-icon>
+						<v-icon small class="mt-1 mr-1">fas fa-microphone-alt</v-icon>
 					</template>
 				</v-text-field>
 			</v-col>
@@ -21,22 +22,23 @@
 			<v-col>
 				<v-text-field
 					v-model="title"
-					outlined
+					filled
+					rounded
 					dense
+					placeholder="曲名"
 					hide-details
-					label="曲名"
-					class="mr-3"
+					class="mx-1"
 					color="success"
 					@keyup.enter="lyricSearch"
 				>
 					<template v-slot:prepend-inner>
-						<v-icon small class="mt-1">fas fa-music</v-icon>
+						<v-icon small class="mt-1 mr-1">fas fa-music</v-icon>
 					</template>
 				</v-text-field>
 			</v-col>
 
 			<v-col cols="auto">
-				<v-btn color="success" outlined height="40" @click="lyricSearch" :disabled="!canSearch">
+				<v-btn text color="success" height="40" @click="lyricSearch" :disabled="!canSearch">
 					<span class="mr-2">検索</span>
 					<v-icon small>fas fa-leaf</v-icon>
 				</v-btn>
@@ -56,7 +58,7 @@
 						v-for="words in keywords"
 						:key="words._id"
 						small
-						class="mx-2"
+						class="ml-2 mt-1"
 						color="light-blue lighten-2"
 						style="cursor: pointer;"
 						@click="historySearch(words.artist, words.title)"
@@ -85,6 +87,11 @@
 							<span v-text="lyricObj.artist" />
 						</v-card-subtitle>
 						<v-divider />
+
+						<!-- <v-card-text>
+							{{ lyricObj }}
+						</v-card-text> -->
+
 						<v-card-text
 							class="primary--text text--darken-2 font-weight-bold"
 							v-html="lyricObj.lyric || '<span>歌詞が存在しない。</span>'"
@@ -166,8 +173,14 @@ export default {
 			.exec((err, doc) => {
 				if (err) console.warn(err);
 				this.keywords = doc;
-				console.log(doc);
+
+				if (process.env.NODE_ENV == 'development') console.log(doc);
 			});
+
+		this.$dbList.find({}, (err, doc) => {
+			if (err) console.warn(err);
+			console.log(doc);
+		});
 	},
 	mounted() {
 		const included = this.$ipcRenderer.eventNames().includes('searchRes');
@@ -197,12 +210,14 @@ export default {
 
 				this.$nextTick(() => {
 					this.lyricObj = Object.freeze({
+						key: args.lyricKey,
+						url: args.url,
 						title: args.mainTxt,
 						artist: args.artist,
 						lyric: args.lyricContent
 					});
 				});
-
+				console.log(args);
 				this.$store.commit('changeOverlay', false);
 			});
 		}
@@ -246,6 +261,7 @@ export default {
 				{ upsert: true },
 				(err, nb) => {
 					if (err) console.warn(err);
+
 					console.log(nb);
 				}
 			);
@@ -257,7 +273,28 @@ export default {
 		},
 
 		listAdd() {
-			console.log(this.lyricObj);
+			// this.$dbAdmin.ensureIndex();
+			this.$dbList.ensureIndex({ fieldName: 'uniqueKey', unique: true }, err => {
+				if (err) console.warn(err);
+			});
+
+			this.$dbList.update(
+				{ uniqueKey: this.lyricObj.key },
+				{
+					$set: {
+						// uniqueKey: this.lyricObj.key,
+						artist: this.lyricObj.artist,
+						title: this.lyricObj.title,
+						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+					}
+				},
+				{ upsert: true },
+				(err, nb) => {
+					if (err) console.warn(err);
+					console.log(nb);
+				}
+			);
+			// console.log(this.lyricObj);
 			// this.$dbList.update(
 			// 	{ artist: att, title: tle },
 			// 	{ artist: att, title: tle,  ,datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss') },

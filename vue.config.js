@@ -42,8 +42,8 @@ module.exports = {
 			mainProcessWatch: ['src/spider.js'],
 
 			builderOptions: {
-				productName: 'min sintering furnace',
-				copyright: 'INTAI MIM © 2020',
+				productName: 'lyric spider',
+				copyright: 'Copyright © 2020',
 				win: {
 					icon: 'build/icon.png',
 					target: [
@@ -58,7 +58,7 @@ module.exports = {
 					allowElevation: true,
 					allowToChangeInstallationDirectory: true,
 					createDesktopShortcut: true,
-					shortcutName: 'furnace'
+					shortcutName: 'Spider'
 				}
 			}
 		}
