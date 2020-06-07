@@ -1,12 +1,16 @@
-# electron-min
+# electron-lyric
 
-MIM Sintering furnace server end 
+Lyric spider width build by electron
 
-Using Modbus TCP
 
-Addreess: 192.168.3.18:502
+### Language
+* Japanese
+* English
+* Chinese
 
-## npm audit to get some problem before put this into production environment
-### done.
 
-## Configure nsis
+### Onprogress
+
+* [x] Drop or paste an image and show real time
+* [] Save image with property size
+* [] Alias youtube url & image path with lyric object

@@ -26,7 +26,16 @@ Object.defineProperties(Vue.prototype, {
 	},
 	$remote: {
 		value: require('electron').remote
+	},
+	$fs: {
+		value: require('electron').remote.require('fs')
 	}
+	// $clipboard: {
+	// 	value: require('electron').clipboard
+	// },
+	// $nativeImage: {
+	// 	value: require('electron').nativeImage
+	// }
 });
 
 new Vue({
@@ -35,7 +44,25 @@ new Vue({
 	vuetify,
 	render: h => h(App),
 	///
+	data() {
+		return {
+			windowIsMax: false,
+			///
+			webWidth: window.innerWidth,
+			webHeight: window.innerHeight,
+			screenWidth: window.screen.width,
+			screenHeight: window.screen.height
+		};
+	},
 	mounted() {
+		window.onresize = () => {
+			this.webWidth = window.innerWidth;
+			this.webHeight = window.innerHeight;
+
+			this.windowIsMax = this.$remote.BrowserWindow.getFocusedWindow().isMaximized();
+			// console.log(this.$vuetify.breakpoint);
+		};
+
 		// 刪除5天前的搜尋紀錄
 		this.$dbHistory.remove(
 			{

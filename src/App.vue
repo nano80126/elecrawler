@@ -1,13 +1,5 @@
 <template>
 	<div v-show="SHOW">
-		<!-- <div style="height:38px;"></div> -->
-		<!-- <div class="sizer">
-			<div class="left" />
-			<div class="top" />
-			<div class="right" />
-			<div class="bottom" />
-		</div> -->
-
 		<v-app>
 			<v-app-bar app flat height="32" color="grey lighten-4">
 				<div class="window-drag header ml-n4" />
@@ -21,7 +13,15 @@
 					<v-icon x-small>far fa-window-minimize</v-icon>
 				</v-btn>
 				<!--  -->
-				<v-btn v-if="!windowIsMax" min-width="24" width="36" text class="no-drag" small @click="windowMax">
+				<v-btn
+					v-if="!$root.windowIsMax"
+					min-width="24"
+					width="36"
+					text
+					class="no-drag"
+					small
+					@click="windowMax"
+				>
 					<v-icon x-small>far fa-window-maximize</v-icon>
 				</v-btn>
 				<v-btn v-else min-width="24" width="36" text class="no-drag" small @click="windowRestore">
@@ -58,6 +58,17 @@
 						</template>
 						<span>リスト</span>
 					</v-tooltip>
+
+					<v-tooltip right transition="scroll-x-transition" open-delay="300">
+						<template v-slot:activator="{ on }">
+							<v-list-item to="/dev" exact v-on="on">
+								<v-list-item-content>
+									<v-icon small>fas fa-code</v-icon>
+								</v-list-item-content>
+							</v-list-item>
+						</template>
+						<span>テスト</span>
+					</v-tooltip>
 				</v-list>
 			</v-navigation-drawer>
 
@@ -79,13 +90,12 @@
 
 			<!-- <v-content class="grey lighten-3"> -->
 			<v-content class="grey lighten-4">
-				<div
-					ref="scrollPage"
-					class="min-scroll primary-scroll"
-					style="overflow-x:hidden; overflow-y:auto;"
-					:style="{ height: contentHeight }"
-				>
-					<router-view class="pa-3" />
+				<div ref="scrollPage">
+					<!-- class="min-scroll primary-scroll" -->
+					<!-- :style="{ height: contentHeight }" -->
+					<!-- style="overflow-x:hidden; overflow-y:auto;" -->
+					<!-- style="overflow-x:hidden; overflow-y:auto;" -->
+					<router-view />
 				</div>
 			</v-content>
 
@@ -122,11 +132,12 @@
 			</v-overlay>
 
 			<!-- no used -->
-			<div class="fixed-right-bottom d-none">
+			<div v-if="false" class="fixed-right-bottom text-right">
 				<span>Resolution:</span>
-				{{ webWidth }} x {{ webHeight }} &lt; = &gt; {{ screenWidth }} x
-				{{ screenHeight }}
-				<span class="ml-2" v-text="'breakpoint:'" />
+				{{ $root.webWidth }} x {{ $root.webHeight }} &lt; = &gt; {{ $root.screenWidth }} x
+				{{ $root.screenHeight }}
+				<br />
+				<span class="mt-2" v-text="'breakpoint:'" />
 				{{ $vuetify.breakpoint.name }}
 			</div>
 		</v-app>
@@ -142,27 +153,25 @@ export default {
 	},
 
 	data: () => ({
-		SHOW: false,
+		SHOW: false
 
-		windowIsMax: false,
-
-		bottomNav: null,
+		// bottomNav: null,
 		// drawer: true,
 		// miniVariant: true,
 		//
 		// Title: process.env.IS_ELECTRON ? '伺服端' : '客戶端',
-		Title: '歌詞検索',
+		// Title: '歌詞検索'
 		// ActivePage: 'SubTitle',
 		//
-		webWidth: window.innerWidth,
-		webHeight: window.innerHeight,
-		screenWidth: window.screen.width,
-		screenHeight: window.screen.height
+		// webWidth: window.innerWidth,
+		// webHeight: window.innerHeight,
+		// screenWidth: window.screen.width,
+		// screenHeight: window.screen.height
 		//
 	}),
 	computed: {
 		contentHeight() {
-			return `${this.webHeight - 38}px`;
+			return `${this.$root.webHeight - 38}px`;
 		},
 
 		barsHidden() {
@@ -196,12 +205,13 @@ export default {
 	mounted() {
 		this.SHOW = true;
 
-		window.onresize = () => {
-			this.webWidth = window.innerWidth;
-			this.webHeight = window.innerHeight;
+		// window.onresize = () => {
+		// 	this.webWidth = window.innerWidth;
+		// 	this.webHeight = window.innerHeight;
 
-			this.windowIsMax = this.$remote.BrowserWindow.getFocusedWindow().isMaximized();
-		};
+		// 	this.windowIsMax = this.$remote.BrowserWindow.getFocusedWindow().isMaximized();
+		// 	// console.log(this.$vuetify.breakpoint);
+		// };
 
 		// this.$dbAdmin.remove({}, { multi: true }, (err, doc) => {
 		// 	if (err) console.warn('err', err);
@@ -238,12 +248,12 @@ export default {
 		},
 
 		windowMax() {
-			this.windowIsMax = true;
+			// this.windowIsMax = true;
 			this.$remote.BrowserWindow.getFocusedWindow().maximize();
 		},
 
 		windowRestore() {
-			this.windowIsMax = false;
+			// this.windowIsMax = false;
 			this.$remote.BrowserWindow.getFocusedWindow().restore();
 		},
 
@@ -255,41 +265,41 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.sizer {
-	position: fixed;
-	width: 100%;
-	height: 100%;
-	opacity: 0.3;
-	z-index: 9999;
+// .sizer {
+// 	position: fixed;
+// 	width: 100%;
+// 	height: 100%;
+// 	opacity: 0.3;
+// 	z-index: 9999;
 
-	> div {
-		-webkit-app-region: no-drag;
-		position: fixed;
-		background: red;
-		z-index: 9999;
-	}
+// 	> div {
+// 		-webkit-app-region: no-drag;
+// 		position: fixed;
+// 		background: red;
+// 		z-index: 9999;
+// 	}
 
-	> .top {
-		top: 0;
-		width: 100%;
-		height: 4px;
-	}
-	> .left {
-		left: 0;
-		width: 4px;
-		height: 100%;
-	}
-	> .right {
-		right: 0;
-		width: 4px;
-		height: 100%;
-	}
-	> .bottom {
-		bottom: 0;
-		width: 100%;
-		height: 4px;
-	}
-}
+// 	> .top {
+// 		top: 0;
+// 		width: 100%;
+// 		height: 4px;
+// 	}
+// 	> .left {
+// 		left: 0;
+// 		width: 4px;
+// 		height: 100%;
+// 	}
+// 	> .right {
+// 		right: 0;
+// 		width: 4px;
+// 		height: 100%;
+// 	}
+// 	> .bottom {
+// 		bottom: 0;
+// 		width: 100%;
+// 		height: 4px;
+// 	}
+// }
 
 .fixed-right-bottom {
 	position: fixed;

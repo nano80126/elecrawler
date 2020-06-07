@@ -15,6 +15,11 @@ const routes = [
 		path: '/list',
 		name: 'List',
 		component: () => import(/* webpackChunkName */ '@/views/List.vue')
+	},
+	{
+		path: '/dev',
+		name: 'Dev',
+		component: () => import(/* webpackChunkName */ '@/components/LyricMedia.vue')
 	}
 ];
 

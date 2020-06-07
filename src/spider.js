@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 'use strict';
 
 import axios from 'axios';
@@ -9,17 +10,27 @@ import { ipcMain } from 'electron';
 // const { ipcMain } = require('electron');
 
 async function listScraper(artist, title) {
-	const att = artist ? encodeURI(artist) : '';
-	const tle = title ? encodeURI(title) : '';
-	const url = `https://utaten.com/lyric/search?sort=&artist_name=${att}&title=${tle}&form_open=0&show_artists=1`;
+	// const att = artist ? encodeURI(artist) : '';
+	// const tle = title ? encodeURI(title) : '';
+	// const url = `https://utaten.com/lyric/search?sort=&artist_name=${att}&title=${tle}&form_open=0&show_artists=1`;
+
+	const opt = {
+		sort: null,
+		artist_name: artist,
+		title: title,
+		form_open: 0,
+		show_artists: 1
+	};
 
 	const data = {
 		error: null,
 		list: []
 	};
 	await axios
-		.get(url)
+		.get('https://utaten.com/lyric/search', { params: opt })
 		.then(res => {
+			// console.log(res.config.params);
+
 			const $ = cheerio.load(res.data);
 			const h2 = $('body div#container > div#contents > main h2.contentBox__title').first(); // first child
 			const table = h2.next('div.contentBox__body').children('table');

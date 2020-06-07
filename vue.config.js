@@ -1,3 +1,5 @@
+const webpack = require('webpack');
+
 module.exports = {
 	transpileDependencies: ['vuetify'],
 
@@ -25,6 +27,12 @@ module.exports = {
 		// config.externals({
 		// 	express: 'express'
 		// });
+	},
+
+	configureWebpack: () => {
+		return {
+			plugins: [new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-tw$/)]
+		};
 	},
 
 	pluginOptions: {
