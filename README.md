@@ -12,5 +12,5 @@ Lyric spider width build by electron
 ### Onprogress
 
 * [x] Drop or paste an image and show real time
-* [] Save image with property size
-* [] Alias youtube url & image path with lyric object
+* [ ] Save image with property size
+* [ ] Alias youtube url & image path with lyric object
