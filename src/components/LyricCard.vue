@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<v-card class="mx-auto" outlined>
+		<v-card class="mr-3" outlined>
 			<v-card-title>
 				<span class="ellipsis" v-text="lyric.title" style="max-width: 500px" />
 				<v-spacer />
@@ -19,7 +19,7 @@
 			<v-divider />
 
 			<v-card-text
-				class="primary--text text--darken-2 font-weight-bold"
+				class="primary--text text--darken-2 font-weight-bold lyric-body"
 				v-html="lyric.lyric || '<span>歌詞が存在しない。</span>'"
 			/>
 		</v-card>
@@ -45,9 +45,16 @@ export default {
 		listAdd() {
 			if (!this.lyric.exist) {
 				this.$parent.listAdd();
-				this.$emit('update:lyric', (this.lyric.exist = false));
+				this.lyric.exist = true;
 			}
 		}
 	}
 };
 </script>
+
+<style lang="scss" scoped>
+.lyric-body {
+	font-family: 'メイリオ', 'ＭＳ Ｐゴシック', sans-serif;
+	font-weight: 600;
+}
+</style>

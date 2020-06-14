@@ -89,7 +89,7 @@
 			</v-toolbar> -->
 
 			<!-- <v-content class="grey lighten-3"> -->
-			<v-content class="grey lighten-4">
+			<v-main class="grey lighten-4">
 				<div ref="scrollPage">
 					<!-- class="min-scroll primary-scroll" -->
 					<!-- :style="{ height: contentHeight }" -->
@@ -97,7 +97,7 @@
 					<!-- style="overflow-x:hidden; overflow-y:auto;" -->
 					<router-view />
 				</div>
-			</v-content>
+			</v-main>
 
 			<!-- <v-footer app inset color="success">
 				<v-row no-gutters align="center">
@@ -112,17 +112,21 @@
 			<transition-group name="slideRight">
 				<template v-for="(n, idx) in $store.state.snackbars">
 					<v-snackbar
+						app
 						:key="`snack${idx}`"
 						v-if="n.show"
 						v-model="n.show"
 						right
 						bottom
+						absolute
 						:color="n.color"
 						:timeout="n.timeout"
-						:style="{ bottom: `${60 + (10 + 60) * (idx - barsHidden)}px` }"
+						:style="{ top: `-${5 + (10 + 50) * (idx - barsHidden)}px` }"
 					>
-						{{ `${n.text}` }}
-						<v-btn text @click="n.show = false">Close</v-btn>
+						{{ n.text }}
+						<template v-slot:action="{ attrs }">
+							<v-btn text v-bind="attrs" @click="n.show = false">閉じる</v-btn>
+						</template>
 					</v-snackbar>
 				</template>
 			</transition-group>

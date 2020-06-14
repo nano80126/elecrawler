@@ -27,8 +27,8 @@ Object.defineProperties(Vue.prototype, {
 	$remote: {
 		value: require('electron').remote
 	},
-	$fs: {
-		value: require('electron').remote.require('fs')
+	$sharp: {
+		value: require('sharp')
 	}
 	// $clipboard: {
 	// 	value: require('electron').clipboard

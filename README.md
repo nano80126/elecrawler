@@ -1,6 +1,6 @@
 # electron-lyric
 
-Lyric spider width build by electron
+Lyric crawler width build by electron
 
 
 ### Language

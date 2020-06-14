@@ -6,7 +6,10 @@
 				ref="firstCol"
 				cols
 				class="pl-3"
-				:style="{ 'min-height': `${$root.webHeight - 44}px`, 'max-width': isTwoColumn ? '416px' : null }"
+				:style="{
+					'min-height': `${$root.webHeight - 44}px`,
+					'max-width': isTwoColumn || isThreeColumn ? '416px' : null
+				}"
 			>
 				<!-- 416px = 480 - 64(navigation) -->
 				<!-- {{ $refs.firstCol ? $ref.firstCol.clientWidth : '123' }} -->
@@ -48,9 +51,15 @@
 					</v-col>
 
 					<v-col cols="auto">
-						<v-btn text color="success" height="40" @click="lyricSearch" :disabled="!canSearch">
-							<span class="mr-2">検索</span>
-							<v-icon small>fas fa-leaf</v-icon>
+						<v-btn icon color="success" height="40" @click="lyricSearch" :disabled="!canSearch">
+							<!-- <span class="mr-2">検索</span> -->
+							<v-icon small>fas fa-search</v-icon>
+						</v-btn>
+
+						<v-btn text outlined height="40" min-width="0" width="15" class="px-0" @click="changeWidth">
+							<v-icon x-small class="mx-0">
+								{{ isTwoColumn || isThreeColumn ? 'fas fa-caret-left' : 'fas fa-caret-right' }}
+							</v-icon>
 						</v-btn>
 					</v-col>
 
@@ -81,62 +90,90 @@
 					<!-- scroll below  --><!-- scroll below  --><!-- scroll below  -->
 					<!-- scroll below  --><!-- scroll below  --><!-- scroll below  -->
 					<!-- scroll below  --><!-- scroll below  --><!-- scroll below  -->
-					<v-col cols="12">
-						<div
+					<transition name="lyricSlide">
+						<v-col v-if="lyricObj && !isTwoColumn" cols="12" class="mt-3">
+							<!-- :style="{height: `${($root.webHeight - 136) / 2 - 12}px`" -->
+							<div
+								class="min-scroll y success-scroll"
+								:style="{ height: `${($root.webHeight - 136) / 2.5 - 12}px` }"
+							>
+								<!-- <v-col  cols="12" class="mb-3 px-0"> -->
+								<lyricCard :lyric="lyricObj" />
+								<!-- </v-col> -->
+							</div>
+						</v-col>
+					</transition>
+
+					<v-col cols="12" class="mt-3">
+						<v-virtual-scroll
+							class="min-scroll y success-scroll scroll-darken"
+							bench="1"
+							:items="list"
+							item-height="138"
+							:height="($root.webHeight - 136) / (lyricObj && !isTwoColumn ? 1.667 : 1)"
+						>
+							<!-- <div
 							class="min-scroll y success-scroll mt-3 pr-3"
 							:style="{ height: `${$root.webHeight - 136}px` }"
-						>
-							<v-row no-gutters>
-								<transition name="lyricSlide">
-									<v-col v-if="lyricObj && !isTwoColumn" cols="12" class="mb-3">
-										<lyricCard :lyric="lyricObj" />
-									</v-col>
-								</transition>
+							> -->
+							<!-- <v-row no-gutters> -->
 
-								<v-col cols="12">
-									<transition-group name="cardList">
-										<!-- <v-responsive class="overflow-y-auto" max-height="400">
+							<!-- <v-col cols="12"> -->
+							<!-- <transition-group name="cardList"> -->
+							<!-- <v-responsive class="overflow-y-auto" max-height="400">
 										<v-responsive height="1080"> -->
-										<!-- <v-lazy> -->
-										<v-card v-for="item in list" :key="item.obj.id" class="mx-auto mb-3" outlined>
-											<v-card-title style="position:relative;">
-												<span class="dummy" />
-												<span class="ellipsis" style="position: absolute;">
-													{{ item.obj.title }}
-												</span>
-											</v-card-title>
-											<v-card-subtitle>{{ item.obj.artist }}</v-card-subtitle>
+							<!-- <v-lazy> -->
+							<template v-slot="{ item }">
+								<v-card :key="item.obj.id" class="mx-auto mr-3" outlined min-height="130">
+									<v-card-title style="position:relative;">
+										<span class="dummy" />
+										<span class="ellipsis" style="position: absolute;">
+											{{ item.obj.title }}
+										</span>
+									</v-card-title>
+									<v-card-subtitle>{{ item.obj.artist }}</v-card-subtitle>
 
-											<v-divider />
-											<v-card-actions>
-												<v-btn text color="info" @click="getLyric(item.obj.href)">
-													<v-icon>fas fa-link</v-icon>
-													<span class="ml-2 font-weight-bold">リンク</span>
-												</v-btn>
+									<v-divider />
+									<v-card-actions>
+										<v-btn text color="info" @click="getLyric(item.obj.href)">
+											<v-icon>fas fa-link</v-icon>
+											<span class="ml-2 font-weight-bold">リンク</span>
+										</v-btn>
 
-												<v-spacer />
-												<v-btn icon @click="item.expanded = !item.expanded">
-													<v-icon>
-														{{
-															item.expanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'
-														}}
+										<v-spacer />
+
+										<v-tooltip left max-width="348" transition="slide-y-transition">
+											<template v-slot:activator="{ on, attrs }">
+												<v-btn icon v-bind="attrs" v-on="on">
+													<!-- @click="item.expanded = !item.expanded" -->
+													<v-icon style="transform: rotateY(180deg)">
+														far fa-comment-dots
+														<!-- {{ item.expanded ? 'fas fa-chevron-up' : '
+														fas fa-chevron-down' }} -->
 													</v-icon>
 												</v-btn>
-											</v-card-actions>
-											<v-expand-transition>
-												<div v-show="item.expanded">
-													<v-divider />
-													<v-card-text>{{ item.obj.lyric }}</v-card-text>
-												</div>
-											</v-expand-transition>
-										</v-card>
-										<!-- </v-lazy> -->
-										<!-- </v-responsive> -->
-										<!-- </v-responsive> -->
-									</transition-group>
-								</v-col>
-							</v-row>
-						</div>
+											</template>
+											<span>
+												{{ item.obj.lyric }}
+											</span>
+										</v-tooltip>
+									</v-card-actions>
+									<!-- <v-expand-transition>
+										<div v-show="item.expanded">
+											<v-divider />
+											<v-card-text>{{ item.obj.lyric }}</v-card-text>
+										</div>
+									</v-expand-transition> -->
+								</v-card>
+							</template>
+							<!-- </v-lazy> -->
+							<!-- </v-responsive> -->
+							<!-- </v-responsive> -->
+							<!-- </transition-group> -->
+							<!-- </v-col> -->
+							<!-- </v-row> -->
+							<!-- </div> -->
+						</v-virtual-scroll>
 						<!-- scroll end --><!-- scroll end --><!-- scroll end --><!-- scroll end --><!-- scroll end -->
 					</v-col>
 					<!--  -->
@@ -148,12 +185,12 @@
 				<v-divider vertical />
 				<v-col cols class="pl-3" :style="{ 'max-width': isThreeColumn ? '480px' : null }">
 					<template v-if="lyricObj">
-						<div class="min-scroll y primary-scroll pr-3" :style="{ height: `${$root.webHeight - 44}px` }">
+						<div class="min-scroll y primary-scroll" :style="{ height: `${$root.webHeight - 44}px` }">
 							<lyricCard :lyric="lyricObj" />
 						</div>
 					</template>
 					<template v-else>
-						<div class="d-flex align-center pr-3" style="height:100%;">
+						<div class="d-flex align-center" style="height:100%;">
 							<v-card flat shaped width="100%">
 								<v-card-subtitle class="text-center">
 									歌詞を探しましょう
@@ -168,8 +205,12 @@
 			<template v-if="isThreeColumn">
 				<v-divider vertical />
 				<!-- width: webWidth - (480 + 480 + 2) -->
-				<v-col cols class="px-3" :style="{ 'max-width': `${$root.webWidth - 962}px` }">
-					<lyricMedia />
+				<v-col
+					cols
+					class="px-3"
+					:style="{ 'max-width': bigImage ? `${$root.webWidth - 481}px` : `${$root.webWidth - 962}px` }"
+				>
+					<lyricMedia :bigImage.sync="bigImage" />
 				</v-col>
 			</template>
 		</v-row>
@@ -195,6 +236,8 @@ export default {
 			//
 			artist: null,
 			title: null,
+			//
+			bigImage: false,
 			// searchType: 'title',
 			// types: Object.freeze({
 			// 	artist: '歌手名',
@@ -218,7 +261,7 @@ export default {
 		},
 
 		isTwoColumn() {
-			return this.$root.webWidth >= 960;
+			return this.$root.webWidth >= 960 && !this.bigImage;
 		},
 
 		isThreeColumn() {
@@ -372,6 +415,13 @@ export default {
 			// 		// ADD TO LIST
 			// 	}
 			// );
+		},
+
+		changeWidth() {
+			if (!this.isTwoColumn && !this.isThreeColumn) {
+				this.$ipcRenderer.send('windowWidth', { width: 960, height: this.windowHeight });
+				this.bigImage = false;
+			} else this.$ipcRenderer.send('windowWidth', { width: 480, height: this.windowHeight });
 		}
 	}
 };
@@ -405,7 +455,7 @@ export default {
 
 .lyricSlide-enter {
 	opacity: 0.15;
-	transform: translateX(-50%);
+	transform: translateY(50%);
 }
 
 // .lyricSlide-leave-active {

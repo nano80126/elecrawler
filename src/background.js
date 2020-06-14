@@ -1,13 +1,13 @@
 'use strict';
 
-import { app, protocol, BrowserWindow } from 'electron';
+import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import {
 	createProtocol
 	/* installVueDevtools */
 } from 'vue-cli-plugin-electron-builder/lib';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-import './spider';
+import './crawler';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -100,6 +100,11 @@ app.on('activate', () => {
 
 app.whenReady().then(() => {
 	createWindow();
+});
+
+ipcMain.on('windowWidth', (e, args) => {
+	if (win.isMaximized()) win.restore();
+	win.setSize(args.width, win.getSize()[1]);
 });
 
 // Exit cleanly on request from parent process in development mode.

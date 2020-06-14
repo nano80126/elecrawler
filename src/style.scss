@@ -85,8 +85,8 @@ body {
 
 	&::-webkit-scrollbar-track {
 		border-radius: 0.2rem;
-		background: rgba(0, 150, 0, 0.06);
-		box-shadow: inset 0 0 5px rgba(0, 150, 0, 0.3);
+		background: rgba(75, 150, 75, 0.06);
+		box-shadow: inset 0 0 5px rgba(75, 150, 75, 0.3);
 	}
 
 	&::-webkit-scrollbar-thumb {
@@ -95,24 +95,47 @@ body {
 		box-shadow: inset 0 0 10px rgba(35, 35, 35, 0.75);
 	}
 
-	&.primary-scroll::-webkit-scrollbar-thumb {
-		box-shadow: inset 0 0 10px rgba(35, 35, 200, 0.75);
+	&.primary-scroll {
+		&::-webkit-scrollbar-thumb {
+			box-shadow: inset 0 0 10px rgba(35, 35, 200, 0.75);
+		}
+		&.scroll-darken::-webkit-scrollbar-thumb {
+			box-shadow: inset 0 0 10px rgba(35, 35, 150, 0.75);
+		}
 	}
 
-	&.warning-scroll::-webkit-scrollbar-thumb {
-		box-shadow: inset 0 0 10px rgba(235, 200, 35, 0.75);
+	&.warning-scroll {
+		&::-webkit-scrollbar-thumb {
+			box-shadow: inset 0 0 10px rgba(235, 200, 35, 0.75);
+		}
+		&.scroll-darken::-webkit-scrollbar-thumb {
+			box-shadow: inset 0 0 10px rgba(180, 150, 187, 0.75);
+		}
 	}
 
-	&.error-scroll::-webkit-scrollbar-thumb {
-		box-shadow: inset 0 0 10px rgba(200, 35, 35, 0.75);
+	&.error-scroll {
+		&::-webkit-scrollbar-thumb {
+			box-shadow: inset 0 0 10px rgba(200, 35, 35, 0.75);
+		}
+		&.scroll-darken::-webkit-scrollbar-thumb {
+			box-shadow: inset 0 0 10px rgba(150, 35, 35, 0.75);
+		}
 	}
 
-	&.success-scroll::-webkit-scrollbar-thumb {
-		box-shadow: inset 0 0 10px rgba(35, 155, 35, 0.75);
+	&.success-scroll {
+		&::-webkit-scrollbar-thumb {
+			box-shadow: inset 0 0 10px rgba(35, 200, 35, 0.75);
+		}
+
+		&.scroll-darken::-webkit-scrollbar-thumb {
+			box-shadow: inset 0 0 10px rgba(35, 150, 35, 0.75);
+		}
 	}
 }
 
 span.ruby {
+	// font-family: 'メイリオ', 'ヒラギノ角ゴ Pro W3', 'ＭＳ Ｐゴシック', sans-serif;
+	// margin-bottom: 0.55em;
 	display: inline-table;
 	position: relative;
 	vertical-align: bottom;
@@ -121,15 +144,18 @@ span.ruby {
 span.ruby span.rb {
 	display: table-row;
 	position: relative;
-	line-height: 1.6;
-	font-size: 16px;
+	line-height: 1.2;
+	font-size: 15px;
+	font-weight: 600;
+	// text-decoration: underline;
 	// font-weight: 700;
+	// letter-spacing: 1px;
 }
 
 span.ruby span.rt {
 	display: table-header-group;
-	line-height: 1.2;
-	font-size: 12px;
+	line-height: 1.8;
+	font-size: 9px;
 	color: #999;
 	white-space: nowrap;
 	text-align: center;
