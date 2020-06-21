@@ -2,7 +2,7 @@
 	<div>
 		<v-card class="mr-3" outlined>
 			<v-card-title>
-				<span class="ellipsis" v-text="lyric.title" style="max-width: 500px" />
+				<span class="ellipsis" v-text="lyric.obj.title" style="max-width: 500px" />
 				<v-spacer />
 				<v-tooltip left>
 					<template v-slot:activator="{ on }">
@@ -14,14 +14,18 @@
 				</v-tooltip>
 			</v-card-title>
 			<v-card-subtitle>
-				<span v-text="lyric.artist" />
+				<span v-text="lyric.obj.artist" />
 			</v-card-subtitle>
 			<v-divider />
 
 			<v-card-text
 				class="primary--text text--darken-2 font-weight-bold lyric-body"
-				v-html="lyric.lyric || '<span>歌詞が存在しない。</span>'"
+				v-html="lyric.obj.lyric || '<span>歌詞が存在しない。</span>'"
 			/>
+
+			<!-- <v-card-text>
+				{{ lyric }}
+			</v-card-text> -->
 		</v-card>
 	</div>
 </template>
@@ -32,6 +36,10 @@ export default {
 		lyric: {
 			type: [Object],
 			required: true
+		},
+		exist: {
+			type: Boolean,
+			required: true
 		}
 	},
 	mounted() {
@@ -39,13 +47,15 @@ export default {
 		// this.$dbList.count({}, (err, count) => {
 		// 	console.log(err, count);
 		// });
+
+		console.log(this.lyric);
 	},
 
 	methods: {
 		listAdd() {
 			if (!this.lyric.exist) {
 				this.$parent.listAdd();
-				this.lyric.exist = true;
+				this.$emit('update:exist', true);
 			}
 		}
 	}

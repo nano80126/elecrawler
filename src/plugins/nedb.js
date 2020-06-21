@@ -2,7 +2,7 @@ import database from 'nedb';
 import path from 'path';
 import { remote } from 'electron';
 
-// console.log(remote.app.getPath('userData'));
+console.log(remote.app.getPath('userData'));
 // console.log(remote.app.getAppPath());
 
 const historyDB = new database({

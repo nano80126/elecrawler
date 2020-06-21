@@ -3,6 +3,9 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import vuetify from './plugins/vuetify';
+import path from 'path';
+import { remote } from 'electron';
+// import fs from 'fs';
 
 // import { adminDB, errorDB } from './plugins/nedb';
 
@@ -24,11 +27,20 @@ Object.defineProperties(Vue.prototype, {
 	$ipcRenderer: {
 		value: require('electron').ipcRenderer
 	},
-	$remote: {
-		value: require('electron').remote
-	},
 	$sharp: {
 		value: require('sharp')
+	},
+	$fs: {
+		value: require('fs')
+	},
+	$remote: {
+		value: remote
+	},
+	$picPath: {
+		value:
+			process.env.NODE_ENV == 'development'
+				? path.resolve(remote.app.getPath('pictures'), 'lyric_scrawer')
+				: path.resolve(remote.app.getPath('exe'), '../pic')
 	}
 	// $clipboard: {
 	// 	value: require('electron').clipboard
@@ -63,7 +75,7 @@ new Vue({
 			// console.log(this.$vuetify.breakpoint);
 		};
 
-		// 刪除5天前的搜尋紀錄
+		// 刪除15天前的搜尋紀錄
 		this.$dbHistory.remove(
 			{
 				datetime: {
@@ -73,9 +85,9 @@ new Vue({
 				}
 			},
 			{ multi: true },
-			(err, num) => {
+			err => {
 				if (err) console.warn(err);
-				console.log(num);
+				// console.log(num);
 			}
 		);
 	},

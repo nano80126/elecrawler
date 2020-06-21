@@ -3,7 +3,6 @@
 		<v-row no-gutters align="stretch" justify="center">
 			<!-- style="min-height: 1080px; min-width:392px;" -->
 			<v-col
-				ref="firstCol"
 				cols
 				class="pl-3"
 				:style="{
@@ -124,18 +123,18 @@
 										<v-responsive height="1080"> -->
 							<!-- <v-lazy> -->
 							<template v-slot="{ item }">
-								<v-card :key="item.obj.id" class="mx-auto mr-3" outlined min-height="130">
+								<v-card :key="item.id" class="mx-auto mr-3" outlined min-height="130">
 									<v-card-title style="position:relative;">
 										<span class="dummy" />
 										<span class="ellipsis" style="position: absolute;">
-											{{ item.obj.title }}
+											{{ item.title }}
 										</span>
 									</v-card-title>
-									<v-card-subtitle>{{ item.obj.artist }}</v-card-subtitle>
+									<v-card-subtitle>{{ item.artist }}</v-card-subtitle>
 
 									<v-divider />
 									<v-card-actions>
-										<v-btn text color="info" @click="getLyric(item.obj.href)">
+										<v-btn text color="info" @click="getLyric(item.href)">
 											<v-icon>fas fa-link</v-icon>
 											<span class="ml-2 font-weight-bold">リンク</span>
 										</v-btn>
@@ -154,14 +153,14 @@
 												</v-btn>
 											</template>
 											<span>
-												{{ item.obj.lyric }}
+												{{ item.lyric }}
 											</span>
 										</v-tooltip>
 									</v-card-actions>
 									<!-- <v-expand-transition>
 										<div v-show="item.expanded">
 											<v-divider />
-											<v-card-text>{{ item.obj.lyric }}</v-card-text>
+											<v-card-text>{{ item.lyric }}</v-card-text>
 										</div>
 									</v-expand-transition> -->
 								</v-card>
@@ -184,14 +183,16 @@
 			<template v-if="isTwoColumn">
 				<v-divider vertical />
 				<v-col cols class="pl-3" :style="{ 'max-width': isThreeColumn ? '480px' : null }">
+					{{ this.lyricObj ? this.lyricObj.exist : '123' }}
+
 					<template v-if="lyricObj">
 						<div class="min-scroll y primary-scroll" :style="{ height: `${$root.webHeight - 44}px` }">
-							<lyricCard :lyric="lyricObj" />
+							<lyricCard :lyric="lyricObj" :exist.sync="lyricObj.exist" />
 						</div>
 					</template>
 					<template v-else>
 						<div class="d-flex align-center" style="height:100%;">
-							<v-card flat shaped width="100%">
+							<v-card flat shaped class="mr-3" width="100%">
 								<v-card-subtitle class="text-center">
 									歌詞を探しましょう
 								</v-card-subtitle>
@@ -265,7 +266,6 @@ export default {
 		},
 
 		isThreeColumn() {
-			// return this.$root.webWidth >= 1440 && this.lyricObj != null;
 			return this.$root.webWidth >= 1440;
 		}
 		// textFieldHeight() {
@@ -284,7 +284,7 @@ export default {
 				if (err) console.warn(err);
 				this.keywords = doc;
 
-				if (process.env.NODE_ENV == 'development') console.log(doc);
+				// if (process.env.NODE_ENV == 'development') console.log(doc);
 			});
 	},
 	mounted() {
@@ -296,10 +296,7 @@ export default {
 				this.$nextTick(() => {
 					args.list.forEach((obj, idx) => {
 						setTimeout(() => {
-							this.list.push({
-								obj: Object.freeze(obj),
-								expanded: false
-							});
+							this.list.push(Object.freeze(obj));
 						}, idx * 50);
 					});
 				});
@@ -317,14 +314,16 @@ export default {
 					this.$dbList.count({ uniqueKey: args.lyricKey }, (err, count) => {
 						if (err) console.warn(err);
 						//
-						this.lyricObj = Object.freeze({
-							key: args.lyricKey,
-							url: args.url,
-							title: args.mainTxt,
-							artist: args.artist,
-							lyric: args.lyricContent,
+						this.lyricObj = {
+							obj: Object.freeze({
+								key: args.lyricKey,
+								url: args.url,
+								title: args.mainTxt,
+								artist: args.artist,
+								lyric: args.lyricContent
+							}),
 							exist: count > 0
-						});
+						};
 					});
 				});
 				console.log(args);
@@ -389,12 +388,12 @@ export default {
 			});
 
 			this.$dbList.update(
-				{ uniqueKey: this.lyricObj.key },
+				{ uniqueKey: this.lyricObj.obj.key },
 				{
 					$set: {
 						// uniqueKey: this.lyricObj.key,
-						artist: this.lyricObj.artist,
-						title: this.lyricObj.title,
+						artist: this.lyricObj.obj.artist,
+						title: this.lyricObj.obj.title,
 						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
 					}
 				},
@@ -404,6 +403,7 @@ export default {
 					console.log(nb);
 				}
 			);
+
 			// console.log(this.lyricObj);
 			// this.$dbList.update(
 			// 	{ artist: att, title: tle },

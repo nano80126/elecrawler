@@ -2,12 +2,12 @@
 	<div>
 		<v-row no-gutters align="start" justify="start">
 			<v-col cols="12">
-				<v-toolbar flat dense height="40" color="transparent">
+				<v-toolbar flat dense height="40" color="transparent" class="px-0">
 					<!-- <v-app-bar-nav-icon></v-app-bar-nav-icon> -->
 					<v-btn
 						icon
 						small
-						class="mr-3"
+						class="ml-n4 mr-3"
 						width="36"
 						height="36"
 						@click="() => this.$emit('update:bigImage', !this.bigImage)"
@@ -53,9 +53,15 @@
 			</v-col>
 
 			<v-col cols="12" class="mt-3 d-flex">
-				<v-btn outlined icon class="mr-2">
-					<v-icon small>fas fa-edit</v-icon>
-				</v-btn>
+				<v-tooltip left>
+					<template v-slot:activator="{ on, attrs }">
+						<v-btn outlined icon class="mr-2" v-bind="attrs" v-on="on" @click="keepMedia">
+							<v-icon small>fas fa-download</v-icon>
+						</v-btn>
+					</template>
+					<span>保存する</span>
+				</v-tooltip>
+
 				<v-spacer></v-spacer>
 
 				<!-- <v-btn-toggle v-model="catchAvatar" dense rounded background-color="transparent"> -->
@@ -117,12 +123,12 @@
 						<v-card
 							id="imgCard"
 							flat
-							class="no-select rounded-lg"
+							class="no-select rounded-lg transparent"
 							@dragenter.capture="dragging = true"
 							@dragleave.capture="dragging = false"
 							@drop.capture="dragging = false"
-							min-width="75%"
-							ref="backReg"
+							width="100%"
+							ref="imgCard"
 							@mousedown.capture="regionOn"
 							@mousemove.capture="crossMove"
 							@mouseleave.capture="crossReset"
@@ -137,15 +143,24 @@
 										style="position:absolute; width: 100%; height:100%"
 									></div> -->
 
-							<v-img v-if="imgurl" :src="imgurl" contain style="border-radius: inherit">
+							<v-img
+								v-if="imgurl"
+								:src="`data:image/jpeg;base64,${imgurl.toString('base64')}`"
+								contain
+								style="border-radius: inherit"
+								ref="img"
+								v-resize="resize"
+								@load="updateRatio"
+							>
 								<template v-if="catchAvatar">
 									<div id="small-region" ref="region" />
 									<div id="crosshair-h" class="hair" ref="hairH" />
 									<div id="crosshair-v" class="hair" ref="hairV" />
 									<span id="mousepos" ref="pos" v-text="'X:0, Y:0'" />
 								</template>
+								<div id="small-region-freeze" ref="region-freeze" />
 							</v-img>
-							<v-card-text v-else class="text-center">
+							<v-card-text v-else class="text-center white mx-auto rounded-lg" style="width: 75%">
 								ドラッグ & ドロップ
 								<br /><small>Drag image and drop here</small>
 							</v-card-text>
@@ -168,13 +183,22 @@
 					</div>
 				</v-responsive>
 			</v-col>
-			<!-- <v-col cols="12" style="position:relative; min-height:200px;">
-				<canvas id="avatar" ref="avatarReg" />
-			</v-col> -->
 		</v-row>
-		{{ catchAvatar }}
+
+		<div>
+			ratio: {{ fitRatio }} <br />
+			img: {{ imgSize }} <br />
+			abs: {{ regionAbs }} <br />
+			perc: {{ regionPercent }} <br />
+			{{ c }} <br />
+			{{ imgurl ? imgurl.length : 0 }}
+		</div>
+		<!-- {{ this.$refs.img.$el.clientWidth }}
+		{{ this.$refs.img.$el.clientHeight }} -->
+
+		<!-- {{ catchAvatar }}
 		{{ startRegionFlag }}
-		{{ showMenu }}
+		{{ showMenu }} -->
 
 		<v-menu
 			v-model="showMenu"
@@ -188,10 +212,10 @@
 			:nudge-left="2"
 		>
 			<v-toolbar dense height="36">
-				<v-btn text small class="ml-n3 mr-1" color="error">
+				<v-btn text small class="ml-n3 mr-1" color="error" @click="rejectReg">
 					<v-icon>fas fa-times</v-icon>
 				</v-btn>
-				<v-btn text small class="ml-1 mr-n3" color="success">
+				<v-btn text small class="ml-1 mr-n3" color="success" @click="acceptReg">
 					<v-icon>fas fa-check</v-icon>
 				</v-btn>
 			</v-toolbar>
@@ -200,6 +224,8 @@
 </template>
 
 <script>
+import debounce from 'lodash/debounce';
+
 export default {
 	props: {
 		bigImage: {
@@ -214,6 +240,7 @@ export default {
 			disableDialog: false,
 			///
 			imgurl: null,
+			// imgbuf: null,
 			dragging: false,
 			canPaste: false,
 			//
@@ -221,45 +248,55 @@ export default {
 			startRegionFlag: false, // on when left mouse down
 			showMenu: false, // show menu when right mouse up
 			//
-			region: {
+			regionAbs: {
+				x: 0,
+				y: 0,
+				width: 0,
+				height: 0
+			},
+			regionPercent: {
 				x: 0,
 				y: 0,
 				width: 0,
 				height: 0
 			},
 
+			imgSize: { width: 0, height: 0 },
+
 			menuPos: {
 				x: 0,
 				y: 0
-			}
+			},
 
-			// regionX: 0,
-			// regionY: 0,
-			// regionWidth: 0,
-			// regionHeight: 0
+			fitRatio: 1,
 
-			// avaReg: {
-			// 	X: 0,
-			// 	Y: 0,
-			// 	endX: 0,
-			// 	endY: 0
-			// }
+			c: 0
 		};
 	},
-
-	computed: {
-		nudgeBottom() {
-			return this.regionY + this.regionHeight;
-		},
-
-		nudgeRight() {
-			return this.regionX + this.regionWidth;
-		}
-	},
-
+	computed: {},
 	watch: {},
+	mounted() {
+		// console.log(this.$remote.app.getPath('userData'));
 
-	mounted() {},
+		this.$fs.exists(this.$picPath, exist => {
+			if (!exist) {
+				this.$fs.mkdir(this.$picPath, (err, path) => {
+					if (err) {
+						this.$store.commit('snackbar', {
+							text: err,
+							color: 'error'
+						});
+					}
+					console.log(path);
+				});
+			}
+		});
+
+		console.log(this.$picPath);
+		console.log(this.$remote.app.getAppPath());
+		console.log(this.$remote.app.getPath('pictures'));
+		// console.log(__dirname);
+	},
 	methods: {
 		onPaste(e) {
 			e.preventDefault();
@@ -304,6 +341,49 @@ export default {
 			console.timeEnd('paste');
 		},
 
+		keepMedia() {
+			if (!this.imgurl) return;
+
+			const image = this.$sharp(this.imgurl);
+			const promises = [];
+
+			const x = Math.round((this.imgSize.width * this.regionPercent.x) / 100);
+			const y = Math.round((this.imgSize.height * this.regionPercent.y) / 100);
+			const w = Math.round((this.imgSize.width * this.regionPercent.width) / 100);
+			const h = Math.round((this.imgSize.height * this.regionPercent.height) / 100);
+
+			promises.push(
+				image
+					.clone()
+					.toFormat('jpeg')
+					// .jpeg({ quality: 100 })
+					.toFile(`${this.$picPath}\\normal.jpg`)
+			);
+
+			promises.push(
+				image
+					.clone()
+					.extract({ left: x, top: y, width: w, height: h })
+					.resize(128, 128, { fit: this.$sharp.fit.outside, withoutEnlargement: true })
+					.toFormat('jpeg')
+					// .jpeg({ quality: 100 })
+					.toFile(`${this.$picPath}\\avatar.jpg`)
+			);
+
+			Promise.all(promises)
+				.then(res => {
+					console.log('Done!', res);
+				})
+				.catch(err => {
+					if (err) {
+						this.$store.commit('snackbar', {
+							text: err,
+							color: 'error'
+						});
+					}
+				});
+		},
+
 		async onChange(e) {
 			e.preventDefault();
 			e.stopPropagation();
@@ -316,23 +396,39 @@ export default {
 			}
 
 			const filePath = items[0].path;
-			console.log(filePath);
 			const image = this.$sharp(filePath);
 			const meta = await image.metadata();
 
+			// console.log(filePath);
 			if (meta.width > 1440) {
 				image.resize(1440).toBuffer((err, data, info) => {
 					if (err) console.error(err);
-					this.imgurl = `data:image/jpeg;base64,${data.toString('base64')}`;
-					console.log(info);
-					console.timeEnd('change');
+					this.imgurl = data;
+					// this.imgurl = `data:image/jpeg;base64,${data.toString('base64')}`;
+
+					this.$nextTick(() => {
+						this.$set(this.imgSize, 'width', info.width);
+						this.$set(this.imgSize, 'height', info.height);
+						console.log(info);
+						console.log(info.width, info.height);
+
+						console.timeEnd('change');
+					});
 				});
 			} else {
 				image.toBuffer((err, data, info) => {
 					if (err) console.warn(err);
-					this.imgurl = `data:image/jpeg;base64,${data.toString('base64')}`;
-					console.log(info);
-					console.timeEnd('change');
+					this.imgurl = data;
+					// this.imgurl = `data:image/jpeg;base64,${data.toString('base64')}`;
+
+					this.$nextTick(() => {
+						this.$set(this.imgSize, 'width', info.width);
+						this.$set(this.imgSize, 'height', info.height);
+						console.log(info);
+						console.log(info.width, info.height);
+
+						console.timeEnd('change');
+					});
 				});
 			}
 			this.$refs.file.value = null;
@@ -348,23 +444,40 @@ export default {
 					if (!res.canceled) {
 						console.time('dialog');
 						const filePath = res.filePaths[0];
-						console.log(filePath);
 						const image = this.$sharp(filePath);
 						const meta = await image.metadata();
 
+						// console.log(filePath);
+						// console.log(meta);
 						if (meta.width > 1440) {
 							image.resize(1440).toBuffer((err, data, info) => {
 								if (err) console.error(err);
-								this.imgurl = `data:image/jpeg;base64,${data.toString('base64')}`;
-								console.log(info);
-								console.timeEnd('dialog');
+								this.imgurl = data;
+								// this.imgurl = `data:image/jpeg;base64,${data.toString('base64')}`;
+
+								this.$nextTick(() => {
+									this.$set(this.imgSize, 'width', info.width);
+									this.$set(this.imgSize, 'height', info.height);
+									console.log(info);
+									console.log(info.width, info.height);
+
+									console.timeEnd('dialog');
+								});
 							});
 						} else {
 							image.toBuffer((err, data, info) => {
 								if (err) console.warn(err);
-								this.imgurl = `data:image/jpeg;base64,${data.toString('base64')}`;
-								console.log(info);
-								console.timeEnd('dialog');
+								this.imgurl = data;
+								// this.imgurl = `data:image/jpeg;base64,${data.toString('base64')}`;
+
+								this.$nextTick(() => {
+									this.$set(this.imgSize, 'width', info.width);
+									this.$set(this.imgSize, 'height', info.height);
+									console.log(info);
+									console.log(info.width, info.height);
+									// console.log(info.width / this.$refs.img.$el.clientWidth);
+									console.timeEnd('dialog');
+								});
 							});
 						}
 					}
@@ -397,13 +510,20 @@ export default {
 			// this.$refs.pos.style.top = `${e.offsetY}px`;
 			// this.$refs.pos.style.left = `${e.offsetX}px`;
 			if (this.startRegionFlag) {
-				if (e.offsetX < this.region.x) this.$refs.region.style.left = `${e.offsetX}px`;
-				else this.$refs.region.style.left = `${this.region.x}px`;
-				if (e.offsetY < this.region.y) this.$refs.region.style.top = `${e.offsetY}px`;
-				else this.$refs.region.style.top = `${this.region.y}px`;
+				const w = this.$refs.img.$el.clientWidth;
+				const h = this.$refs.img.$el.clientHeight;
+				// console.log(w, h);
+
+				if (e.offsetX < this.regionAbs.x) this.$refs.region.style.left = `${(100 * e.offsetX) / w}%`;
+				else this.$refs.region.style.left = `${(100 * this.regionAbs.x) / w}%`;
+				if (e.offsetY < this.regionAbs.y) this.$refs.region.style.top = `${(100 * e.offsetY) / h}%`;
+				else this.$refs.region.style.top = `${(100 * this.regionAbs.y) / h}%`;
 				// this.$refs.region.style.left =
-				this.$refs.region.style.width = `${Math.abs(e.offsetX - this.region.x) + 1}px`;
-				this.$refs.region.style.height = `${Math.abs(e.offsetY - this.region.y) + 1}px`;
+
+				this.regionAbs.width = Math.abs(e.offsetX - this.regionAbs.x) + 1;
+				this.regionAbs.height = Math.abs(e.offsetY - this.regionAbs.y) + 1;
+				this.$refs.region.style.width = `${(100 * this.regionAbs.width) / w}%`;
+				this.$refs.region.style.height = `${(100 * this.regionAbs.height) / h}%`;
 			}
 		},
 
@@ -422,38 +542,43 @@ export default {
 				this.startRegionFlag = true;
 
 				this.$nextTick(() => {
-					this.region.x = e.offsetX - 1;
-					this.region.y = e.offsetY - 1;
+					const w = this.$refs.img.$el.clientWidth;
+					const h = this.$refs.img.$el.clientHeight;
 
-					this.region.width = this.region.height = 0;
+					this.regionAbs.x = e.offsetX - 1;
+					this.regionAbs.y = e.offsetY - 1;
+
+					this.regionAbs.width = this.regionAbs.height = 0;
+					this.regionPercent.width = this.regionPercent.height = 0;
 					this.$refs.region.style.width = this.$refs.region.style.height = 0;
 
-					this.$refs.region.style.left = `${this.region.x}px`;
-					this.$refs.region.style.top = `${this.region.y}px`;
+					this.$refs.region.style.left = `${this.regionAbs.x / w}%`;
+					this.$refs.region.style.top = `${this.regionAbs.y / h}%`;
 
-					this.showMenu = false;
+					this.$nextTick(() => (this.showMenu = false));
 				});
 			}
 		},
 
 		regionOff(e) {
 			if (!this.imgurl || !this.catchAvatar) return;
-
 			if (e.button == 0) {
 				this.startRegionFlag = false;
 
 				this.$nextTick(() => {
 					const region = this.$refs.region;
-					this.region.x = parseInt(this.$lodash.trimEnd(region.style.left, 'px'));
-					this.region.y = parseInt(this.$lodash.trimEnd(region.style.top, 'px'));
-					this.region.width = parseInt(this.$lodash.trimEnd(region.style.width, 'px'));
-					this.region.height = parseInt(this.$lodash.trimEnd(region.style.height, 'px'));
+					// console.log(region);
 
-					this.menuPos.x = e.x - e.offsetX + this.region.x + this.region.width;
-					this.menuPos.y = e.y - e.offsetY + this.region.y + this.region.height;
+					this.regionPercent.x = parseFloat(this.$lodash.trimEnd(region.style.left, '%'));
+					this.regionPercent.y = parseFloat(this.$lodash.trimEnd(region.style.top, '%'));
+					this.regionPercent.width = parseFloat(this.$lodash.trimEnd(region.style.width, '%'));
+					this.regionPercent.height = parseFloat(this.$lodash.trimEnd(region.style.height, '%'));
+
+					this.menuPos.x = e.offsetX < this.regionAbs.x ? e.x + this.regionAbs.width : e.x;
+					this.menuPos.y = e.offsetY < this.regionAbs.y ? e.y + this.regionAbs.height : e.y;
 					this.$nextTick(() => {
-						if (this.region.width <= 5 || this.region.height <= 5) return;
-						else if (this.region.width >= 128 && this.region.height >= 128) this.showMenu = true;
+						if (this.regionAbs.width <= 5 || this.regionAbs.height <= 5) return;
+						else if (this.regionAbs.width >= 128 && this.regionAbs.height >= 128) this.showMenu = true;
 						else {
 							this.$store.commit('snackbar', {
 								text: 'must large than 128 x128 ',
@@ -463,6 +588,38 @@ export default {
 					});
 				});
 			}
+		},
+
+		updateRatio() {
+			this.$nextTick(() => {
+				this.fitRatio = this.$refs.img.$el.clientWidth / this.imgSize.width;
+			});
+		},
+
+		resize: debounce(function() {
+			this.showMenu = false;
+			this.$nextTick(() => {
+				this.fitRatio = this.$refs.img.$el.clientWidth / this.imgSize.width;
+			});
+		}, 300),
+
+		rejectReg() {
+			Object.keys(this.regionAbs).forEach(k => (this.regionAbs[k] = 0));
+			Object.keys(this.regionPercent).forEach(k => (this.regionPercent[k] = 0));
+			this.catchAvatar = false;
+		},
+
+		acceptReg() {
+			const region = this.$refs['region'];
+			const regionFreeze = this.$refs['region-freeze'];
+			//
+			regionFreeze.style.left = `${this.regionPercent.x}%`;
+			regionFreeze.style.top = `${this.regionPercent.y}%`;
+			regionFreeze.style.width = `${this.regionPercent.width}%`;
+			regionFreeze.style.height = `${this.regionPercent.height}%`;
+			//
+			region.style.width = region.style.height = 0;
+			this.catchAvatar = false;
 		}
 	}
 };
@@ -498,14 +655,8 @@ export default {
 		height: 100%;
 		top: 0;
 		left: 0;
-
 		border: 10px solid rgba($color: grey, $alpha: 0.24);
-		// z-index: 0;
 	}
-
-	// &::after {
-	// 	content: '';
-	// }
 }
 
 .paste-zone {
@@ -535,7 +686,7 @@ input[type='file'] {
 	margin-top: -2px;
 	margin-left: -2px;
 	border: 1px solid rgba(grey, 0.48);
-	background-color: rgba(darkgray, 0.36);
+	background-color: rgba(darkgray, 0.24);
 }
 
 #small-region-freeze {
@@ -545,7 +696,8 @@ input[type='file'] {
 	margin-top: -2px;
 	margin-left: -2px;
 	border: 1px solid rgba(darkgreen, 0.72);
-	background-color: rgba(green, 0.48);
+	background-color: rgba(green, 0.12);
+	// background-color: rgba(green, 0.48);
 }
 
 #crosshair-v {

@@ -1,5 +1,5 @@
 {
-	"name": "electron-mim",
+	"name": "lyric-crawler",
 	"version": "1.0.0",
 	"author": "keliduan",
 	"description": "mim sintering furnace electron-app",
@@ -24,7 +24,7 @@
 		"lodash": "^4.17.15",
 		"moment": "^2.24.0",
 		"nedb": "^1.8.0",
-		"sharp": "^0.25.3",
+		"sharp": "^0.25.4",
 		"vue": "^2.6.11",
 		"vue-router": "^3.1.5",
 		"vuetify": "^2.3.0",

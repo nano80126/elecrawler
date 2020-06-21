@@ -26,7 +26,7 @@ function createWindow() {
 		minHeight: 720,
 		height: 960,
 		///
-		x: 1920 - 672,
+		x: 30,
 		y: 18,
 		// frame: false,
 		title: 'electron searcher',
@@ -39,6 +39,7 @@ function createWindow() {
 		show: false,
 		webPreferences: {
 			nodeIntegration: true
+			// webSecurity: false
 		}
 	});
 
