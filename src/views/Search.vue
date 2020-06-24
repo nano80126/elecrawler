@@ -97,7 +97,7 @@
 								:style="{ height: `${($root.webHeight - 136) / 2.5 - 12}px` }"
 							>
 								<!-- <v-col  cols="12" class="mb-3 px-0"> -->
-								<lyricCard :lyric="lyricObj" />
+								<lyricCard :lyric="lyricObj" :exist.sync="lyricObj.exist" />
 								<!-- </v-col> -->
 							</div>
 						</v-col>
@@ -183,8 +183,7 @@
 			<template v-if="isTwoColumn">
 				<v-divider vertical />
 				<v-col cols class="pl-3" :style="{ 'max-width': isThreeColumn ? '480px' : null }">
-					{{ this.lyricObj ? this.lyricObj.exist : '123' }}
-
+					<!-- {{ this.lyricObj ? this.lyricObj.exist : null }} -->
 					<template v-if="lyricObj">
 						<div class="min-scroll y primary-scroll" :style="{ height: `${$root.webHeight - 44}px` }">
 							<lyricCard :lyric="lyricObj" :exist.sync="lyricObj.exist" />
@@ -203,6 +202,7 @@
 				</v-col>
 			</template>
 
+			<!-- <keep-alive> -->
 			<template v-if="isThreeColumn">
 				<v-divider vertical />
 				<!-- width: webWidth - (480 + 480 + 2) -->
@@ -211,9 +211,21 @@
 					class="px-3"
 					:style="{ 'max-width': bigImage ? `${$root.webWidth - 481}px` : `${$root.webWidth - 962}px` }"
 				>
-					<lyricMedia :bigImage.sync="bigImage" />
+					<template v-if="lyricObj && lyricObj.exist">
+						<lyricMedia :bigImage.sync="bigImage" :lyric="lyricObj" />
+					</template>
+					<template v-else>
+						<div class="d-flex align-center" style="height:100%">
+							<v-card flat shaped width="100%">
+								<v-card-subtitle class="text-center">
+									リストに追加しないと操作できず
+								</v-card-subtitle>
+							</v-card>
+						</div>
+					</template>
 				</v-col>
 			</template>
+			<!-- </keep-alive> -->
 		</v-row>
 	</div>
 </template>
@@ -266,7 +278,7 @@ export default {
 		},
 
 		isThreeColumn() {
-			return this.$root.webWidth >= 1440;
+			return this.$root.webWidth >= 1440 && this.lyricObj;
 		}
 		// textFieldHeight() {
 		// 	return this.$refs.btn.clientHeight;

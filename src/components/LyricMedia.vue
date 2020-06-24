@@ -10,7 +10,12 @@
 						class="ml-n4 mr-3"
 						width="36"
 						height="36"
-						@click="() => this.$emit('update:bigImage', !this.bigImage)"
+						@click="
+							() => {
+								this.$emit('update:bigImage', !this.bigImage);
+								updateRatio();
+							}
+						"
 					>
 						<v-icon>
 							{{ bigImage ? 'fas fa-chevron-right' : 'fas fa-chevron-left' }}
@@ -26,9 +31,10 @@
 						placeholder="Youtubeのリンク"
 						class="mx-0"
 						color="success"
+						background-color="brown lighten-4"
 					>
 						<template v-slot:prepend-inner>
-							<v-icon small class="mt-1 mr-1">fab fa-youtube</v-icon>
+							<v-icon left small class="mt-1">fab fa-youtube</v-icon>
 						</template>
 					</v-text-field>
 
@@ -52,52 +58,57 @@
 				</v-toolbar>
 			</v-col>
 
-			<v-col cols="12" class="mt-3 d-flex">
+			<v-col cols="12" class="mt-3 d-flex align-center">
+				<v-chip class="mr-2 pr-4" color="light-blue" text-color="white">
+					{{ imgSize.width }} &times; {{ imgSize.height }}
+					<v-icon right small>fas fa-expand</v-icon>
+				</v-chip>
+
+				<v-chip class="mr-2 pr-4" color="light-green" text-color="white">
+					{{ $lodash.round(fitRatio * 100, 2) }}
+					<v-icon right small>fas fa-percentage</v-icon>
+				</v-chip>
+				<v-spacer />
+				<!--  -->
 				<v-tooltip left>
 					<template v-slot:activator="{ on, attrs }">
-						<v-btn outlined icon class="mr-2" v-bind="attrs" v-on="on" @click="keepMedia">
+						<v-btn outlined icon v-bind="attrs" v-on="on" @click="keepMedia">
 							<v-icon small>fas fa-download</v-icon>
 						</v-btn>
 					</template>
 					<span>保存する</span>
 				</v-tooltip>
-
-				<v-spacer></v-spacer>
-
-				<!-- <v-btn-toggle v-model="catchAvatar" dense rounded background-color="transparent"> -->
-				<v-btn
-					icon
-					outlined
-					:class="{ 'primary lighten-4': catchAvatar }"
-					:disabled="!imgurl"
-					@click="catchAvatar = !catchAvatar"
-				>
-					<v-icon small>fas fa-expand</v-icon>
-				</v-btn>
-				<!-- </v-btn-toggle> -->
-				<!-- </v-col>
-			<v-col class="mt-3 d-flex"> -->
-				<v-spacer />
+				<v-divider vertical class="mx-2" />
+				<!--  -->
 				<v-tooltip left>
 					<template v-slot:activator="{ on, attrs }">
-						<v-btn
-							outlined
-							icon
-							class="ml-2"
-							@click="dialogImage"
-							v-bind="attrs"
-							v-on="on"
-							:disabled="disableDialog"
-						>
+						<v-btn outlined icon @click="dialogImage" v-bind="attrs" v-on="on" :disabled="disableDialog">
 							<v-icon small>far fa-image</v-icon>
 						</v-btn>
 					</template>
 					<span>画像を選択する</span>
 				</v-tooltip>
 
-				<v-btn outlined icon class="ml-2">
+				<!-- <v-btn outlined icon class="ml-2">
 					<v-icon small>far fa-square</v-icon>
-				</v-btn>
+				</v-btn> -->
+				<v-tooltip left>
+					<template v-slot:activator="{ on, attrs }">
+						<v-btn
+							icon
+							outlined
+							class="ml-2"
+							:class="{ 'primary lighten-4': catchAvatar }"
+							:disabled="!imgurl"
+							@click="catchAvatar = !catchAvatar"
+							v-bind="attrs"
+							v-on="on"
+						>
+							<v-icon small style="transform: rotate(90deg)">fas fa-crop-alt</v-icon>
+						</v-btn>
+					</template>
+					<span></span>
+				</v-tooltip>
 
 				<v-btn outlined icon class="ml-2" @click="removeImage()">
 					<v-icon small>fas fa-times</v-icon>
@@ -186,12 +197,15 @@
 		</v-row>
 
 		<div>
-			ratio: {{ fitRatio }} <br />
-			img: {{ imgSize }} <br />
 			abs: {{ regionAbs }} <br />
 			perc: {{ regionPercent }} <br />
-			{{ c }} <br />
+			<!-- {{ c }} <br /> -->
 			{{ imgurl ? imgurl.length : 0 }}
+		</div>
+
+		<div v-for="(item, index) in lyric.obj" :key="index">
+			{{ index != 'lyric' ? `${index}:` : null }}
+			{{ index != 'lyric' ? item : null }}
 		</div>
 		<!-- {{ this.$refs.img.$el.clientWidth }}
 		{{ this.$refs.img.$el.clientHeight }} -->
@@ -227,9 +241,16 @@
 import debounce from 'lodash/debounce';
 
 export default {
+	name: 'LyricMedia',
+
 	props: {
 		bigImage: {
 			type: Boolean,
+			required: true
+		},
+
+		lyric: {
+			type: Object,
 			required: true
 		}
 	},
@@ -268,16 +289,12 @@ export default {
 				y: 0
 			},
 
-			fitRatio: 1,
-
-			c: 0
+			fitRatio: 0
 		};
 	},
 	computed: {},
 	watch: {},
-	mounted() {
-		// console.log(this.$remote.app.getPath('userData'));
-
+	created() {
 		this.$fs.exists(this.$picPath, exist => {
 			if (!exist) {
 				this.$fs.mkdir(this.$picPath, (err, path) => {
@@ -291,10 +308,34 @@ export default {
 				});
 			}
 		});
+	},
+	mounted() {
+		// console.log(this.$remote.app.getPath('userData'));
+		this.$dbList.find({}, (err, doc) => {
+			doc.forEach(ele => {
+				this.$store.commit('snackbar', {
+					text: ele,
+					color: 'info',
+					timeout: 6000
+				});
+			});
+			console.log(doc);
+		});
 
-		console.log(this.$picPath);
-		console.log(this.$remote.app.getAppPath());
-		console.log(this.$remote.app.getPath('pictures'));
+		this.$dbLyric.find({}, (err, doc) => {
+			// doc.forEach(ele => {
+			// 	this.$store.commit('snackbar', {
+			// 		text: ele,
+			// 		color: 'info',
+			// 		timeout: 6000
+			// 	});
+			// });
+			console.log(doc);
+		});
+
+		// console.log(this.$picPath);
+		// console.log(this.$remote.app.getAppPath());
+		// console.log(this.$remote.app.getPath('pictures'));
 		// console.log(__dirname);
 	},
 	methods: {
@@ -320,24 +361,6 @@ export default {
 			});
 			reader.readAsDataURL(file);
 
-			// const objectUrl = URL.createObjectURL(file);
-			// this.imgurl = objectUrl;
-			// console.log(file);
-			// console.log(objectUrl);
-
-			// const reader = new FileReader();
-			// reader.addEventListener('load', load => {
-			// 	this.imgurl = load.target.result;
-			// });
-			// reader.readAsDataURL(items[0]);
-
-			// const file = e.clipboardData.items[0].getAsFile();
-			// const objectUrl = URL.createObjectURL(file);
-
-			// console.log(file);
-			// console.log(objectUrl);
-			// this.imgurl = objectUrl;
-
 			console.timeEnd('paste');
 		},
 
@@ -356,8 +379,7 @@ export default {
 				image
 					.clone()
 					.toFormat('jpeg')
-					// .jpeg({ quality: 100 })
-					.toFile(`${this.$picPath}\\normal.jpg`)
+					.toFile(`${this.$picPath}\\${this.lyric.obj.key}.jpg`)
 			);
 
 			promises.push(
@@ -366,13 +388,39 @@ export default {
 					.extract({ left: x, top: y, width: w, height: h })
 					.resize(128, 128, { fit: this.$sharp.fit.outside, withoutEnlargement: true })
 					.toFormat('jpeg')
-					// .jpeg({ quality: 100 })
-					.toFile(`${this.$picPath}\\avatar.jpg`)
+					.toFile(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`)
 			);
 
 			Promise.all(promises)
 				.then(res => {
 					console.log('Done!', res);
+					// res.forEach();
+
+					const obj = this.lyric.obj;
+
+					this.$dbLyric.update(
+						{ key: obj.key },
+						{
+							$set: {
+								url: this.url,
+								lyricUrl: obj.url,
+								imagePath: `${this.$picPath}\\${this.lyric.obj.key}.jpg`,
+								region: this.regionPercent,
+								datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+							}
+						},
+						{ upsert: true },
+						err => {
+							if (err) {
+								this.$store.commit('snackbar', {
+									text: err,
+									color: 'error'
+								});
+							}
+							// console.warn(err);
+							// console.log(nb);
+						}
+					);
 				})
 				.catch(err => {
 					if (err) {
@@ -380,6 +428,9 @@ export default {
 							text: err,
 							color: 'error'
 						});
+
+						this.$fs.unlinkSunc(`${this.$picPath}\\${this.lyric.key}.jpg`);
+						this.$fs.unlinkSunc(`${this.$picPath}\\${this.lyric.key}_avatar.jpg`);
 					}
 				});
 		},

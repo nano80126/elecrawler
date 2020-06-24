@@ -15,9 +15,14 @@ const listDB = new database({
 	autoload: true
 });
 
+const lyricDB = new database({
+	filename: path.resolve(remote.app.getPath('userData'), 'lyric.db'),
+	autoload: true
+});
+
 // const errorDB = new database({
 // 	filename: path.resolve(remote.app.getPath('userData'), 'error.db'),
 // 	autoload: true
 // });
 
-export { historyDB, listDB };
+export { historyDB, listDB, lyricDB };
