@@ -17,9 +17,7 @@
 							}
 						"
 					>
-						<v-icon>
-							{{ bigImage ? 'fas fa-chevron-right' : 'fas fa-chevron-left' }}
-						</v-icon>
+						<v-icon>{{ bigImage ? 'fas fa-chevron-right' : 'fas fa-chevron-left' }}</v-icon>
 					</v-btn>
 
 					<v-text-field
@@ -54,7 +52,7 @@
 						>
 							<v-icon small>fas fa-expand</v-icon>
 						</v-btn>
-					</template> -->
+					</template>-->
 				</v-toolbar>
 			</v-col>
 
@@ -70,16 +68,7 @@
 				</v-chip>
 				<v-spacer />
 				<!--  -->
-				<v-tooltip left>
-					<template v-slot:activator="{ on, attrs }">
-						<v-btn outlined icon v-bind="attrs" v-on="on" @click="keepMedia">
-							<v-icon small>fas fa-download</v-icon>
-						</v-btn>
-					</template>
-					<span>保存する</span>
-				</v-tooltip>
-				<v-divider vertical class="mx-2" />
-				<!--  -->
+
 				<v-tooltip left>
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn outlined icon @click="dialogImage" v-bind="attrs" v-on="on" :disabled="disableDialog">
@@ -91,7 +80,7 @@
 
 				<!-- <v-btn outlined icon class="ml-2">
 					<v-icon small>far fa-square</v-icon>
-				</v-btn> -->
+				</v-btn>-->
 				<v-tooltip left>
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn
@@ -110,9 +99,26 @@
 					<span></span>
 				</v-tooltip>
 
-				<v-btn outlined icon class="ml-2" @click="removeImage()">
-					<v-icon small>fas fa-times</v-icon>
-				</v-btn>
+				<v-tooltip left>
+					<template v-slot:activator="{ on, attrs }">
+						<v-btn icon outlined class="ml-2" @click="removeImage()" v-bind="attrs" v-on="on">
+							<v-icon small>fas fa-times</v-icon>
+						</v-btn>
+					</template>
+					<span>画像を削除する</span>
+				</v-tooltip>
+
+				<!--  -->
+				<v-divider vertical class="mx-2" />
+				<v-tooltip left>
+					<template v-slot:activator="{ on, attrs }">
+						<v-btn outlined icon v-bind="attrs" v-on="on" @click="keepMedia">
+							<v-icon small>fas fa-download</v-icon>
+						</v-btn>
+					</template>
+					<span>保存する</span>
+				</v-tooltip>
+				<!--  -->
 			</v-col>
 
 			<v-col cols="12" class="mt-3">
@@ -140,54 +146,50 @@
 							@drop.capture="dragging = false"
 							width="100%"
 							ref="imgCard"
-							@mousedown.capture="regionOn"
+							@mousedown.capture="rectOn"
 							@mousemove.capture="crossMove"
 							@mouseleave.capture="crossReset"
-							@mouseup.capture="regionOff"
+							@mouseup.capture="rectOff"
 						>
-							<!-- <v-btn v-on="on" v-bind="attrs" style="z-index:50;">123</v-btn> -->
-
-							<!-- <template v-slot:activator="{ on, attrs }">
-									<div
-										v-on="on"
-										v-bind="attrs"
-										style="position:absolute; width: 100%; height:100%"
-									></div> -->
-
-							<v-img
-								v-if="imgurl"
-								:src="`data:image/jpeg;base64,${imgurl.toString('base64')}`"
-								contain
-								style="border-radius: inherit"
-								ref="img"
-								v-resize="resize"
-								@load="updateRatio"
-							>
-								<template v-if="catchAvatar">
-									<div id="small-region" ref="region" />
-									<div id="crosshair-h" class="hair" ref="hairH" />
-									<div id="crosshair-v" class="hair" ref="hairV" />
-									<span id="mousepos" ref="pos" v-text="'X:0, Y:0'" />
-								</template>
-								<div id="small-region-freeze" ref="region-freeze" />
-							</v-img>
-							<v-card-text v-else class="text-center white mx-auto rounded-lg" style="width: 75%">
-								ドラッグ & ドロップ
-								<br /><small>Drag image and drop here</small>
-							</v-card-text>
+							<transition name="imagFadeIn">
+								<v-img
+									v-if="imgurl"
+									:src="`data:image/png;base64,${imgurl.toString('base64')}`"
+									contain
+									:max-width="imgSize.width > 0 ? imgSize.width : null"
+									:max-height="imgSize.height > 0 ? imgSize.height : null"
+									style="border-radius: inherit; margin:auto;"
+									ref="img"
+									v-resize="resize"
+									@load="updateRatio"
+								>
+									<template v-if="catchAvatar">
+										<div id="small-region" ref="region" />
+										<div id="crosshair-h" class="hair" ref="hairH" />
+										<div id="crosshair-v" class="hair" ref="hairV" />
+										<span id="mousepos" ref="pos" v-text="'X:0, Y:0'" />
+									</template>
+									<div id="small-region-freeze" ref="region-freeze" />
+								</v-img>
+								<v-card-text v-else class="text-center white mx-auto rounded-lg" style="width: 75%">
+									ドラッグ & ドロップ
+									<br />
+									<small>Drag image and drop here</small>
+								</v-card-text>
+							</transition>
 
 							<input
 								ref="file"
 								type="file"
 								@change="onChange"
 								@click.prevent
-								title=""
-								accept="image/jpeg,image/png,image/bmp"
+								title
+								accept="image/jpeg, image/png, image/bmp"
 							/>
 
 							<!-- <v-card-text v-if="imgurl && false">
 								{{ imgurl.length }}
-							</v-card-text> -->
+							</v-card-text>-->
 							<!-- </template> -->
 						</v-card>
 						<!-- </v-menu> -->
@@ -196,23 +198,27 @@
 			</v-col>
 		</v-row>
 
-		<div>
-			abs: {{ regionAbs }} <br />
-			perc: {{ regionPercent }} <br />
-			<!-- {{ c }} <br /> -->
-			{{ imgurl ? imgurl.length : 0 }}
-		</div>
+		<template v-if="true">
+			<div>
+				abs: {{ rectAbs }}
+				<br />
+				perc: {{ rectPercent }}
+				<br />
+				{{ imgurl ? imgurl.length : 0 }}
+			</div>
 
-		<div v-for="(item, index) in lyric.obj" :key="index">
-			{{ index != 'lyric' ? `${index}:` : null }}
-			{{ index != 'lyric' ? item : null }}
-		</div>
+			<div v-for="(item, index) in lyric.obj" :key="index">
+				{{ index != 'lyric' ? `${index}:` : null }}
+				{{ index != 'lyric' ? item : null }}
+			</div>
+		</template>
+
 		<!-- {{ this.$refs.img.$el.clientWidth }}
-		{{ this.$refs.img.$el.clientHeight }} -->
+		{{ this.$refs.img.$el.clientHeight }}-->
 
 		<!-- {{ catchAvatar }}
-		{{ startRegionFlag }}
-		{{ showMenu }} -->
+		{{ startRectFlag }}
+		{{ showMenu }}-->
 
 		<v-menu
 			v-model="showMenu"
@@ -226,10 +232,10 @@
 			:nudge-left="2"
 		>
 			<v-toolbar dense height="36">
-				<v-btn text small class="ml-n3 mr-1" color="error" @click="rejectReg">
+				<v-btn text small class="ml-n3 mr-1" color="error" @click="rejectRect">
 					<v-icon>fas fa-times</v-icon>
 				</v-btn>
-				<v-btn text small class="ml-1 mr-n3" color="success" @click="acceptReg">
+				<v-btn text small class="ml-1 mr-n3" color="success" @click="acceptRect">
 					<v-icon>fas fa-check</v-icon>
 				</v-btn>
 			</v-toolbar>
@@ -266,16 +272,16 @@ export default {
 			canPaste: false,
 			//
 			catchAvatar: false, // start select rectangle
-			startRegionFlag: false, // on when left mouse down
+			startRectFlag: false, // on when left mouse down
 			showMenu: false, // show menu when right mouse up
 			//
-			regionAbs: {
+			rectAbs: {
 				x: 0,
 				y: 0,
 				width: 0,
 				height: 0
 			},
-			regionPercent: {
+			rectPercent: {
 				x: 0,
 				y: 0,
 				width: 0,
@@ -294,60 +300,62 @@ export default {
 	},
 	computed: {},
 	watch: {},
+
 	created() {
 		this.$fs.exists(this.$picPath, exist => {
 			if (!exist) {
-				this.$fs.mkdir(this.$picPath, (err, path) => {
+				this.$fs.mkdir(this.$picPath, err => {
 					if (err) {
 						this.$store.commit('snackbar', {
 							text: err,
 							color: 'error'
 						});
 					}
-					console.log(path);
 				});
 			}
 		});
 	},
 	mounted() {
-		// console.log(this.$remote.app.getPath('userData'));
-		this.$dbList.find({}, (err, doc) => {
-			doc.forEach(ele => {
-				this.$store.commit('snackbar', {
-					text: ele,
-					color: 'info',
-					timeout: 6000
+		this.$dbLyric.findOne({ key: this.lyric.obj.key }, (err, doc) => {
+			if (err) {
+				this.$store.commit('snackbar', { text: err, color: 'error' });
+				return;
+			} else if (doc == null) return;
+
+			if (doc.imagePath) {
+				const image = this.$sharp(doc.imagePath);
+				image.toBuffer((err, data, info) => {
+					if (err) this.$store.commit('commit', { text: err, color: 'error' });
+
+					this.imgurl = data;
+					this.$nextTick(() => {
+						this.$set(this.imgSize, 'width', info.width);
+						this.$set(this.imgSize, 'height', info.height);
+
+						const regionFreeze = this.$refs['region-freeze'];
+						if (regionFreeze && doc.rectangle != {}) {
+							this.rectPercent = doc.rectangle;
+							regionFreeze.style.left = `${this.rectPercent.x}%`;
+							regionFreeze.style.top = `${this.rectPercent.y}%`;
+							regionFreeze.style.width = `${this.rectPercent.width}%`;
+							regionFreeze.style.height = `${this.rectPercent.height}%`;
+						}
+					});
 				});
-			});
+			}
 			console.log(doc);
 		});
-
-		this.$dbLyric.find({}, (err, doc) => {
-			// doc.forEach(ele => {
-			// 	this.$store.commit('snackbar', {
-			// 		text: ele,
-			// 		color: 'info',
-			// 		timeout: 6000
-			// 	});
-			// });
-			console.log(doc);
-		});
-
-		// console.log(this.$picPath);
-		// console.log(this.$remote.app.getAppPath());
-		// console.log(this.$remote.app.getPath('pictures'));
-		// console.log(__dirname);
 	},
 	methods: {
+		// 貼上圖片
 		onPaste(e) {
 			e.preventDefault();
 			e.stopPropagation();
+			this.removeImage();
 
 			console.time('paste');
 
 			const items = e.clipboardData.files;
-			console.log(e);
-			console.log(e.clipboardData.files[0]);
 			if (items.length == 0 || !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
 				console.error('no image or not image');
 				return;
@@ -355,89 +363,46 @@ export default {
 
 			const file = items[0];
 			const reader = new FileReader();
-			reader.addEventListener('load', () => {
-				console.log(reader.result);
-				this.imgurl = reader.result;
+
+			reader.addEventListener('load', async e => {
+				const base64 = e.target.result.replace(/^data:image\/\w+;base64,/, '');
+				const buf = Buffer.from(base64, 'base64');
+
+				const image = this.$sharp(buf).toFormat('jpeg');
+				const meta = await image.metadata();
+
+				if (meta.width > 1440) {
+					image.resize(1440).toBuffer((err, data, info) => {
+						if (err) this.$store.commit('commit', { text: err, color: 'error' });
+
+						this.imgurl = data;
+						this.$nextTick(() => {
+							this.$set(this.imgSize, 'width', info.width);
+							this.$set(this.imgSize, 'height', info.height);
+						});
+					});
+				} else {
+					image.toBuffer((err, data, info) => {
+						if (err) this.$store.commit('commit', { text: err, color: 'error' });
+
+						this.imgurl = data;
+						this.$nextTick(() => {
+							this.$set(this.imgSize, 'width', info.width);
+							this.$set(this.imgSize, 'height', info.height);
+						});
+					});
+				}
 			});
 			reader.readAsDataURL(file);
-
-			console.timeEnd('paste');
+			e.target.blur();
 		},
 
-		keepMedia() {
-			if (!this.imgurl) return;
-
-			const image = this.$sharp(this.imgurl);
-			const promises = [];
-
-			const x = Math.round((this.imgSize.width * this.regionPercent.x) / 100);
-			const y = Math.round((this.imgSize.height * this.regionPercent.y) / 100);
-			const w = Math.round((this.imgSize.width * this.regionPercent.width) / 100);
-			const h = Math.round((this.imgSize.height * this.regionPercent.height) / 100);
-
-			promises.push(
-				image
-					.clone()
-					.toFormat('jpeg')
-					.toFile(`${this.$picPath}\\${this.lyric.obj.key}.jpg`)
-			);
-
-			promises.push(
-				image
-					.clone()
-					.extract({ left: x, top: y, width: w, height: h })
-					.resize(128, 128, { fit: this.$sharp.fit.outside, withoutEnlargement: true })
-					.toFormat('jpeg')
-					.toFile(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`)
-			);
-
-			Promise.all(promises)
-				.then(res => {
-					console.log('Done!', res);
-					// res.forEach();
-
-					const obj = this.lyric.obj;
-
-					this.$dbLyric.update(
-						{ key: obj.key },
-						{
-							$set: {
-								url: this.url,
-								lyricUrl: obj.url,
-								imagePath: `${this.$picPath}\\${this.lyric.obj.key}.jpg`,
-								region: this.regionPercent,
-								datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-							}
-						},
-						{ upsert: true },
-						err => {
-							if (err) {
-								this.$store.commit('snackbar', {
-									text: err,
-									color: 'error'
-								});
-							}
-							// console.warn(err);
-							// console.log(nb);
-						}
-					);
-				})
-				.catch(err => {
-					if (err) {
-						this.$store.commit('snackbar', {
-							text: err,
-							color: 'error'
-						});
-
-						this.$fs.unlinkSunc(`${this.$picPath}\\${this.lyric.key}.jpg`);
-						this.$fs.unlinkSunc(`${this.$picPath}\\${this.lyric.key}_avatar.jpg`);
-					}
-				});
-		},
-
+		// 拖曳載入圖片
 		async onChange(e) {
 			e.preventDefault();
 			e.stopPropagation();
+			this.removeImage();
+
 			console.time('change');
 
 			const items = e.target.files || e.dataTransfer.files;
@@ -455,13 +420,10 @@ export default {
 				image.resize(1440).toBuffer((err, data, info) => {
 					if (err) console.error(err);
 					this.imgurl = data;
-					// this.imgurl = `data:image/jpeg;base64,${data.toString('base64')}`;
 
 					this.$nextTick(() => {
 						this.$set(this.imgSize, 'width', info.width);
 						this.$set(this.imgSize, 'height', info.height);
-						console.log(info);
-						console.log(info.width, info.height);
 
 						console.timeEnd('change');
 					});
@@ -469,14 +431,12 @@ export default {
 			} else {
 				image.toBuffer((err, data, info) => {
 					if (err) console.warn(err);
+					console.log(data);
 					this.imgurl = data;
-					// this.imgurl = `data:image/jpeg;base64,${data.toString('base64')}`;
 
 					this.$nextTick(() => {
 						this.$set(this.imgSize, 'width', info.width);
 						this.$set(this.imgSize, 'height', info.height);
-						console.log(info);
-						console.log(info.width, info.height);
 
 						console.timeEnd('change');
 					});
@@ -485,6 +445,7 @@ export default {
 			this.$refs.file.value = null;
 		},
 
+		// dialog 選擇圖片
 		dialogImage() {
 			this.disableDialog = true;
 			this.$remote.dialog
@@ -493,24 +454,21 @@ export default {
 				})
 				.then(async res => {
 					if (!res.canceled) {
+						this.removeImage();
 						console.time('dialog');
+
 						const filePath = res.filePaths[0];
 						const image = this.$sharp(filePath);
 						const meta = await image.metadata();
 
-						// console.log(filePath);
-						// console.log(meta);
 						if (meta.width > 1440) {
 							image.resize(1440).toBuffer((err, data, info) => {
 								if (err) console.error(err);
 								this.imgurl = data;
-								// this.imgurl = `data:image/jpeg;base64,${data.toString('base64')}`;
 
 								this.$nextTick(() => {
 									this.$set(this.imgSize, 'width', info.width);
 									this.$set(this.imgSize, 'height', info.height);
-									console.log(info);
-									console.log(info.width, info.height);
 
 									console.timeEnd('dialog');
 								});
@@ -519,14 +477,11 @@ export default {
 							image.toBuffer((err, data, info) => {
 								if (err) console.warn(err);
 								this.imgurl = data;
-								// this.imgurl = `data:image/jpeg;base64,${data.toString('base64')}`;
 
 								this.$nextTick(() => {
 									this.$set(this.imgSize, 'width', info.width);
 									this.$set(this.imgSize, 'height', info.height);
-									console.log(info);
-									console.log(info.width, info.height);
-									// console.log(info.width / this.$refs.img.$el.clientWidth);
+
 									console.timeEnd('dialog');
 								});
 							});
@@ -534,22 +489,128 @@ export default {
 					}
 				})
 				.catch(err => {
-					if (err) console.error(err);
+					if (err) {
+						this.$store.commit('snackbar', {
+							text: err,
+							color: 'error'
+						});
+					}
 				})
 				.finally(() => {
 					this.disableDialog = false;
 				});
 		},
 
-		removeImage() {
-			this.imgurl = null;
-			this.$refs.file.value = null;
+		// 儲存 url、image、avatar
+		keepMedia() {
+			// if (!this.imgurl) return;
 
+			// console.log(this.imgurl);
+			if (this.imgurl) {
+				const image = this.$sharp(this.imgurl);
+				const promises = [];
+
+				const x = Math.round((this.imgSize.width * this.rectPercent.x) / 100);
+				const y = Math.round((this.imgSize.height * this.rectPercent.y) / 100);
+				const w = Math.round((this.imgSize.width * this.rectPercent.width) / 100);
+				const h = Math.round((this.imgSize.height * this.rectPercent.height) / 100);
+
+				promises.push(
+					image
+						.clone()
+						.toFormat('jpeg')
+						.toFile(`${this.$picPath}\\${this.lyric.obj.key}.jpg`)
+				);
+
+				promises.push(
+					image
+						.clone()
+						.extract({ left: x, top: y, width: w, height: h })
+						.resize(128, 128, { fit: this.$sharp.fit.outside, withoutEnlargement: true })
+						.toFormat('jpeg')
+						.toFile(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`)
+				);
+
+				Promise.all(promises)
+					.then(res => {
+						console.log('Done!', res);
+						// res.forEach();
+
+						const obj = this.lyric.obj;
+
+						this.$dbLyric.update(
+							{ key: obj.key },
+							{
+								$set: {
+									url: this.url,
+									lyricUrl: obj.url,
+									imagePath: `${this.$picPath}\\${obj.key}.jpg`,
+									rectangle: this.rectPercent,
+									datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+								}
+							},
+							{ upsert: true },
+							err => {
+								if (err) {
+									this.$store.commit('snackbar', {
+										text: err,
+										color: 'error'
+									});
+								}
+							}
+						);
+					})
+					.catch(err => {
+						if (err) {
+							this.$store.commit('snackbar', {
+								text: err,
+								color: 'error'
+							});
+
+							this.$fs.unlinkSync(`${this.$picPath}\\${this.lyric.obj.key}.jpg`);
+							this.$fs.unlinkSync(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`);
+						}
+					});
+			} else {
+				const obj = this.lyric.obj;
+				this.$dbLyric.update(
+					{ key: obj.key },
+					{
+						$set: {
+							url: this.url,
+							lyricUrl: obj.url,
+							imagePath: null,
+							rectangle: {},
+							datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+						}
+					},
+					{ upsert: true },
+					(err, nb) => {
+						if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+
+						// 確認有更新後刪除
+						if (nb > 0) {
+							this.$fs.unlinkSync(`${this.$picPath}\\${this.lyric.obj.key}.jpg`);
+							this.$fs.unlinkSync(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`);
+						}
+					}
+				);
+			}
+		},
+
+		// 刪除 image
+		removeImage() {
+			this.imgurl = null; // 重置 imgurl
+			this.imgSize.width = this.imgSize.height = 0; // 重置 imgSize
+			this.fitRatio = 0; // 重置縮小倍率
+			this.$refs.file.value = null; // 重置 file
+			//
 			this.catchAvatar = false;
-			this.startRegionFlag = false;
+			this.startRectFlag = false;
 			this.showMenu = false;
 		},
 
+		// crosshair 十字移動
 		crossMove(e) {
 			if (!this.imgurl || !this.catchAvatar) return;
 
@@ -560,24 +621,25 @@ export default {
 			this.$refs.pos.innerText = `X:${x}, Y:${y}`;
 			// this.$refs.pos.style.top = `${e.offsetY}px`;
 			// this.$refs.pos.style.left = `${e.offsetX}px`;
-			if (this.startRegionFlag) {
+			if (this.startRectFlag) {
 				const w = this.$refs.img.$el.clientWidth;
 				const h = this.$refs.img.$el.clientHeight;
 				// console.log(w, h);
 
-				if (e.offsetX < this.regionAbs.x) this.$refs.region.style.left = `${(100 * e.offsetX) / w}%`;
-				else this.$refs.region.style.left = `${(100 * this.regionAbs.x) / w}%`;
-				if (e.offsetY < this.regionAbs.y) this.$refs.region.style.top = `${(100 * e.offsetY) / h}%`;
-				else this.$refs.region.style.top = `${(100 * this.regionAbs.y) / h}%`;
+				if (e.offsetX < this.rectAbs.x) this.$refs.region.style.left = `${(100 * e.offsetX) / w}%`;
+				else this.$refs.region.style.left = `${(100 * this.rectAbs.x) / w}%`;
+				if (e.offsetY < this.rectAbs.y) this.$refs.region.style.top = `${(100 * e.offsetY) / h}%`;
+				else this.$refs.region.style.top = `${(100 * this.rectAbs.y) / h}%`;
 				// this.$refs.region.style.left =
 
-				this.regionAbs.width = Math.abs(e.offsetX - this.regionAbs.x) + 1;
-				this.regionAbs.height = Math.abs(e.offsetY - this.regionAbs.y) + 1;
-				this.$refs.region.style.width = `${(100 * this.regionAbs.width) / w}%`;
-				this.$refs.region.style.height = `${(100 * this.regionAbs.height) / h}%`;
+				this.rectAbs.width = Math.abs(e.offsetX - this.rectAbs.x) + 1;
+				this.rectAbs.height = Math.abs(e.offsetY - this.rectAbs.y) + 1;
+				this.$refs.region.style.width = `${(100 * this.rectAbs.width) / w}%`;
+				this.$refs.region.style.height = `${(100 * this.rectAbs.height) / h}%`;
 			}
 		},
 
+		// crosshair 十字重置 // 移出 v-card 時
 		crossReset() {
 			if (!this.imgurl || !this.catchAvatar) return;
 
@@ -586,50 +648,52 @@ export default {
 			this.$refs.pos.innerText = 'X:0, Y:0';
 		},
 
-		regionOn(e) {
+		// 開始框選圖片 // left button down
+		rectOn(e) {
 			if (!this.imgurl || !this.catchAvatar) return;
 			// console.log(e);
 			if (e.button == 0) {
-				this.startRegionFlag = true;
+				this.startRectFlag = true;
 
 				this.$nextTick(() => {
 					const w = this.$refs.img.$el.clientWidth;
 					const h = this.$refs.img.$el.clientHeight;
 
-					this.regionAbs.x = e.offsetX - 1;
-					this.regionAbs.y = e.offsetY - 1;
+					this.rectAbs.x = e.offsetX - 1;
+					this.rectAbs.y = e.offsetY - 1;
 
-					this.regionAbs.width = this.regionAbs.height = 0;
-					this.regionPercent.width = this.regionPercent.height = 0;
+					this.rectAbs.width = this.rectAbs.height = 0;
+					this.rectPercent.width = this.rectPercent.height = 0;
 					this.$refs.region.style.width = this.$refs.region.style.height = 0;
 
-					this.$refs.region.style.left = `${this.regionAbs.x / w}%`;
-					this.$refs.region.style.top = `${this.regionAbs.y / h}%`;
+					this.$refs.region.style.left = `${this.rectAbs.x / w}%`;
+					this.$refs.region.style.top = `${this.rectAbs.y / h}%`;
 
 					this.$nextTick(() => (this.showMenu = false));
 				});
 			}
 		},
 
-		regionOff(e) {
+		// 停止框選圖片 // left button up
+		rectOff(e) {
 			if (!this.imgurl || !this.catchAvatar) return;
 			if (e.button == 0) {
-				this.startRegionFlag = false;
+				this.startRectFlag = false;
 
 				this.$nextTick(() => {
 					const region = this.$refs.region;
 					// console.log(region);
 
-					this.regionPercent.x = parseFloat(this.$lodash.trimEnd(region.style.left, '%'));
-					this.regionPercent.y = parseFloat(this.$lodash.trimEnd(region.style.top, '%'));
-					this.regionPercent.width = parseFloat(this.$lodash.trimEnd(region.style.width, '%'));
-					this.regionPercent.height = parseFloat(this.$lodash.trimEnd(region.style.height, '%'));
+					this.rectPercent.x = parseFloat(this.$lodash.trimEnd(region.style.left, '%'));
+					this.rectPercent.y = parseFloat(this.$lodash.trimEnd(region.style.top, '%'));
+					this.rectPercent.width = parseFloat(this.$lodash.trimEnd(region.style.width, '%'));
+					this.rectPercent.height = parseFloat(this.$lodash.trimEnd(region.style.height, '%'));
 
-					this.menuPos.x = e.offsetX < this.regionAbs.x ? e.x + this.regionAbs.width : e.x;
-					this.menuPos.y = e.offsetY < this.regionAbs.y ? e.y + this.regionAbs.height : e.y;
+					this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
+					this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
 					this.$nextTick(() => {
-						if (this.regionAbs.width <= 5 || this.regionAbs.height <= 5) return;
-						else if (this.regionAbs.width >= 128 && this.regionAbs.height >= 128) this.showMenu = true;
+						if (this.rectAbs.width <= 5 || this.rectAbs.height <= 5) return;
+						else if (this.rectAbs.width >= 128 && this.rectAbs.height >= 128) this.showMenu = true;
 						else {
 							this.$store.commit('snackbar', {
 								text: 'must large than 128 x128 ',
@@ -641,35 +705,38 @@ export default {
 			}
 		},
 
+		// 更新圖片縮小倍率
 		updateRatio() {
 			this.$nextTick(() => {
-				this.fitRatio = this.$refs.img.$el.clientWidth / this.imgSize.width;
+				if (this.$refs.img) this.fitRatio = this.$refs.img.$el.clientWidth / this.imgSize.width;
 			});
 		},
 
+		// 更新圖片縮小倍率 // after window change size
 		resize: debounce(function() {
 			this.showMenu = false;
-			this.$nextTick(() => {
-				this.fitRatio = this.$refs.img.$el.clientWidth / this.imgSize.width;
-			});
+			this.updateRatio();
 		}, 300),
 
-		rejectReg() {
-			Object.keys(this.regionAbs).forEach(k => (this.regionAbs[k] = 0));
-			Object.keys(this.regionPercent).forEach(k => (this.regionPercent[k] = 0));
-			this.catchAvatar = false;
+		// 放棄框選之矩形
+		rejectRect() {
+			Object.keys(this.rectAbs).forEach(k => (this.rectAbs[k] = 0));
+			Object.keys(this.rectPercent).forEach(k => (this.rectPercent[k] = 0));
+			//
+			this.catchRect = false;
 		},
 
-		acceptReg() {
-			const region = this.$refs['region'];
+		// 接受框選之矩形
+		acceptRect() {
 			const regionFreeze = this.$refs['region-freeze'];
+			regionFreeze.style.left = `${this.rectPercent.x}%`;
+			regionFreeze.style.top = `${this.rectPercent.y}%`;
+			regionFreeze.style.width = `${this.rectPercent.width}%`;
+			regionFreeze.style.height = `${this.rectPercent.height}%`;
 			//
-			regionFreeze.style.left = `${this.regionPercent.x}%`;
-			regionFreeze.style.top = `${this.regionPercent.y}%`;
-			regionFreeze.style.width = `${this.regionPercent.width}%`;
-			regionFreeze.style.height = `${this.regionPercent.height}%`;
-			//
+			const region = this.$refs['region'];
 			region.style.width = region.style.height = 0;
+			//
 			this.catchAvatar = false;
 		}
 	}
@@ -695,7 +762,7 @@ export default {
 
 	&::before {
 		content: 'ペースト (Ctrl + V)';
-		padding-top: 20%;
+		padding-top: 10%;
 		font-size: 16px;
 		font-weight: 900;
 		color: rgba($color: grey, $alpha: 0.48);
@@ -781,5 +848,14 @@ input[type='file'] {
 	color: #fff;
 	background: rgba(0, 0, 0, 0.5);
 	border-radius: 24px;
+}
+
+.imagFadeIn-enter-active {
+	transition: all 0.7s;
+}
+
+.imagFadeIn-enter {
+	opacity: 0.15;
+	transform: scale(0.1, 0.1);
 }
 </style>

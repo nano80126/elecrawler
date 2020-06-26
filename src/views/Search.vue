@@ -108,7 +108,7 @@
 							class="min-scroll y success-scroll scroll-darken"
 							bench="1"
 							:items="list"
-							item-height="138"
+							item-height="150"
 							:height="($root.webHeight - 136) / (lyricObj && !isTwoColumn ? 1.667 : 1)"
 						>
 							<!-- <div
@@ -180,51 +180,57 @@
 			</v-col>
 			<!-- 1st column end --><!-- 1st column end --><!-- 1st column end --><!-- 1st column end -->
 
-			<template v-if="isTwoColumn">
-				<v-divider vertical />
-				<v-col cols class="pl-3" :style="{ 'max-width': isThreeColumn ? '480px' : null }">
-					<!-- {{ this.lyricObj ? this.lyricObj.exist : null }} -->
-					<template v-if="lyricObj">
-						<div class="min-scroll y primary-scroll" :style="{ height: `${$root.webHeight - 44}px` }">
-							<lyricCard :lyric="lyricObj" :exist.sync="lyricObj.exist" />
-						</div>
-					</template>
-					<template v-else>
-						<div class="d-flex align-center" style="height:100%;">
-							<v-card flat shaped class="mr-3" width="100%">
-								<v-card-subtitle class="text-center">
-									歌詞を探しましょう
-								</v-card-subtitle>
-							</v-card>
-						</div>
-					</template>
-					<!-- </transition> -->
-				</v-col>
-			</template>
+			<!-- <template v-if="isTwoColumn"> -->
+			<!-- <v-divider vertical /> -->
+			<v-col
+				v-if="isTwoColumn"
+				cols
+				class="pl-3"
+				:style="{ 'max-width': isThreeColumn ? '480px' : null }"
+				style="border-left:1px solid rgba(150, 150, 150, 0.5);"
+			>
+				<!-- {{ this.lyricObj ? this.lyricObj.exist : null }} -->
+				<template v-if="lyricObj">
+					<div class="min-scroll y primary-scroll" :style="{ height: `${$root.webHeight - 44}px` }">
+						<lyricCard :lyric="lyricObj" :exist.sync="lyricObj.exist" />
+					</div>
+				</template>
+				<template v-else>
+					<div class="d-flex align-center" style="height:100%;">
+						<v-card flat shaped class="mr-3" width="100%">
+							<v-card-subtitle class="text-center">
+								歌詞を探しましょう
+							</v-card-subtitle>
+						</v-card>
+					</div>
+				</template>
+				<!-- </transition> -->
+			</v-col>
+			<!-- </template> -->
 
 			<!-- <keep-alive> -->
-			<template v-if="isThreeColumn">
-				<v-divider vertical />
-				<!-- width: webWidth - (480 + 480 + 2) -->
-				<v-col
-					cols
-					class="px-3"
-					:style="{ 'max-width': bigImage ? `${$root.webWidth - 481}px` : `${$root.webWidth - 962}px` }"
-				>
-					<template v-if="lyricObj && lyricObj.exist">
-						<lyricMedia :bigImage.sync="bigImage" :lyric="lyricObj" />
-					</template>
-					<template v-else>
-						<div class="d-flex align-center" style="height:100%">
-							<v-card flat shaped width="100%">
-								<v-card-subtitle class="text-center">
-									リストに追加しないと操作できず
-								</v-card-subtitle>
-							</v-card>
-						</div>
-					</template>
-				</v-col>
-			</template>
+			<!-- <template v-if="isThreeColumn"> -->
+			<v-col
+				v-if="isThreeColumn"
+				cols
+				class="px-3"
+				:style="{ 'max-width': bigImage ? `${$root.webWidth - 481}px` : `${$root.webWidth - 962}px` }"
+				style="border-left:1px solid rgba(150, 150, 150, 0.5);"
+			>
+				<template v-if="lyricObj && lyricObj.exist">
+					<lyricMedia :bigImage.sync="bigImage" :lyric="lyricObj" />
+				</template>
+				<template v-else>
+					<div class="d-flex align-center" style="height:100%">
+						<v-card flat shaped width="100%">
+							<v-card-subtitle class="text-center">
+								リストに追加しないと操作できず
+							</v-card-subtitle>
+						</v-card>
+					</div>
+				</template>
+			</v-col>
+			<!-- </template> -->
 			<!-- </keep-alive> -->
 		</v-row>
 	</div>
@@ -286,8 +292,7 @@ export default {
 	},
 
 	created() {
-		console.log(this);
-
+		// console.log(this);
 		this.$dbHistory
 			.find({})
 			.sort({ datetime: -1 })
@@ -354,6 +359,7 @@ export default {
 			if (!this.canSearch) return;
 			this.$store.commit('changeOverlay', true);
 
+			this.bigImage = false;
 			this.lyricObj = null;
 			this.list = [];
 			this.$ipcRenderer.send('searchReq', {
@@ -367,6 +373,7 @@ export default {
 		historySearch(att, tle) {
 			this.$store.commit('changeOverlay', true);
 
+			this.bigImage = false;
 			this.lyricObj = null;
 			this.list = [];
 			this.$ipcRenderer.send('searchReq', {
@@ -469,13 +476,4 @@ export default {
 	opacity: 0.15;
 	transform: translateY(50%);
 }
-
-// .lyricSlide-leave-active {
-// 	transition: opacity 0.1s;
-// }
-
-// .lyricSlide-leave-to {
-// 	opacity: 0;
-// 	transform: translateX(50%);
-// }
 </style>

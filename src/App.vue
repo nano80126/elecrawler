@@ -59,7 +59,7 @@
 						<span>リスト</span>
 					</v-tooltip>
 
-					<v-tooltip right transition="scroll-x-transition" open-delay="300">
+					<!-- <v-tooltip right transition="scroll-x-transition" open-delay="300">
 						<template v-slot:activator="{ on }">
 							<v-list-item to="/dev" exact v-on="on">
 								<v-list-item-content>
@@ -68,7 +68,7 @@
 							</v-list-item>
 						</template>
 						<span>テスト</span>
-					</v-tooltip>
+					</v-tooltip> -->
 				</v-list>
 			</v-navigation-drawer>
 
