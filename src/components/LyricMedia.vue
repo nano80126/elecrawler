@@ -96,7 +96,7 @@
 							<v-icon small style="transform: rotate(90deg)">fas fa-crop-alt</v-icon>
 						</v-btn>
 					</template>
-					<span></span>
+					<span>アバターキャプチャ</span>
 				</v-tooltip>
 
 				<v-tooltip left>
@@ -154,7 +154,7 @@
 							<transition name="imagFadeIn">
 								<v-img
 									v-if="imgurl"
-									:src="`data:image/png;base64,${imgurl.toString('base64')}`"
+									:src="`data:image/jpeg;base64,${imgurl.toString('base64')}`"
 									contain
 									:max-width="imgSize.width > 0 ? imgSize.width : null"
 									:max-height="imgSize.height > 0 ? imgSize.height : null"
@@ -316,7 +316,7 @@ export default {
 		});
 	},
 	mounted() {
-		this.$dbLyric.findOne({ key: this.lyric.obj.key }, (err, doc) => {
+		this.$dbList.findOne({ uniqueKey: this.lyric.obj.key }, (err, doc) => {
 			if (err) {
 				this.$store.commit('snackbar', { text: err, color: 'error' });
 				return;
@@ -522,14 +522,17 @@ export default {
 						.toFile(`${this.$picPath}\\${this.lyric.obj.key}.jpg`)
 				);
 
-				promises.push(
-					image
-						.clone()
-						.extract({ left: x, top: y, width: w, height: h })
-						.resize(128, 128, { fit: this.$sharp.fit.outside, withoutEnlargement: true })
-						.toFormat('jpeg')
-						.toFile(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`)
-				);
+				//
+				if (w > 0 && h > 0) {
+					promises.push(
+						image
+							.clone()
+							.extract({ left: x, top: y, width: w, height: h })
+							.resize(128, 128, { fit: this.$sharp.fit.outside, withoutEnlargement: true })
+							.toFormat('jpeg')
+							.toFile(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`)
+					);
+				}
 
 				Promise.all(promises)
 					.then(res => {
@@ -538,25 +541,45 @@ export default {
 
 						const obj = this.lyric.obj;
 
-						this.$dbLyric.update(
-							{ key: obj.key },
+						// this.$dbLyric.update(
+						// 	{ key: obj.key },
+						// 	{
+						// 		$set: {
+						// 			url: this.url,
+						// 			lyricUrl: obj.url,
+						// 			imagePath: `${this.$picPath}\\${obj.key}.jpg`,
+						// 			rectangle: this.rectPercent,
+						// 			datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+						// 		}
+						// 	},
+						// 	{ upsert: true },
+						// 	err => {
+						// 		if (err) {
+						// 			this.$store.commit('snackbar', {
+						// 				text: err,
+						// 				color: 'error'
+						// 			});
+						// 		}
+						// 	}
+						// );
+
+						// add avatart to list
+						this.$dbList.update(
+							{ uniqueKey: obj.key },
 							{
 								$set: {
-									url: this.url,
-									lyricUrl: obj.url,
+									// uniqueKey: this.lyricObj.key,
+									ytUrl: this.url,
 									imagePath: `${this.$picPath}\\${obj.key}.jpg`,
-									rectangle: this.rectPercent,
+									rectangle: Object.freeze(this.rectPercent),
+									avatarPath: `${this.$picPath}\\${obj.key}_avatar.jpg`,
 									datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
 								}
 							},
-							{ upsert: true },
-							err => {
-								if (err) {
-									this.$store.commit('snackbar', {
-										text: err,
-										color: 'error'
-									});
-								}
+							{ upsert: false },
+							(err, nb) => {
+								if (err) console.warn(err);
+								console.log(nb);
 							}
 						);
 					})
@@ -573,14 +596,14 @@ export default {
 					});
 			} else {
 				const obj = this.lyric.obj;
-				this.$dbLyric.update(
-					{ key: obj.key },
+				this.$dbList.update(
+					{ uniqueKey: obj.key },
 					{
 						$set: {
-							url: this.url,
-							lyricUrl: obj.url,
+							ytUrl: this.url,
 							imagePath: null,
 							rectangle: {},
+							avatarPath: null,
 							datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
 						}
 					},

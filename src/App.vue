@@ -39,7 +39,7 @@
 				<v-list flat class="no-drag">
 					<v-tooltip right transition="scroll-x-transition" open-delay="300">
 						<template v-slot:activator="{ on }">
-							<v-list-item to="/" exact v-on="on" class="px-auto">
+							<v-list-item to="/" exact v-on="on">
 								<v-list-item-content>
 									<v-icon small>fas fa-search</v-icon>
 								</v-list-item-content>
@@ -70,6 +70,34 @@
 						<span>テスト</span>
 					</v-tooltip> -->
 				</v-list>
+
+				<template v-slot:append>
+					<v-menu rounded right min-width="120">
+						<template v-slot:activator="{ on: menu, attrs }">
+							<v-list flat class="no-drag">
+								<v-tooltip right transition="scroll-x-transition" open-delay="300">
+									<template v-slot:activator="{ on: tooltip }">
+										<v-list-item v-bind="attrs" v-on="{ ...tooltip, ...menu }">
+											<v-list-item-content>
+												<v-icon small>fas fa-ellipsis-h</v-icon>
+											</v-list-item-content>
+										</v-list-item>
+									</template>
+									<span>設定</span>
+								</v-tooltip>
+							</v-list>
+						</template>
+						<v-list dense class="no-drag">
+							<v-list-item @click="dialog = true">
+								<v-list-item-title>データーをクリア</v-list-item-title>
+							</v-list-item>
+
+							<v-list-item @click="appClose">
+								<v-list-item-title>終了</v-list-item-title>
+							</v-list-item>
+						</v-list>
+					</v-menu>
+				</template>
 			</v-navigation-drawer>
 
 			<!-- <v-toolbar v-if="false" dense color="success darken-3" dark height="36">
@@ -90,13 +118,13 @@
 
 			<!-- <v-content class="grey lighten-3"> -->
 			<v-main class="grey lighten-4">
-				<div ref="scrollPage">
-					<!-- class="min-scroll primary-scroll" -->
-					<!-- :style="{ height: contentHeight }" -->
-					<!-- style="overflow-x:hidden; overflow-y:auto;" -->
-					<!-- style="overflow-x:hidden; overflow-y:auto;" -->
-					<router-view />
-				</div>
+				<!-- <div ref="scrollPage"> -->
+				<!-- class="min-scroll primary-scroll" -->
+				<!-- :style="{ height: contentHeight }" -->
+				<!-- style="overflow-x:hidden; overflow-y:auto;" -->
+				<!-- style="overflow-x:hidden; overflow-y:auto;" -->
+				<router-view />
+				<!-- </div> -->
 			</v-main>
 
 			<!-- <v-footer app inset color="success">
@@ -135,6 +163,31 @@
 				<v-progress-circular indeterminate color="purple" />
 			</v-overlay>
 
+			<v-dialog v-model="dialog" max-width="200">
+				<v-card>
+					<v-card-title class="text-center">
+						<span class="mx-auto subtitle-2 font-weight-bold">
+							リストデータをクリア
+						</span>
+					</v-card-title>
+					<v-card-actions class="px-4">
+						<v-btn icon color="error darken-1" @click.stop="dialog = false">
+							<v-icon>fas fa-times</v-icon>
+						</v-btn>
+						<v-spacer />
+						<v-btn icon color="success darken-1" @click.stop="dataEmpty">
+							<v-icon>
+								fas fa-check
+							</v-icon>
+						</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-dialog>
+
+			<!-- <v-overlay v-model="dialogOverlay" opacity="0.3">
+				123
+			</v-overlay> -->
+
 			<!-- no used -->
 			<div v-if="false" class="fixed-right-bottom text-right">
 				<span>Resolution:</span>
@@ -157,8 +210,9 @@ export default {
 	},
 
 	data: () => ({
-		SHOW: false
+		SHOW: false,
 
+		dialog: false
 		// bottomNav: null,
 		// drawer: true,
 		// miniVariant: true,
@@ -181,10 +235,6 @@ export default {
 		barsHidden() {
 			return this.$store.getters.barsHidden;
 		}
-
-		// windowState() {
-		// 	// return this.$remote.BrowserWindow.getFocusedWindow().isMaximized();
-		// }
 	},
 	watch: {
 		// 若 snackbars 全部 timeout 則清空
@@ -208,43 +258,6 @@ export default {
 	},
 	mounted() {
 		this.SHOW = true;
-
-		// window.onresize = () => {
-		// 	this.webWidth = window.innerWidth;
-		// 	this.webHeight = window.innerHeight;
-
-		// 	this.windowIsMax = this.$remote.BrowserWindow.getFocusedWindow().isMaximized();
-		// 	// console.log(this.$vuetify.breakpoint);
-		// };
-
-		// this.$dbAdmin.remove({}, { multi: true }, (err, doc) => {
-		// 	if (err) console.warn('err', err);
-		// 	console.log(doc);
-		// });
-
-		// // this.$dbAdmin.ensureIndex();
-		// this.$dbAdmin.ensureIndex({ fieldName: 'user', unique: true }, err => {
-		// 	if (err) console.warn(err);
-		// });
-
-		// this.$dbAdmin.insert(
-		// 	{ user: 'keliduan', pass: 1234, create: this.$moment().format('YYYY-MM-DD HH:mm:ss') },
-		// 	(err, doc) => {
-		// 		if (err) console.warn(err);
-		// 		console.log(doc);
-		// 	}
-		// );
-
-		// this.$dbAdmin.insert({ a: 1 }, (err, doc) => {
-		// 	console.log(err, doc);
-		// });
-
-		// if (process.env.IS_ELECTRON) {
-		// 	this.$dbAdmin.find({}, (err, doc) => {
-		// 		if (err) console.log(err);
-		// 		console.log(doc);
-		// 	});
-		// }
 	},
 	methods: {
 		windowMin() {
@@ -252,17 +265,41 @@ export default {
 		},
 
 		windowMax() {
-			// this.windowIsMax = true;
 			this.$remote.BrowserWindow.getFocusedWindow().maximize();
 		},
 
 		windowRestore() {
-			// this.windowIsMax = false;
 			this.$remote.BrowserWindow.getFocusedWindow().restore();
 		},
 
 		windowHide() {
 			this.$remote.BrowserWindow.getFocusedWindow().hide();
+		},
+
+		appClose() {},
+
+		dataEmpty() {
+			this.$store.commit('changeOverlay', true);
+			// const a = this.$dbList.remove({}, { multi: true }, err => {
+			// 	if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+
+			// 	this.$store.commit('snackbar', { text: 'リストは空っぽになった', color: 'info' });
+			// 	this.dialog = false;
+			// 	this.$store.commit('changeOverlay', false);
+			// });
+			// console.log(a);
+			const a = this.$dbList.remove({}, { multi: true });
+			console.log(a);
+
+			const files = this.$fs.readdirSync(this.$picPath);
+
+			console.log(files);
+
+			files.forEach(file => {
+				// const f = this.$fs.unlink(`${this.$picPath}\\${file}`);
+				console.log(file);
+				// console.log(f);
+			});
 		}
 	}
 };

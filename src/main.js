@@ -24,9 +24,9 @@ Object.defineProperties(Vue.prototype, {
 	$dbList: {
 		value: require('./plugins/nedb').listDB
 	},
-	$dbLyric: {
-		value: require('./plugins/nedb').lyricDB
-	},
+	// $dbLyric: {
+	// 	value: require('./plugins/nedb').lyricDB
+	// },
 	$ipcRenderer: {
 		value: require('electron').ipcRenderer
 	},

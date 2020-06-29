@@ -55,7 +55,7 @@
 							<v-icon small>fas fa-search</v-icon>
 						</v-btn>
 
-						<v-btn text outlined height="40" min-width="0" width="15" class="px-0" @click="changeWidth">
+						<v-btn text outlined height="40" min-width="0" width="15" class="px-0" @click="expandWidth">
 							<v-icon x-small class="mx-0">
 								{{ isTwoColumn || isThreeColumn ? 'fas fa-caret-left' : 'fas fa-caret-right' }}
 							</v-icon>
@@ -413,6 +413,7 @@ export default {
 						// uniqueKey: this.lyricObj.key,
 						artist: this.lyricObj.obj.artist,
 						title: this.lyricObj.obj.title,
+						lyricUrl: this.lyricObj.obj.url,
 						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
 					}
 				},
@@ -436,7 +437,7 @@ export default {
 			// );
 		},
 
-		changeWidth() {
+		expandWidth() {
 			if (!this.isTwoColumn && !this.isThreeColumn) {
 				this.$ipcRenderer.send('windowWidth', { width: 960, height: this.windowHeight });
 				this.bigImage = false;

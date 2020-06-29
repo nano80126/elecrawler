@@ -107,7 +107,7 @@ app.whenReady().then(() => {
 
 ipcMain.on('windowWidth', (e, args) => {
 	if (win.isMaximized()) win.restore();
-	win.setSize(args.width, win.getSize()[1]);
+	win.setSize(args.width, win.getSize()[1], true);
 });
 
 // Exit cleanly on request from parent process in development mode.
