@@ -18,6 +18,9 @@ Object.defineProperties(Vue.prototype, {
 	$lodash: {
 		value: require('lodash')
 	},
+	$axiosMain: {
+		value: remote.require('axios')
+	},
 	$dbHistory: {
 		value: require('./plugins/nedb').historyDB
 	},

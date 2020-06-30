@@ -110,6 +110,8 @@ ipcMain.on('windowWidth', (e, args) => {
 	win.setSize(args.width, win.getSize()[1], true);
 });
 
+// ipcMain.han;
+
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
 	if (process.platform === 'win32') {

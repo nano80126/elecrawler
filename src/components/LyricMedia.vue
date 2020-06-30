@@ -36,6 +36,33 @@
 						</template>
 					</v-text-field>
 
+					<v-tooltip left>
+						<template v-slot:activator="{ on, attrs }">
+							<v-btn
+								icon
+								outlined
+								class="ml-2"
+								width="36"
+								height="36"
+								@click="getVideoImg"
+								v-bind="attrs"
+								v-on="on"
+								:disabled="url == null || url.length == 0"
+							>
+								<v-icon small>fas fa-photo-video</v-icon>
+							</v-btn>
+						</template>
+						<span></span>
+					</v-tooltip>
+
+					<!-- <v-tooltip left>
+						<template v-slot:activator="{ on, attrs }">
+							<v-btn icon outlined class="ml-2" @click="removeImage" v-bind="attrs" v-on="on">
+								<v-icon small>fas fa-times</v-icon>
+							</v-btn>
+						</template>
+						<span>画像を削除する</span>
+					</v-tooltip> -->
 					<!-- <template v-slot:extension>
 						<v-spacer></v-spacer>
 
@@ -347,6 +374,32 @@ export default {
 		});
 	},
 	methods: {
+		// 取得影片預覽圖
+		async getVideoImg() {
+			const v = this.url.match(/(?<=^https:\/\/.+?v=)\w{11}(?=.*$)/);
+			if (v && v[0].length == 11) {
+				const imgUrl = `http://img.youtube.com/vi/${v}/maxresdefault.jpg`;
+
+				const buf = (
+					await this.$axiosMain({
+						// url: `https://cors-anywhere.herokuapp.com/${imgUrl}`,
+						url: imgUrl,
+						responseType: 'arraybuffer'
+					})
+				).data;
+
+				this.$sharp(new Buffer(buf))
+					.jpeg()
+					.toBuffer()
+					.then(data => {
+						this.imgurl = data;
+					});
+			} else {
+				this.$store.commit('snackbar', { text: '無効なURL', color: 'warning' });
+			}
+			// https://www.youtube.com/watch?v=DS2sP8CDLas
+		},
+
 		// 貼上圖片
 		onPaste(e) {
 			e.preventDefault();
