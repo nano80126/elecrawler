@@ -225,7 +225,7 @@
 			</v-col>
 		</v-row>
 
-		<template v-if="true">
+		<template v-if="false">
 			<div>
 				abs: {{ rectAbs }}
 				<br />
@@ -332,12 +332,7 @@ export default {
 		this.$fs.exists(this.$picPath, exist => {
 			if (!exist) {
 				this.$fs.mkdir(this.$picPath, err => {
-					if (err) {
-						this.$store.commit('snackbar', {
-							text: err,
-							color: 'error'
-						});
-					}
+					if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 				});
 			}
 		});
@@ -370,43 +365,43 @@ export default {
 					});
 				});
 			}
-			console.log(doc);
 		});
 	},
 	methods: {
 		// 取得影片預覽圖
-		async getVideoImg() {
+		async getVideoImg(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			// this.removeImage();
+
 			const v = this.url.match(/(?<=^https:\/\/.+?v=)\w{11}(?=.*$)/);
 			if (v && v[0].length == 11) {
-				const imgUrl = `http://img.youtube.com/vi/${v}/maxresdefault.jpg`;
+				const buf = await this.$ipcRenderer.invoke('invokeAxios', v);
 
-				const buf = (
-					await this.$axiosMain({
-						// url: `https://cors-anywhere.herokuapp.com/${imgUrl}`,
-						url: imgUrl,
-						responseType: 'arraybuffer'
-					})
-				).data;
+				let image = this.$sharp(Buffer.from(buf));
+				const { width } = await image.metadata();
 
-				this.$sharp(new Buffer(buf))
-					.jpeg()
-					.toBuffer()
-					.then(data => {
-						this.imgurl = data;
+				if (width > 1440) image = image.resize(1440);
+
+				image.toBuffer((err, data, info) => {
+					if (err) console.error(err);
+					this.imgurl = data;
+
+					this.$nextTick(() => {
+						this.$set(this.imgSize, 'width', info.width);
+						this.$set(this.imgSize, 'height', info.height);
 					});
+				});
 			} else {
 				this.$store.commit('snackbar', { text: '無効なURL', color: 'warning' });
 			}
-			// https://www.youtube.com/watch?v=DS2sP8CDLas
 		},
 
 		// 貼上圖片
 		onPaste(e) {
 			e.preventDefault();
 			e.stopPropagation();
-			this.removeImage();
-
-			console.time('paste');
+			// this.removeImage();
 
 			const items = e.clipboardData.files;
 			if (items.length == 0 || !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
@@ -418,35 +413,26 @@ export default {
 			const reader = new FileReader();
 
 			reader.addEventListener('load', async e => {
-				const base64 = e.target.result.replace(/^data:image\/\w+;base64,/, '');
-				const buf = Buffer.from(base64, 'base64');
+				// const base64 = e.target.result.replace(/^data:image\/\w+;base64,/, '');
+				// const buf = Buffer.from(base64, 'base64');
+				const buf = e.target.result;
+				console.log(buf);
 
-				const image = this.$sharp(buf).toFormat('jpeg');
-				const meta = await image.metadata();
+				let image = this.$sharp(Buffer.from(buf)).toFormat('jpeg');
+				const { width } = await image.metadata();
+				if (width > 1440) image = image.resize(1440);
 
-				if (meta.width > 1440) {
-					image.resize(1440).toBuffer((err, data, info) => {
-						if (err) this.$store.commit('commit', { text: err, color: 'error' });
+				image.toBuffer((err, data, info) => {
+					if (err) this.$store.commit('commit', { text: err, color: 'error' });
 
-						this.imgurl = data;
-						this.$nextTick(() => {
-							this.$set(this.imgSize, 'width', info.width);
-							this.$set(this.imgSize, 'height', info.height);
-						});
+					this.imgurl = data;
+					this.$nextTick(() => {
+						this.$set(this.imgSize, 'width', info.width);
+						this.$set(this.imgSize, 'height', info.height);
 					});
-				} else {
-					image.toBuffer((err, data, info) => {
-						if (err) this.$store.commit('commit', { text: err, color: 'error' });
-
-						this.imgurl = data;
-						this.$nextTick(() => {
-							this.$set(this.imgSize, 'width', info.width);
-							this.$set(this.imgSize, 'height', info.height);
-						});
-					});
-				}
+				});
 			});
-			reader.readAsDataURL(file);
+			reader.readAsArrayBuffer(file);
 			e.target.blur();
 		},
 
@@ -454,9 +440,7 @@ export default {
 		async onChange(e) {
 			e.preventDefault();
 			e.stopPropagation();
-			this.removeImage();
-
-			console.time('change');
+			// this.removeImage();
 
 			const items = e.target.files || e.dataTransfer.files;
 			if (items.length == 0 || !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
@@ -465,36 +449,21 @@ export default {
 			}
 
 			const filePath = items[0].path;
-			const image = this.$sharp(filePath);
-			const meta = await image.metadata();
+			let image = this.$sharp(filePath);
+			const { width } = await image.metadata();
+			if (width > 1440) image = image.resize(1440);
 
-			// console.log(filePath);
-			if (meta.width > 1440) {
-				image.resize(1440).toBuffer((err, data, info) => {
-					if (err) console.error(err);
-					this.imgurl = data;
+			image.toBuffer((err, data, info) => {
+				if (err) console.warn(err);
+				console.log(data);
+				this.imgurl = data;
 
-					this.$nextTick(() => {
-						this.$set(this.imgSize, 'width', info.width);
-						this.$set(this.imgSize, 'height', info.height);
-
-						console.timeEnd('change');
-					});
+				this.$nextTick(() => {
+					this.$set(this.imgSize, 'width', info.width);
+					this.$set(this.imgSize, 'height', info.height);
 				});
-			} else {
-				image.toBuffer((err, data, info) => {
-					if (err) console.warn(err);
-					console.log(data);
-					this.imgurl = data;
+			});
 
-					this.$nextTick(() => {
-						this.$set(this.imgSize, 'width', info.width);
-						this.$set(this.imgSize, 'height', info.height);
-
-						console.timeEnd('change');
-					});
-				});
-			}
 			this.$refs.file.value = null;
 		},
 
@@ -508,37 +477,63 @@ export default {
 				.then(async res => {
 					if (!res.canceled) {
 						this.removeImage();
-						console.time('dialog');
 
 						const filePath = res.filePaths[0];
-						const image = this.$sharp(filePath);
-						const meta = await image.metadata();
+						let image = this.$sharp(filePath);
+						const { width } = await image.metadata();
 
-						if (meta.width > 1440) {
-							image.resize(1440).toBuffer((err, data, info) => {
-								if (err) console.error(err);
-								this.imgurl = data;
+						if (width > 1440) image = image.resize(1440);
 
-								this.$nextTick(() => {
-									this.$set(this.imgSize, 'width', info.width);
-									this.$set(this.imgSize, 'height', info.height);
+						image.toBuffer((err, data, info) => {
+							if (err) console.warn(err);
+							this.imgurl = data;
 
-									console.timeEnd('dialog');
-								});
+							this.$nextTick(() => {
+								this.$set(this.imgSize, 'width', info.width);
+								this.$set(this.imgSize, 'height', info.height);
 							});
-						} else {
-							image.toBuffer((err, data, info) => {
-								if (err) console.warn(err);
-								this.imgurl = data;
+						});
 
-								this.$nextTick(() => {
-									this.$set(this.imgSize, 'width', info.width);
-									this.$set(this.imgSize, 'height', info.height);
+						// image.metadata().then(async ({ width }) => {
+						// 	console.log(width);
+						// 	if (width > 1440) console.log(width);
 
-									console.timeEnd('dialog');
-								});
-							});
-						}
+						// 	image.toBuffer((err, data, info) => {
+						// 		if (err) console.warn(err);
+						// 		this.imgurl = data;
+
+						// 		this.$nextTick(() => {
+						// 			this.$set(this.imgSize, 'width', info.width);
+						// 			this.$set(this.imgSize, 'height', info.height);
+						// 		});
+						// 	});
+						// });
+						// .then(({ data, info }) => {
+						// 	console.log(data);
+						// 	console.log(info);
+
+						// 	this.imgurl = data;
+
+						// 	this.$nextTick(() => {
+						// 		this.$set(this.imgSize, 'width', info.width);
+						// 		this.$set(this.imgSize, 'height', info.height);
+						// 	});
+						// })
+						// .catch(err => {
+						// 	console.warn(err);
+						// });
+
+						// if (meta.width > 1440) image = image.resize(1440);
+
+						// image.toBuffer((err, data, info) => {
+						// 	if (err) console.warn(err);
+						// 	this.imgurl = data;
+
+						// 	this.$nextTick(() => {
+						// 		this.$set(this.imgSize, 'width', info.width);
+						// 		this.$set(this.imgSize, 'height', info.height);
+						// 	});
+						// });
 					}
 				})
 				.catch(err => {
@@ -594,29 +589,7 @@ export default {
 
 						const obj = this.lyric.obj;
 
-						// this.$dbLyric.update(
-						// 	{ key: obj.key },
-						// 	{
-						// 		$set: {
-						// 			url: this.url,
-						// 			lyricUrl: obj.url,
-						// 			imagePath: `${this.$picPath}\\${obj.key}.jpg`,
-						// 			rectangle: this.rectPercent,
-						// 			datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-						// 		}
-						// 	},
-						// 	{ upsert: true },
-						// 	err => {
-						// 		if (err) {
-						// 			this.$store.commit('snackbar', {
-						// 				text: err,
-						// 				color: 'error'
-						// 			});
-						// 		}
-						// 	}
-						// );
-
-						// add avatart to list
+						// add image / avatart to list
 						this.$dbList.update(
 							{ uniqueKey: obj.key },
 							{
@@ -625,23 +598,20 @@ export default {
 									ytUrl: this.url,
 									imagePath: `${this.$picPath}\\${obj.key}.jpg`,
 									rectangle: Object.freeze(this.rectPercent),
-									avatarPath: `${this.$picPath}\\${obj.key}_avatar.jpg`,
+									avatarPath: w > 0 && h > 0 ? `${this.$picPath}\\${obj.key}_avatar.jpg` : null,
 									datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
 								}
 							},
 							{ upsert: false },
-							(err, nb) => {
-								if (err) console.warn(err);
-								console.log(nb);
+							err => {
+								if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+								else this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
 							}
 						);
 					})
 					.catch(err => {
 						if (err) {
-							this.$store.commit('snackbar', {
-								text: err,
-								color: 'error'
-							});
+							this.$store.commit('snackbar', { text: err, color: 'error' });
 
 							this.$fs.unlinkSync(`${this.$picPath}\\${this.lyric.obj.key}.jpg`);
 							this.$fs.unlinkSync(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`);
@@ -666,6 +636,8 @@ export default {
 
 						// 確認有更新後刪除
 						if (nb > 0) {
+							this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
+
 							this.$fs.unlinkSync(`${this.$picPath}\\${this.lyric.obj.key}.jpg`);
 							this.$fs.unlinkSync(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`);
 						}
@@ -679,7 +651,7 @@ export default {
 			this.imgurl = null; // 重置 imgurl
 			this.imgSize.width = this.imgSize.height = 0; // 重置 imgSize
 			this.fitRatio = 0; // 重置縮小倍率
-			this.$refs.file.value = null; // 重置 file
+			// this.$refs.file.value = null; // 重置 file
 			//
 			this.catchAvatar = false;
 			this.startRectFlag = false;

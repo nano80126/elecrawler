@@ -130,6 +130,21 @@ ipcMain.on('getLyric', async (e, args) => {
 
 	e.sender.send('lyricRes', ret);
 });
+
+ipcMain.handle('getLyric', async (e, args) => {
+	const { url } = args;
+	const ret = await lyricGetter(url);
+
+	return ret;
+});
+
+ipcMain.handle('invokeAxios', async (e, args) => {
+	const imgUrl = `http://img.youtube.com/vi/${args}/maxresdefault.jpg`;
+	console.log(imgUrl);
+	const buf = (await axios({ url: imgUrl, responseType: 'arraybuffer' })).data;
+	return buf;
+});
+
 // // Print the full HTML
 // console.log(`Site HTML: ${$.html()}\n\n`);
 

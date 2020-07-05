@@ -89,7 +89,7 @@
 						</template>
 						<v-list dense class="no-drag">
 							<v-list-item @click="dialog = true">
-								<v-list-item-title>データーをクリア</v-list-item-title>
+								<v-list-item-title>データをクリア</v-list-item-title>
 							</v-list-item>
 
 							<v-list-item @click="appClose">
@@ -276,29 +276,24 @@ export default {
 			this.$remote.BrowserWindow.getFocusedWindow().hide();
 		},
 
-		appClose() {},
+		appClose() {
+			this.$ipcRenderer.send('windowClose');
+		},
 
 		dataEmpty() {
-			this.$store.commit('changeOverlay', true);
-			// const a = this.$dbList.remove({}, { multi: true }, err => {
-			// 	if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+			this.$dbList.remove({}, { multi: true }, err => {
+				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+				else {
+					const files = this.$fs.readdirSync(this.$picPath);
 
-			// 	this.$store.commit('snackbar', { text: 'リストは空っぽになった', color: 'info' });
-			// 	this.dialog = false;
-			// 	this.$store.commit('changeOverlay', false);
-			// });
-			// console.log(a);
-			const a = this.$dbList.remove({}, { multi: true });
-			console.log(a);
+					files.forEach(file => {
+						this.$fs.unlink(`${this.$picPath}\\${file}`, err => {
+							if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+						});
+					});
 
-			const files = this.$fs.readdirSync(this.$picPath);
-
-			console.log(files);
-
-			files.forEach(file => {
-				// const f = this.$fs.unlink(`${this.$picPath}\\${file}`);
-				console.log(file);
-				// console.log(f);
+					this.dialog = false;
+				}
 			});
 		}
 	}

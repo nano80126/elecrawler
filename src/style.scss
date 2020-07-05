@@ -104,6 +104,15 @@ body {
 		}
 	}
 
+	&.info-scroll {
+		&::-webkit-scrollbar-thumb {
+			box-shadow: inset 0 0 10px rgba(35, 135, 255, 0.75);
+		}
+		&.scroll-darken::-webkit-scrollbar-thumb {
+			box-shadow: inset 0 0 10px rgba(35, 75, 200, 0.75);
+		}
+	}
+
 	&.warning-scroll {
 		&::-webkit-scrollbar-thumb {
 			box-shadow: inset 0 0 10px rgba(235, 200, 35, 0.75);
@@ -166,10 +175,65 @@ span.ruby span.rt {
 	display: table-header-group;
 	line-height: 1.8;
 	font-size: 9px;
-	color: #999;
+	// color: #5e5e5e;
 	white-space: nowrap;
 	text-align: center;
 	letter-spacing: -0.001em;
+	opacity: 0.75;
+}
+
+.lyric-content.primary--subtext {
+	> span > span.ruby > span.rt {
+		color: #2196f3;
+	}
+}
+
+.lyric-content.info--subtext {
+	> span > span.ruby > span.rt {
+		color: #03a9f4;
+	}
+}
+
+.lyric-content.success--subtext {
+	> span > span.ruby > span.rt {
+		color: #4caf50 !important;
+	}
+}
+
+.lyric-content.teal--subtext {
+	> span > span.ruby > span.rt {
+		color: teal;
+	}
+}
+
+.lyric-content.warning--subtext {
+	> span > span.ruby > span.rt {
+		color: #ffc107;
+	}
+}
+
+.lyric-content.orange--subtext {
+	> span > span.ruby > span.rt {
+		color: orange;
+	}
+}
+
+.lyric-content.error--subtext {
+	> span > span.ruby > span.rt {
+		color: #f44336;
+	}
+}
+
+.lyric-content.purple--subtext {
+	> span > span.ruby > span.rt {
+		color: purple;
+	}
+}
+
+.lyric-content.grey--subtext {
+	> span > span.ruby > span.rt {
+		color: grey;
+	}
 }
 
 .dummy:empty:before {

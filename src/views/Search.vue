@@ -298,9 +298,9 @@ export default {
 			.sort({ datetime: -1 })
 			.limit(5)
 			.exec((err, doc) => {
-				if (err) console.warn(err);
+				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 				this.keywords = doc;
-
+				// console.log(doc);
 				// if (process.env.NODE_ENV == 'development') console.log(doc);
 			});
 	},

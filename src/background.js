@@ -39,7 +39,6 @@ function createWindow() {
 		show: false,
 		webPreferences: {
 			nodeIntegration: true
-			// webSecurity: false
 		}
 	});
 
@@ -110,7 +109,9 @@ ipcMain.on('windowWidth', (e, args) => {
 	win.setSize(args.width, win.getSize()[1], true);
 });
 
-// ipcMain.han;
+ipcMain.on('windowClose', () => {
+	win.close();
+});
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

@@ -47,7 +47,7 @@ module.exports = {
 					// 'utf-8-validate': 'commonjs utf-8-validate'
 				});
 			},
-			mainProcessWatch: ['src/spider.js'],
+			mainProcessWatch: ['src/crawler.js'],
 
 			builderOptions: {
 				productName: 'lyric spider',
