@@ -24,10 +24,13 @@
 						v-if="image"
 						class="back-card my-4"
 						contain
-						position="top"
+						:width="fullImg ? '100%' : null"
+						position="top center"
 						:src="`data:image/jpeg;base64,${image.toString('base64')}`"
 						:style="{ opacity: backOpacity }"
 					/>
+					<!-- :width="backSize ? backSize.width : null"
+						:height="backSize ? backSize.height : null" -->
 				</transition>
 
 				<div
@@ -81,7 +84,7 @@
 					</v-btn-toggle>
 				</v-menu>
 
-				<v-btn-toggle v-model="textAlign" mandatory dense>
+				<v-btn-toggle v-model="textAlign" mandatory dense class="mr-3">
 					<v-btn value="lelt" min-width="0" width="48">
 						<v-icon size="18">fas fa-align-left</v-icon>
 					</v-btn>
@@ -95,13 +98,18 @@
 					</v-btn>
 				</v-btn-toggle>
 
+				<v-btn icon outlined @click="fullImg = !fullImg">
+					<v-icon size="18" :color="fullImg ? 'info' : 'grey darken-1'">fas fa-expand-arrows-alt</v-icon>
+					<!-- <v-icon style="position:absolute; top:0; left: 0;">fas fa-search</v-icon> -->
+				</v-btn>
+
 				<v-spacer />
 
 				<input
 					v-model="backOpacity"
 					max="1"
 					min="0.2"
-					step="0.01"
+					step="0.032"
 					type="range"
 					class="slider"
 					style="width:12%; min-width: 120px"
@@ -169,12 +177,12 @@ export default {
 		lyric: {
 			type: Object,
 			required: false
-		},
-
-		backImg: {
-			type: String,
-			required: false
 		}
+
+		// backImg: {
+		// 	type: String,
+		// 	required: false
+		// }
 	},
 
 	data() {
@@ -187,12 +195,20 @@ export default {
 			//
 			colors: ['primary', 'info', 'success', 'teal', 'warning', 'orange', 'error', 'purple', 'grey'],
 			//
-			backOpacity: 0.6
+			fullImg: true,
+			backOpacity: 0.52
 		};
 	},
 
+	computed: {
+		backSize() {
+			if (this.lyric) return this.lyric.imageSize;
+			else return null;
+		}
+	},
+
 	watch: {
-		backImg(img) {
+		'lyric.image'(img) {
 			this.image = null;
 			if (img) {
 				this.backimgLoad();
@@ -201,14 +217,14 @@ export default {
 	},
 
 	mounted() {
-		if (this.backImg) {
+		if (this.lyric && this.lyric.image) {
 			this.backimgLoad();
 		}
 	},
 
 	methods: {
 		backimgLoad() {
-			this.$sharp(this.backImg)
+			this.$sharp(this.lyric.image)
 				.toBuffer()
 				.then(data => {
 					this.image = data;
@@ -233,8 +249,12 @@ export default {
 	position: absolute;
 	top: 0;
 	bottom: 0;
+	max-width: calc(100% - 32px);
+
+	left: 50%;
+	transform: translate(-50%);
 	// margin: 0 auto;
-	width: calc(100% - 32px);
+	// width: calc(100% - 32px);
 	// margin: auto;
 }
 
@@ -299,7 +319,7 @@ input[type='range'] {
 		width: 14px;
 		border-radius: 50%;
 		margin: -6px 0;
-		border: 1px solid grey;
+		border: 2px outset darkgreen;
 		background: #ffffff;
 		cursor: pointer;
 	}

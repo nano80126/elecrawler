@@ -101,7 +101,7 @@
 			</v-col>
 
 			<v-col v-if="isTwoColumn" cols class="px-3" style="border-left:1px solid rgba(150, 150, 150, 0.5);">
-				<LyricDisplay :lyric="lyricObj" :backImg="image" />
+				<LyricDisplay :lyric="lyricObj" />
 			</v-col>
 		</v-row>
 	</div>
@@ -118,8 +118,8 @@ export default {
 	data() {
 		return {
 			list: [],
-			lyricObj: null,
-			image: null
+			lyricObj: null
+			// image: null
 		};
 	},
 	computed: {
@@ -205,9 +205,10 @@ export default {
 						url: res.url,
 						title: res.mainTxt,
 						artist: res.artist,
-						lyric: res.lyricContent
+						lyric: res.lyricContent,
+						image: item.imagePath || null,
+						imageSize: item.imageSize || {}
 					});
-					this.image = item.imagePath || null;
 				});
 			}
 			this.$store.commit('changeOverlay', false);

@@ -597,6 +597,7 @@ export default {
 									// uniqueKey: this.lyricObj.key,
 									ytUrl: this.url,
 									imagePath: `${this.$picPath}\\${obj.key}.jpg`,
+									imageSize: Object.freeze(this.imgSize),
 									rectangle: Object.freeze(this.rectPercent),
 									avatarPath: w > 0 && h > 0 ? `${this.$picPath}\\${obj.key}_avatar.jpg` : null,
 									datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
@@ -625,6 +626,7 @@ export default {
 						$set: {
 							ytUrl: this.url,
 							imagePath: null,
+							imageSize: {},
 							rectangle: {},
 							avatarPath: null,
 							datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
