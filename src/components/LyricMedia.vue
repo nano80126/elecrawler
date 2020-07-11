@@ -365,6 +365,8 @@ export default {
 					});
 				});
 			}
+			this.url = doc.ytUrl || null;
+			console.log(doc);
 		});
 	},
 	methods: {
@@ -589,6 +591,7 @@ export default {
 
 						const obj = this.lyric.obj;
 
+						const v = this.url.match(/(?<=^https:\/\/.+?v=)\w{11}(?=.*$)/);
 						// add image / avatart to list
 						this.$dbList.update(
 							{ uniqueKey: obj.key },
@@ -596,6 +599,7 @@ export default {
 								$set: {
 									// uniqueKey: this.lyricObj.key,
 									ytUrl: this.url,
+									ytID: v && v[0].length == 11 ? v[0] : null,
 									imagePath: `${this.$picPath}\\${obj.key}.jpg`,
 									imageSize: Object.freeze(this.imgSize),
 									rectangle: Object.freeze(this.rectPercent),

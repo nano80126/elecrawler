@@ -1,12 +1,14 @@
 'use strict';
 
-import { app, protocol, BrowserWindow, ipcMain } from 'electron';
+import { app, protocol, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
+
 import {
 	createProtocol
 	/* installVueDevtools */
 } from 'vue-cli-plugin-electron-builder/lib';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
+// import crawler
 import './crawler';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -63,6 +65,10 @@ function createWindow() {
 	});
 }
 
+app.on('before-quit', () => {
+	tray.destroy();
+});
+
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
 	// On macOS it is common for applications and their menu bar
@@ -70,6 +76,30 @@ app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') {
 		app.quit();
 	}
+});
+
+let tray = null;
+app.on('ready', () => {
+	// const iconPath = path.resolve(__dirname, 'trayicon.ico');
+	// const trayIcon = nativeImage.createFromPath(iconPath);
+	// trayIcon.resize({ width: 16, height: 16 });
+	// console.log(iconPath);
+	tray = new Tray('build/trayicon.ico');
+	// console.log(path.resolve(__dirname, 'build/trayicon.ico'));
+	// console.log(path.resolve(__dirname, '/'));
+	// console.log(__dirname);
+	const contextMenu = Menu.buildFromTemplate([
+		{ label: 'Open', type: 'normal', click: () => win.show() },
+		{ type: 'separator' },
+		{ label: 'Item2', type: 'radio' },
+		{ label: 'Item3', type: 'radio', checked: true },
+		{ label: 'Close', type: 'normal', click: () => win.close() }
+	]);
+	tray.setToolTip('This is my application.');
+	tray.setContextMenu(contextMenu);
+
+	tray.on('double-click', () => win.show());
+	// tray.ball
 });
 
 app.on('activate', () => {
@@ -102,6 +132,22 @@ app.on('activate', () => {
 
 app.whenReady().then(() => {
 	createWindow();
+});
+
+ipcMain.on('windowMin', () => {
+	win.minimize();
+});
+
+ipcMain.on('windowMax', () => {
+	win.maximize();
+});
+
+ipcMain.on('windowRestore', () => {
+	win.restore();
+});
+
+ipcMain.on('windowHide', () => {
+	win.hide();
 });
 
 ipcMain.on('windowWidth', (e, args) => {

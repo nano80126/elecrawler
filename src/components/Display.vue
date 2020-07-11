@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<v-card v-if="lyric" flat width="100%">
+		<v-card v-if="lyric" flat shaped width="100%">
 			<v-card-title>
 				<span class="ellipsis" v-text="lyric.title" style="max-width: 500px" />
 			</v-card-title>
@@ -13,11 +13,15 @@
 			</v-card-subtitle>
 
 			<v-divider />
+
+			<!-- height = 32+48+38+2+52+12    -->
 			<v-card-text
 				class="text-darken-2 font-weight-bold lyric-body py-0"
 				style="position:relative;"
-				:style="{ height: `${$root.webHeight - 182}px` }"
+				:style="{ height: `${$root.webHeight - 241}px` }"
 			>
+				<!-- :style="{ height: `${$root.webHeight - 184}px` }" -->
+
 				<!-- <v-img class="back-card my-4 red" contain :src="image" /> -->
 				<transition name="fadeIn" mode="out-in">
 					<v-img
@@ -114,64 +118,21 @@
 					class="slider"
 					style="width:12%; min-width: 120px"
 				/>
-
-				<!-- <div style="width:15%">
-					<v-slider
-						tabindex="-1"
-						v-model="backOpacity"
-						color="teal"
-						max="1"
-						min="0.2"
-						step="0.01"
-						hide-details
-					/>
-				</div> -->
-
-				<!-- <v-btn text outlined class="rounded-xl">
-					<v-icon :color="subColor">fas fa-square</v-icon>
-				</v-btn> -->
-
-				<!-- <v-sheet class="mx-auto" max-width="300">
-					<v-slide-group v-model="mainColor" mandatory center-active>
-						<v-slide-item v-for="(c, k) in colors" :key="`m${k}`" v-slot:default="{ active, toggle }">
-							<v-btn
-								:value="`text--${c}`"
-								text
-								min-width="0"
-								width="36"
-								:input-value="active"
-								active-class="info lighten-2"
-								@click="toggle"
-							>
-								<v-icon class="mx-0" :color="c">fas fa-square</v-icon>
-							</v-btn>
-						</v-slide-item>
-					</v-slide-group>
-				</v-sheet> -->
-
-				<!-- <v-btn-toggle v-model="mainColor" color="primary" dense group>
-					<v-btn v-for="(c, k) in colors" :key="`m${k}`" :value="`text--${c}`" text>
-						<v-icon :color="c">fas fa-square</v-icon>
-					</v-btn>
-				</v-btn-toggle> -->
-
-				<!-- <v-btn-toggle v-model="subColor" color="primary" dense group>
-					<v-btn v-for="(c, k) in colors" :key="`s${k}`" :value="`text--${c}`" text>
-						<v-icon :color="c">fas fa-square</v-icon>
-					</v-btn>
-				</v-btn-toggle> -->
-
-				<!-- {{ mainColor }}
-				{{ subColor }} -->
 			</v-card-actions>
-			<!-- <v-img contain :src="image" @load="imgLoaded" /> -->
 
-			<!-- <v-card-text v-html="lyric.lyric" /> -->
+			<v-divider />
+
+			<v-card-actions>
+				<embedPlayer :videoID="this.lyric.ytID" style="width:100%;" />
+			</v-card-actions>
 		</v-card>
 	</div>
 </template>
 
 <script>
+import player from '@/components/Embed.vue';
+// import card from '@/components/LyricCard.vue';
+
 export default {
 	props: {
 		lyric: {
@@ -183,6 +144,10 @@ export default {
 		// 	type: String,
 		// 	required: false
 		// }
+	},
+
+	components: {
+		embedPlayer: player
 	},
 
 	data() {

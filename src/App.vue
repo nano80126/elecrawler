@@ -69,6 +69,17 @@
 						</template>
 						<span>テスト</span>
 					</v-tooltip> -->
+
+					<v-tooltip right transition="scroll-x-transition" open-delay="300">
+						<template v-slot:activator="{ on }">
+							<v-list-item to="/test" exact v-on="on">
+								<v-list-item-content>
+									<v-icon small>fas fa-code</v-icon>
+								</v-list-item-content>
+							</v-list-item>
+						</template>
+						<span>テスト</span>
+					</v-tooltip>
 				</v-list>
 
 				<template v-slot:append>
@@ -184,6 +195,8 @@
 				</v-card>
 			</v-dialog>
 
+			<div id="youtube-audio" class="d-none" />
+
 			<!-- <v-overlay v-model="dialogOverlay" opacity="0.3">
 				123
 			</v-overlay> -->
@@ -261,19 +274,23 @@ export default {
 	},
 	methods: {
 		windowMin() {
-			this.$remote.BrowserWindow.getFocusedWindow().minimize();
+			this.$ipcRenderer.send('windowMin');
+			// this.$remote.BrowserWindow.getFocusedWindow().minimize();
 		},
 
 		windowMax() {
-			this.$remote.BrowserWindow.getFocusedWindow().maximize();
+			this.$ipcRenderer.send('windowMax');
+			// this.$remote.BrowserWindow.getFocusedWindow().maximize();
 		},
 
 		windowRestore() {
-			this.$remote.BrowserWindow.getFocusedWindow().restore();
+			this.$ipcRenderer.send('windowRestore');
+			// this.$remote.BrowserWindow.getFocusedWindow().restore();
 		},
 
 		windowHide() {
-			this.$remote.BrowserWindow.getFocusedWindow().hide();
+			this.$ipcRenderer.send('windowHide');
+			// this.$remote.BrowserWindow.getFocusedWindow().hide();
 		},
 
 		appClose() {

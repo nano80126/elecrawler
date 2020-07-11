@@ -1,0 +1,248 @@
+<template>
+	<div>
+		<v-list class="py-0" dense>
+			<v-list-item>
+				<v-list-item-content>
+					<div class="d-flex align-center">
+						<span>{{ $moment.utc(progressCurr * 1000).format('mm:ss') }}</span>
+						<v-progress-linear
+							v-model="progress"
+							class="my-0 mx-3"
+							height="4"
+							@change="onProgressChanged"
+							style="cursor: pointer;"
+						/>
+						<span>{{ $moment.utc(progressMax * 1000).format('mm:ss') }}</span>
+					</div>
+				</v-list-item-content>
+
+				<v-spacer v-show="$root.webWidth > 1200" />
+
+				<v-list-item-icon class="mr-3 align-center">
+					<v-menu
+						open-on-hover
+						top
+						offset-y
+						:close-on-content-click="false"
+						nudge-left="42"
+						close-delay="1500"
+					>
+						<template v-slot:activator="{ on, attrs }">
+							<v-btn icon @click="onVolumeToggle" v-bind="attrs" v-on="on">
+								<v-icon small v-if="volume > 40">fas fa-volume-up</v-icon>
+								<v-icon small v-else-if="volume > 0">fas fa-volume-down</v-icon>
+								<v-icon small v-else>fas fa-volume-mute</v-icon>
+							</v-btn>
+						</template>
+						<v-card width="120px" class="px-1 no-drag" style="overflow: hidden;" dark>
+							<v-slider
+								v-model="volume"
+								color="grey lighten-2"
+								hide-details
+								@end="onVolumeChange"
+								@click="onVolumeChange"
+							/>
+						</v-card>
+					</v-menu>
+				</v-list-item-icon>
+
+				<v-list-item-icon class="align-center">
+					<v-btn icon @click="backward10">
+						<v-icon small>fas fa-backward</v-icon>
+					</v-btn>
+				</v-list-item-icon>
+
+				<v-list-item-icon class="align-center">
+					<v-btn icon v-if="playState == 2 || playState == 5" @click="videoStart" :disabled="!canPlay">
+						<v-icon small>fas fa-play</v-icon>
+					</v-btn>
+					<v-btn icon v-else-if="playState == 0" @click="videoStart" :disabled="!canPlay">
+						<v-icon small>fas fa-undo</v-icon>
+					</v-btn>
+					<v-btn icon v-else @click="videoPause">
+						<v-icon small>fas fa-pause</v-icon>
+					</v-btn>
+				</v-list-item-icon>
+
+				<v-list-item-icon class="ml-0 align-center">
+					<v-btn icon @click="forward10">
+						<v-icon small>fas fa-forward</v-icon>
+					</v-btn>
+				</v-list-item-icon>
+			</v-list-item>
+			<!-- 
+			<v-list-item>
+				<v-btn @click="$store.commit('destroyPlayer')">destroy</v-btn>
+			</v-list-item> -->
+		</v-list>
+		<!-- </v-bottom-sheet> -->
+	</div>
+</template>
+
+<script>
+export default {
+	props: {
+		videoID: {
+			type: String,
+			required: false
+		}
+	},
+
+	data() {
+		return {
+			sheet: true,
+			// progress: 0,
+
+			progressCurr: 0,
+			progressMax: 0,
+			checkProgress: null,
+
+			volume: 100,
+			volumeBack: 100,
+
+			// canPlay: true,
+			playState: -1
+			// $root.$player: null
+		};
+	},
+	computed: {
+		canPlay() {
+			return this.playState == 0 || this.playState == 2 || this.playState == 5;
+		},
+
+		progress: {
+			get: function() {
+				return (this.progressCurr / this.progressMax) * 100;
+			},
+			set: function(e) {
+				this.progressCurr = (this.progressMax * e) / 100;
+			}
+		}
+	},
+
+	watch: {
+		'$store.getters.playState'(e) {
+			console.log(e.data);
+			this.playState = e.data;
+			clearInterval(this.checkProgress);
+			if (e.data == 1) {
+				// this.progressCurr = e.target.getCurrentTime();
+				this.checkProgress = setInterval(() => {
+					this.progressCurr = e.target.getCurrentTime();
+				}, 500);
+			}
+		}
+	},
+
+	mounted() {
+		if (!this.$store.state.player) {
+			this.IframeAPIReady(this.videoID);
+			// this.$store.commit('playVideo');
+		} else {
+			const player = this.$store.state.player;
+
+			this.playState = this.$store.state.player.getPlayerState();
+			this.volume = this.volumeBack = player.getVolume();
+			this.progressCurr = player.getCurrentTime();
+			this.progressMax = player.getDuration();
+			// console.log(player.getEvents());
+
+			if (this.$store.getters.playState.data == 1) {
+				this.checkProgress = setInterval(() => {
+					this.progressCurr = this.$store.state.player.getCurrentTime();
+				}, 500);
+			}
+		}
+	},
+
+	beforeDestroy() {
+		clearInterval(this.checkProgress);
+	},
+
+	methods: {
+		IframeAPIReady(id) {
+			if (!id) return;
+
+			const youtube = window['YT'];
+
+			this.$store.commit(
+				'creatPlayer',
+				new youtube.Player('youtube-audio', {
+					height: 20,
+					// width: 500,
+					videoId: id || 'DS2sP8CDLas',
+					playerVars: {
+						enablejsapi: 1,
+						autoplay: 0,
+						controls: 0,
+						loop: 0,
+						// eslint-disable-next-line prettier/prettier
+					"cc_lang_policy": 0,
+					},
+					events: {
+						onReady: e => {
+							e.target.setPlaybackQuality('small');
+							e.target.setVolume(100);
+							// e.target.mute().playVideo();
+							this.playState = 5;
+							this.progressMax = e.target.getDuration();
+						}
+						// onStateChange: e => {
+						// 	clearInterval(this.checkProgress);
+						// 	this.playState = e.data;
+						// 	if (e.data == 1) {
+						// 		this.checkProgress = setInterval(() => {
+						// 			this.progressCurr = e.target.getCurrentTime();
+						// 			console.log(this.progressCurr);
+						// 		}, 500);
+						// 	}
+						// }
+					}
+				})
+			);
+		},
+
+		onVolumeToggle() {
+			if (this.volume > 0) {
+				this.volumeBack = this.volume;
+				this.volume = 0;
+			} else {
+				this.volume = this.volumeBack;
+			}
+			// this.$root.$player.setVolume(this.volume);
+			this.$store.commit('videoSetVolume', this.volume);
+		},
+
+		onVolumeChange() {
+			if (this.volume > 0) this.volumeBack = this.volume;
+			// this.$root.$player.setVolume(e);
+			this.$store.commit('videoSetVolume', this.volume);
+		},
+
+		videoStart() {
+			// this.$root.$player.playVideo();
+			this.$store.commit('playVideo');
+		},
+
+		videoPause() {
+			// this.$root.$player.pauseVideo();
+			this.$store.commit('pauseVideo');
+		},
+
+		backward10() {
+			this.$store.commit('backward10');
+		},
+
+		forward10() {
+			this.$store.commit('forward10');
+		},
+
+		onProgressChanged(e) {
+			this.$store.commit('videoProgress', (this.progressMax * e) / 100);
+			// this.$root.$player.seekTo((this.progressMax * e) / 100);
+		}
+	}
+};
+</script>
+
+<style lang="scss" scoped></style>

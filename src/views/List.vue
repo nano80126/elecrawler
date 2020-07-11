@@ -22,7 +22,7 @@
 					</v-btn> -->
 				</v-toolbar>
 
-				<v-list two-line subheader class="transparent">
+				<v-list two-line subheader class="transparent py-0">
 					<!--  -->
 					<!-- <v-subheader inset>sub header</v-subheader>
 					<v-divider inset />
@@ -46,7 +46,7 @@
 
 					<v-virtual-scroll
 						:items="list"
-						:height="$root.webHeight - 96"
+						:height="$root.webHeight - 92"
 						item-height="72"
 						class="min-scroll y"
 					>
@@ -101,7 +101,20 @@
 			</v-col>
 
 			<v-col v-if="isTwoColumn" cols class="px-3" style="border-left:1px solid rgba(150, 150, 150, 0.5);">
-				<LyricDisplay :lyric="lyricObj" />
+				<!-- <div class="d-flex align-center" style="height:100%;"> -->
+				<template v-if="lyricObj">
+					<LyricDisplay :lyric="lyricObj" />
+				</template>
+				<template v-else>
+					<div class="d-flex align-center" style="height:100%">
+						<v-card flat shaped width="100%">
+							<v-card-subtitle class="text-center">
+								{ design a logo }
+							</v-card-subtitle>
+						</v-card>
+					</div>
+				</template>
+				<!-- </div> -->
 			</v-col>
 		</v-row>
 	</div>
@@ -133,6 +146,7 @@ export default {
 	},
 	created() {},
 	mounted() {
+		console.log('add list filter');
 		// const events = this.$ipcRenderer.eventNames();
 		// if (!events.includes('lyricRes')) {
 		// 	this.$ipcRenderer.on('lyricRes', (e, args) => {
@@ -153,6 +167,7 @@ export default {
 
 		this.$dbList.find({}, (err, doc) => {
 			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+			// console.log(doc);
 
 			console.log(doc);
 			const prom = [];
@@ -172,8 +187,12 @@ export default {
 			// wait all promise done
 			Promise.all(prom).then(() => {
 				this.list = doc;
-				console.log(this.list);
+				// this.list = this.$lodash.concat(doc, doc);
+				// console.log(this.list);
 			});
+			// 	.catch(err => console.log(err));
+
+			// console.log(prom);
 		});
 	},
 
@@ -192,9 +211,12 @@ export default {
 			this.$store.commit('changeOverlay', true);
 			this.expandWidth();
 
+			this.$store.commit('destroyPlayer');
+
 			// this.$ipcRenderer.send('getLyric', { url: item.lyricUrl });
 			const res = await this.$ipcRenderer.invoke('getLyric', { url: item.lyricUrl });
-			console.log(res);
+			// console.log(res);
+			// console.log(item);
 
 			if (res.error) {
 				this.$store.commit('snackbar', { text: res.error, color: 'error' });
@@ -207,7 +229,8 @@ export default {
 						artist: res.artist,
 						lyric: res.lyricContent,
 						image: item.imagePath || null,
-						imageSize: item.imageSize || {}
+						imageSize: item.imageSize || {},
+						ytID: item.ytID
 					});
 				});
 			}
