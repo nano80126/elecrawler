@@ -24,3 +24,10 @@ This is a lyric crawler build by electron.
 * [x] Get mp3 from **Youtube**
 * [ ] Add global player
 * [ ] Design an icon 
+* [x] Open default browser for search
+* [x] Divide Display.vue and Embed.vue
+
+### Known bug 
+
+* [ ] Changing avatar will not work until application refresh
+* [ ] Volume bugs (different until adjust)

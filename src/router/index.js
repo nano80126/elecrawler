@@ -18,12 +18,12 @@ const routes = [
 	},
 	{
 		path: '/dev',
-		name: 'Dev',
+		name: 'Media',
 		component: () => import(/* webpackChunkName */ '@/components/LyricMedia.vue')
 	},
 	{
 		path: '/test',
-		name: 'Test',
+		name: 'EmbedViedo',
 		component: () => import(/* webpackChunkName */ '@/components/Embed.vue')
 	}
 ];

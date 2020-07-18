@@ -1,81 +1,109 @@
 <template>
 	<div>
-		<v-list class="py-0" dense>
-			<v-list-item>
-				<v-list-item-content>
-					<div class="d-flex align-center">
-						<span>{{ $moment.utc(progressCurr * 1000).format('mm:ss') }}</span>
-						<v-progress-linear
-							v-model="progress"
-							class="my-0 mx-3"
-							height="4"
-							@change="onProgressChanged"
-							style="cursor: pointer;"
-						/>
-						<span>{{ $moment.utc(progressMax * 1000).format('mm:ss') }}</span>
-					</div>
-				</v-list-item-content>
-
-				<v-spacer v-show="$root.webWidth > 1200" />
-
-				<v-list-item-icon class="mr-3 align-center">
-					<v-menu
-						open-on-hover
-						top
-						offset-y
-						:close-on-content-click="false"
-						nudge-left="42"
-						close-delay="1500"
-					>
-						<template v-slot:activator="{ on, attrs }">
-							<v-btn icon @click="onVolumeToggle" v-bind="attrs" v-on="on">
-								<v-icon small v-if="volume > 40">fas fa-volume-up</v-icon>
-								<v-icon small v-else-if="volume > 0">fas fa-volume-down</v-icon>
-								<v-icon small v-else>fas fa-volume-mute</v-icon>
-							</v-btn>
-						</template>
-						<v-card width="120px" class="px-1 no-drag" style="overflow: hidden;" dark>
-							<v-slider
-								v-model="volume"
-								color="grey lighten-2"
-								hide-details
-								@end="onVolumeChange"
-								@click="onVolumeChange"
+		<v-card-actions>
+			<v-list class="py-0" dense width="100%">
+				<v-list-item>
+					<v-list-item-content>
+						<div class="d-flex align-center">
+							<span>{{ $moment.utc(progressCurr * 1000).format('mm:ss') }}</span>
+							<v-progress-linear
+								v-model="progress"
+								class="my-0 mx-3"
+								height="4"
+								@change="onProgressChanged"
+								style="cursor: pointer;"
 							/>
-						</v-card>
-					</v-menu>
-				</v-list-item-icon>
+							<span>{{ $moment.utc(progressMax * 1000).format('mm:ss') }}</span>
+						</div>
+					</v-list-item-content>
 
-				<v-list-item-icon class="align-center">
+					<v-spacer v-show="$root.webWidth > 1200" />
+
+					<v-list-item-icon class="mr-3 align-center">
+						<v-menu
+							open-on-hover
+							top
+							offset-y
+							:close-on-content-click="false"
+							nudge-left="42"
+							close-delay="1500"
+						>
+							<template v-slot:activator="{ on, attrs }">
+								<v-btn icon @click="onVolumeToggle" v-bind="attrs" v-on="on">
+									<v-icon small v-if="volume > 40">fas fa-volume-up</v-icon>
+									<v-icon small v-else-if="volume > 0">fas fa-volume-down</v-icon>
+									<v-icon small v-else>fas fa-volume-mute</v-icon>
+								</v-btn>
+							</template>
+							<v-card width="120px" class="px-1 no-drag" style="overflow: hidden;" dark>
+								<v-slider
+									v-model="volume"
+									color="grey lighten-2"
+									hide-details
+									@end="onVolumeChange"
+									@click="onVolumeChange"
+								/>
+							</v-card>
+						</v-menu>
+					</v-list-item-icon>
+
+					<!-- <v-list-item-icon class="align-center">
 					<v-btn icon @click="backward10">
 						<v-icon small>fas fa-backward</v-icon>
 					</v-btn>
-				</v-list-item-icon>
+				</v-list-item-icon> -->
 
-				<v-list-item-icon class="align-center">
-					<v-btn icon v-if="playState == 2 || playState == 5" @click="videoStart" :disabled="!canPlay">
+					<v-list-item-icon class="align-center">
+						<v-btn icon @click="backward10">
+							<v-icon small>fas fa-backward</v-icon>
+						</v-btn>
+						<!-- <v-btn icon v-if="playState == -1 " @click="videoStart" :disabled="!canPlay">
 						<v-icon small>fas fa-play</v-icon>
-					</v-btn>
-					<v-btn icon v-else-if="playState == 0" @click="videoStart" :disabled="!canPlay">
-						<v-icon small>fas fa-undo</v-icon>
-					</v-btn>
-					<v-btn icon v-else @click="videoPause">
-						<v-icon small>fas fa-pause</v-icon>
-					</v-btn>
-				</v-list-item-icon>
+					</v-btn> -->
+						<v-btn icon v-if="playState == 2 || playState == 5" @click="videoStart" :disabled="!canPlay">
+							<v-icon small>fas fa-play</v-icon>
+						</v-btn>
+						<v-btn icon v-else-if="playState == 0" @click="videoStart" :disabled="!canPlay">
+							<v-icon small>fas fa-undo</v-icon>
+						</v-btn>
+						<v-btn icon v-else @click="videoPause" :disabled="playState == -1">
+							<v-icon small>fas fa-pause</v-icon>
+						</v-btn>
 
-				<v-list-item-icon class="ml-0 align-center">
+						<v-btn icon @click="forward10">
+							<v-icon small>fas fa-forward</v-icon>
+						</v-btn>
+
+						<v-menu top left offset-y>
+							<template v-slot:activator="{ attrs, on }">
+								<v-btn icon v-bind="attrs" v-on="on">
+									<v-icon small> fas fa-ellipsis-h</v-icon>
+								</v-btn>
+							</template>
+							<v-list width="250px" class="py-0" flat dark>
+								<v-list-item @click="toggleLoop">
+									<v-list-item-title class="d-flex">
+										<span>ループ再生</span>
+										<v-icon v-if="loop" class="ml-auto" small>fas fa-check</v-icon>
+									</v-list-item-title>
+								</v-list-item>
+							</v-list>
+						</v-menu>
+					</v-list-item-icon>
+
+					<!-- <v-list-item-icon class="ml-0 align-center">
 					<v-btn icon @click="forward10">
 						<v-icon small>fas fa-forward</v-icon>
 					</v-btn>
-				</v-list-item-icon>
-			</v-list-item>
-			<!-- 
+				</v-list-item-icon> -->
+				</v-list-item>
+				<!-- 
 			<v-list-item>
 				<v-btn @click="$store.commit('destroyPlayer')">destroy</v-btn>
 			</v-list-item> -->
-		</v-list>
-		<!-- </v-bottom-sheet> -->
+			</v-list>
+			<!-- </v-bottom-sheet> -->
+		</v-card-actions>
 	</div>
 </template>
 
@@ -97,12 +125,12 @@ export default {
 			progressMax: 0,
 			checkProgress: null,
 
-			volume: 100,
-			volumeBack: 100,
+			volume: 75,
+			volumeBack: 75,
+			loop: false,
 
 			// canPlay: true,
 			playState: -1
-			// $root.$player: null
 		};
 	},
 	computed: {
@@ -122,15 +150,27 @@ export default {
 
 	watch: {
 		'$store.getters.playState'(e) {
-			console.log(e.data);
 			this.playState = e.data;
 			clearInterval(this.checkProgress);
-			if (e.data == 1) {
-				// this.progressCurr = e.target.getCurrentTime();
-				this.checkProgress = setInterval(() => {
-					this.progressCurr = e.target.getCurrentTime();
-				}, 500);
+
+			switch (this.playState) {
+				case 0:
+					this.progressCurr = this.progressMax;
+					if (this.loop) setTimeout(() => this.$store.commit('playVideo'), 2000);
+					break;
+				case 1:
+					this.checkProgress = setInterval(() => {
+						this.progressCurr = e.target.getCurrentTime();
+					}, 250);
+					break;
 			}
+
+			// if (this.playState == 1) {
+			// 	// this.progressCurr = e.target.getCurrentTime();
+			// 	this.checkProgress = setInterval(() => {
+			// 		this.progressCurr = e.target.getCurrentTime();
+			// 	}, 500);
+			// }
 		}
 	},
 
@@ -141,17 +181,29 @@ export default {
 		} else {
 			const player = this.$store.state.player;
 
-			this.playState = this.$store.state.player.getPlayerState();
+			this.playState = player.getPlayerState();
 			this.volume = this.volumeBack = player.getVolume();
 			this.progressCurr = player.getCurrentTime();
 			this.progressMax = player.getDuration();
-			// console.log(player.getEvents());
+			this.loop = this.$store.state.playerLoop;
 
-			if (this.$store.getters.playState.data == 1) {
-				this.checkProgress = setInterval(() => {
-					this.progressCurr = this.$store.state.player.getCurrentTime();
-				}, 500);
+			switch (this.$store.getters.playState.data) {
+				case 0:
+					this.progressCurr = this.progressMax;
+					if (this.loop) setTimeout(() => this.$store.commit('playVideo'), 1500);
+					break;
+				case 1:
+					this.checkProgress = setInterval(() => {
+						this.progressCurr = this.$store.state.player.getCurrentTime();
+					}, 250);
+					break;
 			}
+
+			// if (this.$store.getters.playState.data == 1) {
+			// 	this.checkProgress = setInterval(() => {
+			// 		this.progressCurr = this.$store.state.player.getCurrentTime();
+			// 	}, 500);
+			// }
 		}
 	},
 
@@ -176,27 +228,19 @@ export default {
 						autoplay: 0,
 						controls: 0,
 						loop: 0,
+						// playlist: id,
 						// eslint-disable-next-line prettier/prettier
-					"cc_lang_policy": 0,
+						"cc_lang_policy": 0,
 					},
 					events: {
 						onReady: e => {
 							e.target.setPlaybackQuality('small');
-							e.target.setVolume(100);
+							e.target.setVolume(75);
+							// e.target.setLoop(false);
 							// e.target.mute().playVideo();
 							this.playState = 5;
 							this.progressMax = e.target.getDuration();
 						}
-						// onStateChange: e => {
-						// 	clearInterval(this.checkProgress);
-						// 	this.playState = e.data;
-						// 	if (e.data == 1) {
-						// 		this.checkProgress = setInterval(() => {
-						// 			this.progressCurr = e.target.getCurrentTime();
-						// 			console.log(this.progressCurr);
-						// 		}, 500);
-						// 	}
-						// }
 					}
 				})
 			);
@@ -235,6 +279,11 @@ export default {
 
 		forward10() {
 			this.$store.commit('forward10');
+		},
+
+		toggleLoop() {
+			this.$store.commit('videoLoop', !this.loop);
+			this.loop = !this.loop;
 		},
 
 		onProgressChanged(e) {

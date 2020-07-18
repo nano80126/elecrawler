@@ -42,17 +42,17 @@
 								icon
 								outlined
 								class="ml-2"
+								color=""
 								width="36"
 								height="36"
-								@click="getVideoImg"
+								@click="openWindow(lyric.obj.title)"
 								v-bind="attrs"
 								v-on="on"
-								:disabled="url == null || url.length == 0"
 							>
-								<v-icon small>fas fa-photo-video</v-icon>
+								<v-icon small>fab fa-chrome</v-icon>
 							</v-btn>
 						</template>
-						<span></span>
+						<span>Open in new window</span>
 					</v-tooltip>
 
 					<!-- <v-tooltip left>
@@ -98,17 +98,42 @@
 
 				<v-tooltip left>
 					<template v-slot:activator="{ on, attrs }">
-						<v-btn outlined icon @click="dialogImage" v-bind="attrs" v-on="on" :disabled="disableDialog">
+						<v-btn
+							icon
+							outlined
+							class="ml-2"
+							@click="getVideoImg"
+							v-bind="attrs"
+							v-on="on"
+							:disabled="url == null || url.length == 0"
+						>
+							<v-icon small>fas fa-photo-video</v-icon>
+						</v-btn>
+					</template>
+					<span>Youtubeカバー画像をゲット</span>
+				</v-tooltip>
+
+				<v-tooltip left open-delay="300">
+					<template v-slot:activator="{ on, attrs }">
+						<v-btn
+							icon
+							outlined
+							class="ml-2"
+							@click="dialogImage"
+							v-bind="attrs"
+							v-on="on"
+							:disabled="disableDialog"
+						>
 							<v-icon small>far fa-image</v-icon>
 						</v-btn>
 					</template>
-					<span>画像を選択する</span>
+					<span>画像選択</span>
 				</v-tooltip>
 
 				<!-- <v-btn outlined icon class="ml-2">
 					<v-icon small>far fa-square</v-icon>
 				</v-btn>-->
-				<v-tooltip left>
+				<v-tooltip left open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn
 							icon
@@ -126,7 +151,7 @@
 					<span>アバターキャプチャ</span>
 				</v-tooltip>
 
-				<v-tooltip left>
+				<v-tooltip left open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn icon outlined class="ml-2" @click="removeImage()" v-bind="attrs" v-on="on">
 							<v-icon small>fas fa-times</v-icon>
@@ -137,7 +162,7 @@
 
 				<!--  -->
 				<v-divider vertical class="mx-2" />
-				<v-tooltip left>
+				<v-tooltip left open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn outlined icon v-bind="attrs" v-on="on" @click="keepMedia">
 							<v-icon small>fas fa-download</v-icon>
@@ -225,11 +250,13 @@
 			</v-col>
 		</v-row>
 
-		<template v-if="false">
+		<template v-if="true">
 			<div>
 				abs: {{ rectAbs }}
 				<br />
 				perc: {{ rectPercent }}
+				<br />
+				imageSize: {{ imgSize }}
 				<br />
 				{{ imgurl ? imgurl.length : 0 }}
 			</div>
@@ -302,25 +329,12 @@ export default {
 			startRectFlag: false, // on when left mouse down
 			showMenu: false, // show menu when right mouse up
 			//
-			rectAbs: {
-				x: 0,
-				y: 0,
-				width: 0,
-				height: 0
-			},
-			rectPercent: {
-				x: 0,
-				y: 0,
-				width: 0,
-				height: 0
-			},
+			rectAbs: { x: 0, y: 0, width: 0, height: 0 },
+			rectPercent: { x: 0, y: 0, width: 0, height: 0 },
 
 			imgSize: { width: 0, height: 0 },
 
-			menuPos: {
-				x: 0,
-				y: 0
-			},
+			menuPos: { x: 0, y: 0 },
 
 			fitRatio: 0
 		};
@@ -370,15 +384,26 @@ export default {
 		});
 	},
 	methods: {
+		openWindow(keyWord) {
+			const url = `https://www.youtube.com/results?search_query=${keyWord}`;
+			this.$shell.openExternal(url);
+		},
+
 		// 取得影片預覽圖
 		async getVideoImg(e) {
 			e.preventDefault();
 			e.stopPropagation();
 			// this.removeImage();
 
-			const v = this.url.match(/(?<=^https:\/\/.+?v=)\w{11}(?=.*$)/);
+			const v = this.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
 			if (v && v[0].length == 11) {
 				const buf = await this.$ipcRenderer.invoke('invokeAxios', v);
+
+				if (buf.Error) {
+					// No cover image exists
+					this.$store.commit('snackbar', { text: buf.message, color: 'error' });
+					return;
+				}
 
 				let image = this.$sharp(Buffer.from(buf));
 				const { width } = await image.metadata();
@@ -495,47 +520,6 @@ export default {
 								this.$set(this.imgSize, 'height', info.height);
 							});
 						});
-
-						// image.metadata().then(async ({ width }) => {
-						// 	console.log(width);
-						// 	if (width > 1440) console.log(width);
-
-						// 	image.toBuffer((err, data, info) => {
-						// 		if (err) console.warn(err);
-						// 		this.imgurl = data;
-
-						// 		this.$nextTick(() => {
-						// 			this.$set(this.imgSize, 'width', info.width);
-						// 			this.$set(this.imgSize, 'height', info.height);
-						// 		});
-						// 	});
-						// });
-						// .then(({ data, info }) => {
-						// 	console.log(data);
-						// 	console.log(info);
-
-						// 	this.imgurl = data;
-
-						// 	this.$nextTick(() => {
-						// 		this.$set(this.imgSize, 'width', info.width);
-						// 		this.$set(this.imgSize, 'height', info.height);
-						// 	});
-						// })
-						// .catch(err => {
-						// 	console.warn(err);
-						// });
-
-						// if (meta.width > 1440) image = image.resize(1440);
-
-						// image.toBuffer((err, data, info) => {
-						// 	if (err) console.warn(err);
-						// 	this.imgurl = data;
-
-						// 	this.$nextTick(() => {
-						// 		this.$set(this.imgSize, 'width', info.width);
-						// 		this.$set(this.imgSize, 'height', info.height);
-						// 	});
-						// });
 					}
 				})
 				.catch(err => {
@@ -587,11 +571,9 @@ export default {
 				Promise.all(promises)
 					.then(res => {
 						console.log('Done!', res);
-						// res.forEach();
 
 						const obj = this.lyric.obj;
-
-						const v = this.url.match(/(?<=^https:\/\/.+?v=)\w{11}(?=.*$)/);
+						const v = this.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
 						// add image / avatart to list
 						this.$dbList.update(
 							{ uniqueKey: obj.key },
@@ -618,17 +600,24 @@ export default {
 						if (err) {
 							this.$store.commit('snackbar', { text: err, color: 'error' });
 
-							this.$fs.unlinkSync(`${this.$picPath}\\${this.lyric.obj.key}.jpg`);
-							this.$fs.unlinkSync(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`);
+							this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}.jpg`, err => {
+								if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
+							});
+							this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`, err => {
+								if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
+							});
 						}
 					});
 			} else {
 				const obj = this.lyric.obj;
+				const v = this.url ? this.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/) : null;
+
 				this.$dbList.update(
 					{ uniqueKey: obj.key },
 					{
 						$set: {
 							ytUrl: this.url,
+							ytID: v && v[0].length == 11 ? v[0] : null,
 							imagePath: null,
 							imageSize: {},
 							rectangle: {},
@@ -644,8 +633,20 @@ export default {
 						if (nb > 0) {
 							this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
 
-							this.$fs.unlinkSync(`${this.$picPath}\\${this.lyric.obj.key}.jpg`);
-							this.$fs.unlinkSync(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`);
+							const path = [
+								`${this.$picPath}\\${this.lyric.obj.key}.jpg`,
+								`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`
+							];
+
+							path.forEach(p => {
+								this.$fs.exists(p, exist => {
+									if (exist) {
+										this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}.jpg`, err => {
+											if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
+										});
+									}
+								});
+							});
 						}
 					}
 				);
@@ -694,12 +695,41 @@ export default {
 		},
 
 		// crosshair 十字重置 // 移出 v-card 時
+		// crossReset(e) {
 		crossReset() {
+			// console.log(e);
 			if (!this.imgurl || !this.catchAvatar) return;
 
 			this.$refs.hairH.style.top = 0;
 			this.$refs.hairV.style.left = 0;
 			this.$refs.pos.innerText = 'X:0, Y:0';
+			this.startRectFlag = false;
+			// if (this.startRectFlag) {
+			// 	this.startRectFlag = false;
+
+			// 	this.$nextTick(() => {
+			// 		const region = this.$refs.region;
+			// 		// console.log(region);
+
+			// 		this.rectPercent.x = parseFloat(this.$lodash.trimEnd(region.style.left, '%'));
+			// 		this.rectPercent.y = parseFloat(this.$lodash.trimEnd(region.style.top, '%'));
+			// 		this.rectPercent.width = parseFloat(this.$lodash.trimEnd(region.style.width, '%'));
+			// 		this.rectPercent.height = parseFloat(this.$lodash.trimEnd(region.style.height, '%'));
+
+			// 		this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
+			// 		this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
+			// 		this.$nextTick(() => {
+			// 			if (this.rectAbs.width <= 5 || this.rectAbs.height <= 5) return;
+			// 			else if (this.rectAbs.width >= 128 && this.rectAbs.height >= 128) this.showMenu = true;
+			// 			else {
+			// 				this.$store.commit('snackbar', {
+			// 					text: 'must large than 128 x128 ',
+			// 					color: 'info'
+			// 				});
+			// 			}
+			// 		});
+			// 	});
+			// }
 		},
 
 		// 開始框選圖片 // left button down
@@ -731,7 +761,7 @@ export default {
 		// 停止框選圖片 // left button up
 		rectOff(e) {
 			if (!this.imgurl || !this.catchAvatar) return;
-			if (e.button == 0) {
+			if (e.button == 0 && this.startRectFlag) {
 				this.startRectFlag = false;
 
 				this.$nextTick(() => {
@@ -747,10 +777,14 @@ export default {
 					this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
 					this.$nextTick(() => {
 						if (this.rectAbs.width <= 5 || this.rectAbs.height <= 5) return;
-						else if (this.rectAbs.width >= 128 && this.rectAbs.height >= 128) this.showMenu = true;
-						else {
+						else if (
+							(this.imgSize.width * this.rectPercent.width) / 100 >= 128 &&
+							(this.imgSize.height * this.rectPercent.height) / 100 >= 128
+						) {
+							this.showMenu = true;
+						} else {
 							this.$store.commit('snackbar', {
-								text: 'must large than 128 x128 ',
+								text: 'サイズが足りない(128x128以上)',
 								color: 'info'
 							});
 						}

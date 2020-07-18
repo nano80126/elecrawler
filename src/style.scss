@@ -237,6 +237,12 @@ span.ruby span.rt {
 	}
 }
 
+.lyric-content.black--subtext {
+	> span > span.ruby > span.rt {
+		color: black;
+	}
+}
+
 .dummy:empty:before {
 	content: '\00a0';
 }

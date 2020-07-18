@@ -2,6 +2,7 @@
 
 import Vue from 'vue';
 import Vuex from 'vuex';
+// import { resolve } from 'core-js/fn/promise';
 
 Vue.use(Vuex);
 
@@ -13,7 +14,9 @@ export default new Vuex.Store({
 		///
 		isElectron: process.env.IS_ELECTRON ? true : false,
 		//
+		lyricObj: null,
 		player: null,
+		playerLoop: false,
 		playState: -1
 	},
 	getters: {
@@ -43,6 +46,16 @@ export default new Vuex.Store({
 			});
 		},
 
+		saveLyric(state, obj) {
+			state.lyricObj = obj;
+		},
+
+		clearLyric(state) {
+			if (state.lyricObj) {
+				state.lyricObj = null;
+			}
+		},
+
 		creatPlayer(state, yt) {
 			state.player = yt;
 			state.player.addEventListener('onStateChange', e => {
@@ -51,6 +64,8 @@ export default new Vuex.Store({
 		},
 
 		playVideo(state) {
+			// console.log(state.player);
+			if (state.player.isMuted()) state.player.unMute();
 			state.player.playVideo();
 		},
 
@@ -74,12 +89,22 @@ export default new Vuex.Store({
 
 		videoSetVolume(state, value) {
 			state.player.setVolume(value);
+			if (value == 0) state.player.mute();
+			else state.player.unMute();
+		},
+
+		videoLoop(state, bool) {
+			state.player.setLoop(bool);
+			state.playerLoop = bool;
 		},
 
 		destroyPlayer(state) {
-			state.player.destroy();
-			state.player = null;
-			state.playState = -1;
+			if (state.player) {
+				state.player.destroy();
+				state.player = null;
+				state.playState = -1;
+			}
+			if (state.lyricObj) state.lyricObj = null;
 		}
 	},
 	actions: {},

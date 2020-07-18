@@ -30,6 +30,9 @@ Object.defineProperties(Vue.prototype, {
 	// $dbLyric: {
 	// 	value: require('./plugins/nedb').lyricDB
 	// },
+	$shell: {
+		value: require('electron').shell
+	},
 	$ipcRenderer: {
 		value: require('electron').ipcRenderer
 	},

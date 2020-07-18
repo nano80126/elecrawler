@@ -44,6 +44,38 @@ function createWindow() {
 		}
 	});
 
+	console.log(Menu.getApplicationMenu());
+
+	// win.webContents.on('new-window', (event, url, frameName) => {
+	// 	if (frameName === 'ytSearch') {
+	// 		// 將視窗以強制回應方式開啟
+	// 		event.preventDefault();
+	// 		let child = new BrowserWindow({
+	// 			backgroundColor: '#ddd',
+	// 			// skipTaskbar: true,
+	// 			width: 600,
+	// 			height: 960,
+	// 			///
+	// 			center: true,
+	// 			show: false,
+	// 			autoHideMenuBar: true,
+	// 			frame: false,
+	// 			resizable: false,
+	// 			webPreferences: {
+	// 				nodeIntegration: true
+	// 			}
+	// 		});
+	// 		child.loadURL(url);
+
+	// 		child.on('ready-to-show', () => {
+	// 			child.show();
+	// 		});
+
+	// 		child.on('close', () => {
+	// 			child = null;
+	// 		});
+	// 	}
+	// });
 	// win.webContents.op
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -91,8 +123,8 @@ app.on('ready', () => {
 	const contextMenu = Menu.buildFromTemplate([
 		{ label: 'Open', type: 'normal', click: () => win.show() },
 		{ type: 'separator' },
-		{ label: 'Item2', type: 'radio' },
-		{ label: 'Item3', type: 'radio', checked: true },
+		// { label: 'Item2', type: 'radio' },
+		// { label: 'Item3', type: 'radio', cheked: true },
 		{ label: 'Close', type: 'normal', click: () => win.close() }
 	]);
 	tray.setToolTip('This is my application.');

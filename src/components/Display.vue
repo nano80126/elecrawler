@@ -1,136 +1,121 @@
 <template>
 	<div>
-		<v-card v-if="lyric" flat shaped width="100%">
-			<v-card-title>
-				<span class="ellipsis" v-text="lyric.title" style="max-width: 500px" />
-			</v-card-title>
-			<v-card-subtitle style="position: relative;">
-				<span v-text="lyric.artist" />
+		<!-- <v-card v-if="lyric" flat shaped width="100%"> -->
+		<v-card-title>
+			<span class="ellipsis" v-text="lyric.title" style="max-width: 500px" />
+		</v-card-title>
+		<v-card-subtitle style="position: relative;">
+			<span v-text="lyric.artist" />
+		</v-card-subtitle>
 
-				<!-- <div style="position: absolute; bottom:0; right:0;">
-					<v-btn color="success">colors</v-btn>
-				</div> -->
-			</v-card-subtitle>
+		<v-divider />
 
-			<v-divider />
+		<!-- height = 32+48+38+2+52+12    -->
+		<v-card-text
+			class="text-darken-2 font-weight-bold lyric-body py-0"
+			style="position:relative;"
+			:style="{ height: `${$root.webHeight - 241}px` }"
+		>
+			<!-- :style="{ height: `${$root.webHeight - 184}px` }" -->
 
-			<!-- height = 32+48+38+2+52+12    -->
-			<v-card-text
-				class="text-darken-2 font-weight-bold lyric-body py-0"
-				style="position:relative;"
-				:style="{ height: `${$root.webHeight - 241}px` }"
-			>
-				<!-- :style="{ height: `${$root.webHeight - 184}px` }" -->
-
-				<!-- <v-img class="back-card my-4 red" contain :src="image" /> -->
-				<transition name="fadeIn" mode="out-in">
-					<v-img
-						v-if="image"
-						class="back-card my-4"
-						contain
-						:width="fullImg ? '100%' : null"
-						position="top center"
-						:src="`data:image/jpeg;base64,${image.toString('base64')}`"
-						:style="{ opacity: backOpacity }"
-					/>
-					<!-- :width="backSize ? backSize.width : null"
+			<!-- <v-img class="back-card my-4 red" contain :src="image" /> -->
+			<transition name="fadeIn" mode="out-in">
+				<v-img
+					v-if="image"
+					class="back-card my-4"
+					contain
+					:width="fullImg ? '100%' : null"
+					position="top center"
+					:src="`data:image/jpeg;base64,${image.toString('base64')}`"
+					:style="{ opacity: backOpacity }"
+				/>
+				<!-- :width="backSize ? backSize.width : null"
 						:height="backSize ? backSize.height : null" -->
-				</transition>
+			</transition>
 
-				<div
-					class="mr-n4 py-4 pr-4 min-scroll y info-scroll lyric-content"
-					:class="`${mainColor}--text ${subColor}--subtext text-${textAlign}`"
-					style="position:relative; overflow-y: auto; height: 100%;"
-				>
-					<span class="text-center" v-html="lyric.lyric || '<span>歌詞が存在しない。</span>'"></span>
-					<span class="grey--text text-lighten-2 px-4 mt-10" style="float: right;">
-						-- 終わり
-					</span>
-				</div>
+			<div
+				class="mr-n4 py-4 pr-4 min-scroll y info-scroll lyric-content"
+				:class="`${mainColor}--text ${subColor}--subtext text-${textAlign}`"
+				style="position:relative; overflow-y: auto; height: 100%;"
+			>
+				<span class="text-center" v-html="lyric.lyric || '<span>歌詞が存在しない。</span>'"></span>
+				<span class="grey--text text-lighten-2 px-4 mt-10" style="float: right;">
+					-- 終わり
+				</span>
+			</div>
+		</v-card-text>
 
-				<!-- <v-parallax
-					class="full-card"
-					height="100%"
-					src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
-				/> -->
-			</v-card-text>
-
-			<v-divider />
-			<v-card-actions>
-				<!-- <v-btn>123</v-btn>
-				文字顏色、背景透明度 -->
-
-				<v-menu top offset-y nudge-top="16px" transition="scale-transition" origin="bottom left">
-					<template v-slot:activator="{ on, attrs }">
-						<v-btn text outlined class="rounded-xl mr-3" v-bind="attrs" v-on="on">
-							<v-icon :color="mainColor">fas fa-square</v-icon>
-						</v-btn>
-					</template>
-
-					<v-btn-toggle v-model="mainColor" color="primary" dense group class="white">
-						<v-btn v-for="(c, k) in colors" :key="`m${k}`" :value="c" text>
-							<v-icon :color="c">fas fa-square</v-icon>
-						</v-btn>
-					</v-btn-toggle>
-				</v-menu>
-
-				<v-menu top offset-y nudge-top="16px" transition="scale-transition" origin="bottom left">
-					<template v-slot:activator="{ on, attrs }">
-						<v-btn text outlined class="rounded-xl mr-3" v-bind="attrs" v-on="on">
-							<v-icon :color="subColor">fas fa-square</v-icon>
-						</v-btn>
-					</template>
-
-					<v-btn-toggle v-model="subColor" color="primary" dense group class="white">
-						<v-btn v-for="(c, k) in colors" :key="`m${k}`" :value="c" text>
-							<v-icon :color="c">fas fa-square</v-icon>
-						</v-btn>
-					</v-btn-toggle>
-				</v-menu>
-
-				<v-btn-toggle v-model="textAlign" mandatory dense class="mr-3">
-					<v-btn value="lelt" min-width="0" width="48">
-						<v-icon size="18">fas fa-align-left</v-icon>
+		<v-divider />
+		<v-card-actions>
+			<v-menu top offset-y nudge-top="16px" transition="scale-transition" origin="bottom left">
+				<template v-slot:activator="{ on, attrs }">
+					<v-btn text outlined class="rounded-xl mr-3" v-bind="attrs" v-on="on">
+						<v-icon :color="mainColor">fas fa-square</v-icon>
 					</v-btn>
+				</template>
 
-					<v-btn value="center" min-width="0" width="48">
-						<v-icon size="18">fas fa-align-center</v-icon>
-					</v-btn>
-
-					<v-btn value="right" min-width="0" width="48">
-						<v-icon size="18">fas fa-align-right</v-icon>
+				<v-btn-toggle v-model="mainColor" color="primary" dense group class="white">
+					<v-btn v-for="(c, k) in colors" :key="`m${k}`" :value="c" text>
+						<v-icon :color="c">fas fa-square</v-icon>
 					</v-btn>
 				</v-btn-toggle>
+			</v-menu>
 
-				<v-btn icon outlined @click="fullImg = !fullImg">
-					<v-icon size="18" :color="fullImg ? 'info' : 'grey darken-1'">fas fa-expand-arrows-alt</v-icon>
-					<!-- <v-icon style="position:absolute; top:0; left: 0;">fas fa-search</v-icon> -->
+			<v-menu top offset-y nudge-top="16px" transition="scale-transition" origin="bottom left">
+				<template v-slot:activator="{ on, attrs }">
+					<v-btn text outlined class="rounded-xl mr-3" v-bind="attrs" v-on="on">
+						<v-icon :color="subColor">fas fa-square</v-icon>
+					</v-btn>
+				</template>
+
+				<v-btn-toggle v-model="subColor" color="primary" dense group class="white">
+					<v-btn v-for="(c, k) in colors" :key="`m${k}`" :value="c" text>
+						<v-icon :color="c">fas fa-square</v-icon>
+					</v-btn>
+				</v-btn-toggle>
+			</v-menu>
+
+			<v-btn-toggle v-model="textAlign" mandatory dense class="mr-3">
+				<v-btn value="lelt" min-width="0" width="48">
+					<v-icon size="18">fas fa-align-left</v-icon>
 				</v-btn>
 
-				<v-spacer />
+				<v-btn value="center" min-width="0" width="48">
+					<v-icon size="18">fas fa-align-center</v-icon>
+				</v-btn>
 
-				<input
-					v-model="backOpacity"
-					max="1"
-					min="0.2"
-					step="0.032"
-					type="range"
-					class="slider"
-					style="width:12%; min-width: 120px"
-				/>
-			</v-card-actions>
+				<v-btn value="right" min-width="0" width="48">
+					<v-icon size="18">fas fa-align-right</v-icon>
+				</v-btn>
+			</v-btn-toggle>
 
-			<v-divider />
+			<v-btn icon outlined @click="fullImg = !fullImg">
+				<v-icon size="18" :color="fullImg ? 'info' : 'grey darken-1'">fas fa-expand-arrows-alt</v-icon>
+				<!-- <v-icon style="position:absolute; top:0; left: 0;">fas fa-search</v-icon> -->
+			</v-btn>
 
-			<v-card-actions>
+			<v-spacer />
+
+			<input
+				v-model="backOpacity"
+				max="1"
+				min="0.2"
+				step="0.032"
+				type="range"
+				class="slider"
+				style="width:12%; min-width: 120px"
+			/>
+		</v-card-actions>
+
+		<!-- <v-card-actions>
 				<embedPlayer :videoID="this.lyric.ytID" style="width:100%;" />
-			</v-card-actions>
-		</v-card>
+			</v-card-actions> -->
+		<!-- </v-card> -->
 	</div>
 </template>
 
 <script>
-import player from '@/components/Embed.vue';
+// import player from '@/components/Embed.vue';
 // import card from '@/components/LyricCard.vue';
 
 export default {
@@ -147,7 +132,7 @@ export default {
 	},
 
 	components: {
-		embedPlayer: player
+		// embedPlayer: player
 	},
 
 	data() {
@@ -158,10 +143,10 @@ export default {
 			subColor: 'grey',
 			textAlign: 'left',
 			//
-			colors: ['primary', 'info', 'success', 'teal', 'warning', 'orange', 'error', 'purple', 'grey'],
+			colors: ['primary', 'info', 'success', 'teal', 'error', 'warning', 'orange', 'purple', 'grey', 'black'],
 			//
 			fullImg: true,
-			backOpacity: 0.52
+			backOpacity: 0.36
 		};
 	},
 
@@ -184,6 +169,13 @@ export default {
 	mounted() {
 		if (this.lyric && this.lyric.image) {
 			this.backimgLoad();
+		}
+	},
+
+	beforeDestroy() {
+		// console.log(this.lyric);
+		if (this.lyric) {
+			this.$store.commit('saveLyric', this.lyric);
 		}
 	},
 
