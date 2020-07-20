@@ -6,23 +6,18 @@
 				class="pl-3"
 				:style="{ 'min-height': `${$root.webHeight - 44}px`, 'max-width': isTwoColumn ? '416px' : null }"
 			>
-				<v-toolbar flat color="grey lighten-2" height="40" class="mb-2 mr-3 rounded-lg">
-					<!-- <v-toolbar-title> </v-toolbar-title> -->
-
-					<!-- <v-toolbar-title> -->
-					<v-text-field v-model="filterStr" rounded dense hide-details placeholder="search">
+				<v-toolbar flat height="40" class="mb-2 mr-3 rounded-lg px-0">
+					<v-text-field v-model="filterStr" rounded dense hide-details placeholder="search" color="success">
 						<template v-slot:prepend-inner>
-							<v-icon small class="ml-n2 mr-1" style="margin-top: 6px;">fas fa-search</v-icon>
+							<v-icon small class="ml-n2 mr-1" style="margin-top: 6px;">
+								fas fa-search
+							</v-icon>
 						</template>
 					</v-text-field>
-					<!-- </v-toolbar-title> -->
-					<!-- <v-spacer />
-					<v-btn icon small>
-						<v-icon small>fas fa-search</v-icon>
-					</v-btn> -->
 				</v-toolbar>
 
-				<v-list two-line subheader class="transparent py-0">
+				<v-list two-line class="transparent py-0">
+					<!-- transparent subheader -->
 					<!--  -->
 					<!-- <v-subheader inset>sub header</v-subheader>
 					<v-divider inset />
@@ -53,7 +48,7 @@
 						<template v-slot="{ item }">
 							<!-- <v-subheader inset v-if="index == 0">sub header</v-subheader> -->
 
-							<v-list-item :key="item.uniqueKey" class="white mr-3">
+							<v-list-item :key="item.uniqueKey" class="mr-3">
 								<v-list-item-avatar>
 									<v-img v-if="item.avatar != undefined" :src="item.avatar" />
 									<v-icon v-else style="transform: rotate(135deg);">fas fa-tag</v-icon>

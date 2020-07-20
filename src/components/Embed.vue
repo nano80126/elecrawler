@@ -35,7 +35,7 @@
 									<v-icon small v-else>fas fa-volume-mute</v-icon>
 								</v-btn>
 							</template>
-							<v-card width="120px" class="px-1 no-drag" style="overflow: hidden;" dark>
+							<v-card width="120px" class="px-1 no-drag" style="overflow: hidden;" color="grey darken-2">
 								<v-slider
 									v-model="volume"
 									color="grey lighten-2"
@@ -80,7 +80,7 @@
 									<v-icon small> fas fa-ellipsis-h</v-icon>
 								</v-btn>
 							</template>
-							<v-list width="250px" class="py-0" flat dark>
+							<v-list width="250px" flat class="py-0 grey darken-2">
 								<v-list-item @click="toggleLoop">
 									<v-list-item-title class="d-flex">
 										<span>ループ再生</span>

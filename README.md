@@ -31,3 +31,4 @@ This is a lyric crawler build by electron.
 
 * [ ] Changing avatar will not work until application refresh
 * [ ] Volume bugs (different until adjust)
+* [ ] List can't loading until reload

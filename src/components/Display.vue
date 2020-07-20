@@ -100,7 +100,7 @@
 				v-model="backOpacity"
 				max="1"
 				min="0.2"
-				step="0.032"
+				step="0.02"
 				type="range"
 				class="slider"
 				style="width:12%; min-width: 120px"
@@ -117,6 +117,7 @@
 <script>
 // import player from '@/components/Embed.vue';
 // import card from '@/components/LyricCard.vue';
+import debounce from 'lodash/debounce';
 
 export default {
 	props: {
@@ -143,10 +144,21 @@ export default {
 			subColor: 'grey',
 			textAlign: 'left',
 			//
-			colors: ['primary', 'info', 'success', 'teal', 'error', 'warning', 'orange', 'purple', 'grey', 'black'],
+			colors: Object.freeze([
+				'primary',
+				'info',
+				'success',
+				'teal',
+				'error',
+				'warning',
+				'orange',
+				'purple',
+				'grey',
+				'black'
+			]),
 			//
 			fullImg: true,
-			backOpacity: 0.36
+			bkOpacity: 0.36
 		};
 	},
 
@@ -154,6 +166,15 @@ export default {
 		backSize() {
 			if (this.lyric) return this.lyric.imageSize;
 			else return null;
+		},
+
+		backOpacity: {
+			get() {
+				return this.bkOpacity;
+			},
+			set: debounce(function(val) {
+				this.bkOpacity = val;
+			}, 100)
 		}
 	},
 
@@ -230,19 +251,6 @@ export default {
 	transform: translateX(125%);
 }
 
-// input[type='range'] {
-// 	-webkit-appearance: none;
-// 	// // width: 200px;
-// 	// padding: 10px;
-// 	width: 200px;
-// 	height: 40px;
-// 	outline: none; /* 避免點選會有藍線或虛線 */
-// 	background: none;
-// 	overflow: hidden; /* 限定範圍 */
-// 	cursor: pointer;
-
-// }
-
 input[type='range'] {
 	-webkit-appearance: none; /* Hides the slider so that custom slider can be made */
 	position: relative;
@@ -258,12 +266,12 @@ input[type='range'] {
 		height: 2px;
 		background: linear-gradient(
 			to right,
-			white 0,
-			white 7px,
+			transparent 0,
+			transparent 7px,
 			grey 7px,
 			grey calc(100% - 7px),
-			white calc(100% - 7px),
-			white 100%
+			transparent calc(100% - 7px),
+			transparent 100%
 		);
 		opacity: 0.75;
 		cursor: pointer;
@@ -281,26 +289,4 @@ input[type='range'] {
 		cursor: pointer;
 	}
 }
-
-// input[type='range']::-webkit-slider-runnable-track {
-// 	width: 100%;
-// 	height: 8.4px;
-// 	cursor: pointer;
-// 	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-// 	background: #3071a9;
-// 	border-radius: 1.3px;
-// 	border: 0.2px solid #010101;
-// }
-
-// input[type='range']::-webkit-slider-thumb {
-// 	-webkit-appearance: none;
-// 	border: 1px solid #000000;
-// 	height: 36px;
-// 	width: 16px;
-// 	border-radius: 3px;
-// 	background: #ffffff;
-// 	cursor: pointer;
-// 	margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
-// 	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
-// }
 </style>

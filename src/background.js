@@ -29,7 +29,7 @@ function createWindow() {
 		height: 960,
 		///
 		x: 30,
-		y: 18,
+		y: 40,
 		// frame: false,
 		title: 'electron searcher',
 		// opacity: 0.5,
@@ -44,7 +44,7 @@ function createWindow() {
 		}
 	});
 
-	console.log(Menu.getApplicationMenu());
+	// console.log(Menu.getApplicationMenu());
 
 	// win.webContents.on('new-window', (event, url, frameName) => {
 	// 	if (frameName === 'ytSearch') {

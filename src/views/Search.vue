@@ -78,7 +78,7 @@
 								:key="words._id"
 								small
 								class="ml-2 mt-1"
-								color="light-blue lighten-2"
+								color="light-blue lighten-1"
 								style="cursor: pointer;"
 								@click="historySearch(words.artist, words.title)"
 							>

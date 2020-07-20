@@ -29,30 +29,34 @@
 						placeholder="Youtubeのリンク"
 						class="mx-0"
 						color="success"
-						background-color="brown lighten-4"
+						background-color="brown darken-4"
 					>
 						<template v-slot:prepend-inner>
-							<v-icon left small class="mt-1">fab fa-youtube</v-icon>
+							<v-icon left small class="mt-1" color="red">fab fa-youtube</v-icon>
 						</template>
 					</v-text-field>
 
-					<v-tooltip left>
+					<v-tooltip left open-delay="300">
 						<template v-slot:activator="{ on, attrs }">
 							<v-btn
 								icon
 								outlined
 								class="ml-2"
-								color=""
+								dark
 								width="36"
 								height="36"
 								@click="openWindow(lyric.obj.title)"
 								v-bind="attrs"
 								v-on="on"
+								style="position:relative;"
 							>
-								<v-icon small>fab fa-chrome</v-icon>
+								<v-icon small color="info lighten-2">fab fa-chrome</v-icon>
+								<!-- <v-icon style="position:absolute; transform: rotate(-45deg);">
+									fas fa-long-arrow-alt-right
+								</v-icon> -->
 							</v-btn>
 						</template>
-						<span>Open in new window</span>
+						<span>外部ブラウザでサーチ</span>
 					</v-tooltip>
 
 					<!-- <v-tooltip left>

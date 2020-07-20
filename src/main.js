@@ -75,6 +75,10 @@ new Vue({
 			screenHeight: window.screen.height
 		};
 	},
+	created() {
+		this.$vuetify.theme.dark = true;
+	},
+
 	mounted() {
 		window.onresize = () => {
 			this.webWidth = window.innerWidth;

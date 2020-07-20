@@ -1,7 +1,7 @@
 <template>
 	<div v-show="SHOW">
 		<v-app>
-			<v-app-bar app flat height="32" color="grey lighten-4">
+			<v-app-bar app flat height="32" color="blue-grey darken-4">
 				<div class="window-drag header ml-n4" />
 				<!--  -->
 				<div class="" style="width:90px;">
@@ -38,8 +38,8 @@
 				<!--  -->
 				<v-list flat class="no-drag">
 					<v-tooltip right transition="scroll-x-transition" open-delay="300">
-						<template v-slot:activator="{ on }">
-							<v-list-item to="/" exact v-on="on">
+						<template v-slot:activator="{ attrs, on }">
+							<v-list-item to="/" exact v-bind="attrs" v-on="on">
 								<v-list-item-content>
 									<v-icon small>fas fa-search</v-icon>
 								</v-list-item-content>
@@ -49,8 +49,8 @@
 					</v-tooltip>
 					<!--  -->
 					<v-tooltip right transition="scroll-x-transition" open-delay="300">
-						<template v-slot:activator="{ on }">
-							<v-list-item to="/list" exact v-on="on">
+						<template v-slot:activator="{ attrs, on }">
+							<v-list-item to="/list" exact v-bind="attrs" v-on="on">
 								<v-list-item-content>
 									<v-icon small>fas fa-list</v-icon>
 								</v-list-item-content>
@@ -71,8 +71,8 @@
 					</v-tooltip> -->
 
 					<v-tooltip right transition="scroll-x-transition" open-delay="300">
-						<template v-slot:activator="{ on }">
-							<v-list-item to="/test" exact v-on="on">
+						<template v-slot:activator="{ attrs, on }">
+							<v-list-item to="/test" exact v-bind="attrs" v-on="on">
 								<v-list-item-content>
 									<v-icon small>fas fa-code</v-icon>
 								</v-list-item-content>
@@ -83,6 +83,19 @@
 				</v-list>
 
 				<template v-slot:append>
+					<v-list flat class="no-drag">
+						<v-tooltip right transition="scroll-x-transition" open-delay="300">
+							<template v-slot:activator="{ attrs, on }">
+								<v-list-item v-bind="attrs" v-on="on">
+									<v-list-item-content>
+										<v-icon small>fas fa-music</v-icon>
+									</v-list-item-content>
+								</v-list-item>
+							</template>
+							<span>プレーヤー</span>
+						</v-tooltip>
+					</v-list>
+
 					<v-menu rounded right min-width="120">
 						<template v-slot:activator="{ on: menu, attrs }">
 							<v-list flat class="no-drag">
@@ -127,16 +140,8 @@
 				</v-btn>
 			</v-toolbar> -->
 
-			<!-- <v-content class="grey lighten-3"> -->
-			<v-main class="grey lighten-4">
-				<!-- <div ref="scrollPage"> -->
-				<!-- class="min-scroll primary-scroll" -->
-				<!-- :style="{ height: contentHeight }" -->
-				<!-- style="overflow-x:hidden; overflow-y:auto;" -->
-				<!-- style="overflow-x:hidden; overflow-y:auto;" -->
-				<router-view />
-				<!-- </div> -->
-			</v-main>
+			<!-- class="grey lighten-4" -->
+			<v-main><router-view /></v-main>
 
 			<!-- <v-footer app inset color="success">
 				<v-row no-gutters align="center">
