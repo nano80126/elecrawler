@@ -42,6 +42,7 @@
 								icon
 								outlined
 								class="ml-2"
+								color="primary lighten-4"
 								dark
 								width="36"
 								height="36"
@@ -50,7 +51,7 @@
 								v-on="on"
 								style="position:relative;"
 							>
-								<v-icon small color="info lighten-2">fab fa-chrome</v-icon>
+								<v-icon small>fab fa-chrome</v-icon>
 								<!-- <v-icon style="position:absolute; transform: rotate(-45deg);">
 									fas fa-long-arrow-alt-right
 								</v-icon> -->
@@ -227,7 +228,11 @@
 									</template>
 									<div id="small-region-freeze" ref="region-freeze" />
 								</v-img>
-								<v-card-text v-else class="text-center white mx-auto rounded-lg" style="width: 75%">
+								<v-card-text
+									v-else
+									class="text-center grey darken-2 mx-auto rounded-lg"
+									style="width: 75%"
+								>
 									ドラッグ & ドロップ
 									<br />
 									<small>Drag image and drop here</small>

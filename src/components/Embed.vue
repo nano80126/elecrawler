@@ -1,8 +1,8 @@
 <template>
 	<div>
 		<v-card-actions>
-			<v-list class="py-0" dense width="100%">
-				<v-list-item>
+			<v-list class="py-0" dense width="100%" color="transparent">
+				<v-list-item :disabled="!player">
 					<v-list-item-content>
 						<div class="d-flex align-center">
 							<span>{{ $moment.utc(progressCurr * 1000).format('mm:ss') }}</span>
@@ -26,10 +26,11 @@
 							offset-y
 							:close-on-content-click="false"
 							nudge-left="42"
+							nudge-top="10"
 							close-delay="1500"
 						>
 							<template v-slot:activator="{ on, attrs }">
-								<v-btn icon @click="onVolumeToggle" v-bind="attrs" v-on="on">
+								<v-btn icon @click="onVolumeToggle" v-bind="attrs" v-on="on" :disabled="!player">
 									<v-icon small v-if="volume > 40">fas fa-volume-up</v-icon>
 									<v-icon small v-else-if="volume > 0">fas fa-volume-down</v-icon>
 									<v-icon small v-else>fas fa-volume-mute</v-icon>
@@ -47,6 +48,10 @@
 						</v-menu>
 					</v-list-item-icon>
 
+					<!-- {{ playState }}
+					{{ $store.state.playState }} -->
+					<!-- {{ sheet }} -->
+
 					<!-- <v-list-item-icon class="align-center">
 					<v-btn icon @click="backward10">
 						<v-icon small>fas fa-backward</v-icon>
@@ -54,37 +59,33 @@
 				</v-list-item-icon> -->
 
 					<v-list-item-icon class="align-center">
-						<v-btn icon @click="backward10">
+						<v-btn icon @click="backward10" :disabled="!player">
 							<v-icon small>fas fa-backward</v-icon>
 						</v-btn>
-						<!-- <v-btn icon v-if="playState == -1 " @click="videoStart" :disabled="!canPlay">
-						<v-icon small>fas fa-play</v-icon>
-					</v-btn> -->
-						<v-btn icon v-if="playState == 2 || playState == 5" @click="videoStart" :disabled="!canPlay">
-							<v-icon small>fas fa-play</v-icon>
+						<!--  -->
+						<v-btn icon v-if="canPlay" @click="videoStart" :disabled="!player">
+							<v-icon small v-if="playState == 2 || playState == 5">fas fa-play</v-icon>
+							<v-icon small v-else>fas fa-undo</v-icon>
 						</v-btn>
-						<v-btn icon v-else-if="playState == 0" @click="videoStart" :disabled="!canPlay">
-							<v-icon small>fas fa-undo</v-icon>
-						</v-btn>
-						<v-btn icon v-else @click="videoPause" :disabled="playState == -1">
+						<v-btn icon v-else @click="videoPause" :disabled="!player">
 							<v-icon small>fas fa-pause</v-icon>
 						</v-btn>
-
-						<v-btn icon @click="forward10">
+						<!--  -->
+						<v-btn icon @click="forward10" :disabled="!player">
 							<v-icon small>fas fa-forward</v-icon>
 						</v-btn>
 
-						<v-menu top left offset-y>
+						<v-menu top left offset-y nudge-top="10" close-on-click>
 							<template v-slot:activator="{ attrs, on }">
-								<v-btn icon v-bind="attrs" v-on="on">
+								<v-btn icon v-bind="attrs" v-on="on" :disabled="!player">
 									<v-icon small> fas fa-ellipsis-h</v-icon>
 								</v-btn>
 							</template>
 							<v-list width="250px" flat class="py-0 grey darken-2">
-								<v-list-item @click="toggleLoop">
+								<v-list-item @click.prevent="toggleLoop">
 									<v-list-item-title class="d-flex">
 										<span>ループ再生</span>
-										<v-icon v-if="loop" class="ml-auto" small>fas fa-check</v-icon>
+										<v-icon v-show="loop" class="ml-auto" small>fas fa-check</v-icon>
 									</v-list-item-title>
 								</v-list-item>
 							</v-list>
@@ -102,7 +103,6 @@
 				<v-btn @click="$store.commit('destroyPlayer')">destroy</v-btn>
 			</v-list-item> -->
 			</v-list>
-			<!-- </v-bottom-sheet> -->
 		</v-card-actions>
 	</div>
 </template>
@@ -113,12 +113,16 @@ export default {
 		videoID: {
 			type: String,
 			required: false
+		},
+
+		sheet: {
+			type: Boolean,
+			return: false
 		}
 	},
 
 	data() {
 		return {
-			sheet: true,
 			// progress: 0,
 
 			progressCurr: 0,
@@ -135,7 +139,12 @@ export default {
 	},
 	computed: {
 		canPlay() {
+			// end // pause // ready
 			return this.playState == 0 || this.playState == 2 || this.playState == 5;
+		},
+
+		player() {
+			return this.$store.state.player || false;
 		},
 
 		progress: {
@@ -149,61 +158,31 @@ export default {
 	},
 
 	watch: {
-		'$store.getters.playState'(e) {
-			this.playState = e.data;
+		'$store.getters.playState'(state) {
+			this.playState = state;
 			clearInterval(this.checkProgress);
 
-			switch (this.playState) {
+			switch (state) {
 				case 0:
 					this.progressCurr = this.progressMax;
-					if (this.loop) setTimeout(() => this.$store.commit('playVideo'), 2000);
 					break;
 				case 1:
-					this.checkProgress = setInterval(() => {
-						this.progressCurr = e.target.getCurrentTime();
-					}, 250);
+					this.checkProgress = setInterval(() => (this.progressCurr = this.player.getCurrentTime()), 250);
 					break;
 			}
-
-			// if (this.playState == 1) {
-			// 	// this.progressCurr = e.target.getCurrentTime();
-			// 	this.checkProgress = setInterval(() => {
-			// 		this.progressCurr = e.target.getCurrentTime();
-			// 	}, 500);
-			// }
+		},
+		sheet(e) {
+			if (e) this.CheckPlayer();
 		}
 	},
 
 	mounted() {
+		// console.log('mouted');
 		if (!this.$store.state.player) {
 			this.IframeAPIReady(this.videoID);
 			// this.$store.commit('playVideo');
 		} else {
-			const player = this.$store.state.player;
-
-			this.playState = player.getPlayerState();
-			this.volume = this.volumeBack = player.getVolume();
-			this.progressCurr = player.getCurrentTime();
-			this.progressMax = player.getDuration();
-			this.loop = this.$store.state.playerLoop;
-
-			switch (this.$store.getters.playState.data) {
-				case 0:
-					this.progressCurr = this.progressMax;
-					if (this.loop) setTimeout(() => this.$store.commit('playVideo'), 1500);
-					break;
-				case 1:
-					this.checkProgress = setInterval(() => {
-						this.progressCurr = this.$store.state.player.getCurrentTime();
-					}, 250);
-					break;
-			}
-
-			// if (this.$store.getters.playState.data == 1) {
-			// 	this.checkProgress = setInterval(() => {
-			// 		this.progressCurr = this.$store.state.player.getCurrentTime();
-			// 	}, 500);
-			// }
+			this.CheckPlayer();
 		}
 	},
 
@@ -238,7 +217,7 @@ export default {
 							e.target.setVolume(75);
 							// e.target.setLoop(false);
 							// e.target.mute().playVideo();
-							this.playState = 5;
+							this.$store.state.playState = 5;
 							this.progressMax = e.target.getDuration();
 						}
 					}
@@ -246,20 +225,42 @@ export default {
 			);
 		},
 
+		CheckPlayer() {
+			const player = this.$store.state.player;
+
+			this.playState = player.getPlayerState();
+			this.volume = this.volumeBack = player.getVolume();
+			this.progressCurr = player.getCurrentTime();
+			this.progressMax = player.getDuration();
+			this.loop = this.$store.state.playerLoop;
+
+			switch (this.$store.getters.playState.data) {
+				case 0:
+					this.progressCurr = this.progressMax;
+					break;
+				case 1:
+					this.checkProgress = setInterval(() => {
+						this.progressCurr = this.$store.state.player.getCurrentTime();
+					}, 250);
+					break;
+			}
+		},
+
 		onVolumeToggle() {
+			if (!this.$store.player) return;
+
 			if (this.volume > 0) {
 				this.volumeBack = this.volume;
 				this.volume = 0;
-			} else {
-				this.volume = this.volumeBack;
-			}
-			// this.$root.$player.setVolume(this.volume);
+			} else this.volume = this.volumeBack;
+
 			this.$store.commit('videoSetVolume', this.volume);
 		},
 
 		onVolumeChange() {
+			if (!this.$store.player) return;
+
 			if (this.volume > 0) this.volumeBack = this.volume;
-			// this.$root.$player.setVolume(e);
 			this.$store.commit('videoSetVolume', this.volume);
 		},
 

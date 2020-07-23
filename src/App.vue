@@ -86,19 +86,26 @@
 					<v-list flat class="no-drag">
 						<v-tooltip right transition="scroll-x-transition" open-delay="300">
 							<template v-slot:activator="{ attrs, on }">
-								<v-list-item v-bind="attrs" v-on="on">
-									<v-list-item-content>
-										<v-icon small>fas fa-music</v-icon>
-									</v-list-item-content>
+								<v-list-item
+									v-bind="attrs"
+									v-on="on"
+									@click="bottomSheet = !bottomSheet"
+									v-show="$route.name != 'List'"
+								>
+									<v-badge :color="playerState[$store.state.playState]" dot style="width:100%;">
+										<v-list-item-content>
+											<v-icon small>fas fa-music</v-icon>
+										</v-list-item-content>
+									</v-badge>
 								</v-list-item>
 							</template>
 							<span>プレーヤー</span>
 						</v-tooltip>
-					</v-list>
+						<!-- </v-list> -->
 
-					<v-menu rounded right min-width="120">
-						<template v-slot:activator="{ on: menu, attrs }">
-							<v-list flat class="no-drag">
+						<v-menu rounded right min-width="120">
+							<template v-slot:activator="{ on: menu, attrs }">
+								<!-- <v-list flat class="no-drag"> -->
 								<v-tooltip right transition="scroll-x-transition" open-delay="300">
 									<template v-slot:activator="{ on: tooltip }">
 										<v-list-item v-bind="attrs" v-on="{ ...tooltip, ...menu }">
@@ -109,18 +116,18 @@
 									</template>
 									<span>設定</span>
 								</v-tooltip>
-							</v-list>
-						</template>
-						<v-list dense class="no-drag">
-							<v-list-item @click="dialog = true">
-								<v-list-item-title>データをクリア</v-list-item-title>
-							</v-list-item>
+							</template>
+							<v-list dense class="no-drag">
+								<v-list-item @click="dialog = true">
+									<v-list-item-title>データをクリア</v-list-item-title>
+								</v-list-item>
 
-							<v-list-item @click="appClose">
-								<v-list-item-title>終了</v-list-item-title>
-							</v-list-item>
-						</v-list>
-					</v-menu>
+								<v-list-item @click="appClose">
+									<v-list-item-title>終了</v-list-item-title>
+								</v-list-item>
+							</v-list>
+						</v-menu>
+					</v-list>
 				</template>
 			</v-navigation-drawer>
 
@@ -141,7 +148,17 @@
 			</v-toolbar> -->
 
 			<!-- class="grey lighten-4" -->
-			<v-main><router-view /></v-main>
+			<v-main>
+				<router-view />
+			</v-main>
+
+			<v-bottom-sheet v-model="bottomSheet" inset>
+				<v-sheet class="text-center rounded-t-lg" color="blue-grey darken-3">
+					<!-- <v-btn class="mt-6" text color="error" @click="sheet = !sheet">close</v-btn> -->
+					<!-- <div class="py-3">This is a bottom sheet using the persistent prop</div> -->
+					<EmbedPlayer :sheet="bottomSheet" />
+				</v-sheet>
+			</v-bottom-sheet>
 
 			<!-- <v-footer app inset color="success">
 				<v-row no-gutters align="center">
@@ -219,18 +236,32 @@
 	</div>
 </template>
 <script>
+import player from '@/components/Embed.vue';
+
 export default {
 	name: 'App',
 
 	components: {
 		// HelloWorld
 		// connect: connect
+		EmbedPlayer: player
 	},
 
 	data: () => ({
 		SHOW: false,
 
-		dialog: false
+		dialog: false,
+
+		bottomSheet: false,
+
+		playerState: Object.freeze({
+			'-1': 'grey darken-2',
+			0: 'lime',
+			1: 'light-green',
+			2: 'warning',
+			3: 'pink',
+			5: 'info'
+		})
 		// bottomNav: null,
 		// drawer: true,
 		// miniVariant: true,
@@ -276,6 +307,7 @@ export default {
 	},
 	mounted() {
 		this.SHOW = true;
+		this.bottomSheet = false;
 	},
 	methods: {
 		windowMin() {

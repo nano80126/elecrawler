@@ -59,18 +59,19 @@ export default new Vuex.Store({
 		creatPlayer(state, yt) {
 			state.player = yt;
 			state.player.addEventListener('onStateChange', e => {
-				state.playState = e;
+				state.playState = e.data;
 			});
 		},
 
 		playVideo(state) {
-			// console.log(state.player);
-			if (state.player.isMuted()) state.player.unMute();
-			state.player.playVideo();
+			// 確認可播放
+			if (state.playState != -1 || state.playState != 3) state.player.playVideo();
+			if (state.player.isMuted()) state.player.unMute(); // 若靜音則開啟
 		},
 
 		pauseVideo(state) {
-			state.player.pauseVideo();
+			// 確認播放中
+			if (state.playState == 1) state.player.pauseVideo();
 		},
 
 		backward10(state) {

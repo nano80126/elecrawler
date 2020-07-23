@@ -54,7 +54,7 @@
 					</v-btn>
 				</template>
 
-				<v-btn-toggle v-model="mainColor" color="primary" dense group class="white">
+				<v-btn-toggle v-model="mainColor" color="grey lighten-3" dense group class="grey darken-2">
 					<v-btn v-for="(c, k) in colors" :key="`m${k}`" :value="c" text>
 						<v-icon :color="c">fas fa-square</v-icon>
 					</v-btn>
@@ -68,7 +68,7 @@
 					</v-btn>
 				</template>
 
-				<v-btn-toggle v-model="subColor" color="primary" dense group class="white">
+				<v-btn-toggle v-model="subColor" color="grey lighten-3" dense group class="grey darken-2">
 					<v-btn v-for="(c, k) in colors" :key="`m${k}`" :value="c" text>
 						<v-icon :color="c">fas fa-square</v-icon>
 					</v-btn>

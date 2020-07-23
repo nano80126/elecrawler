@@ -6,6 +6,8 @@ module.exports = {
 	// publicPath: require('path').resolve(__dirname, 'dist'),
 	publicPath: './',
 
+	productionSourceMap: false,
+
 	// process.env won't work here
 	devServer: {
 		// before: () => {

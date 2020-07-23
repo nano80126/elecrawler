@@ -180,7 +180,7 @@ export default {
 
 	methods: {
 		expandWidth() {
-			if (!this.isTwoColumn) this.$ipcRenderer.send('windowWidth', { width: 1440, height: this.windowHeight });
+			if (!this.isTwoColumn) this.$ipcRenderer.send('windowWidth', { width: 1600, height: this.windowHeight });
 		},
 
 		async getLyric(item) {

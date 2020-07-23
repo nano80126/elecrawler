@@ -75,6 +75,17 @@ new Vue({
 			screenHeight: window.screen.height
 		};
 	},
+
+	watch: {
+		'$store.getters.playState'(state) {
+			console.log(state);
+			if (state == 0) {
+				const loop = this.$store.state.playerLoop;
+				if (loop) setTimeout(() => this.$store.commit('playVideo'), 1500);
+			}
+		}
+	},
+
 	created() {
 		this.$vuetify.theme.dark = true;
 	},
