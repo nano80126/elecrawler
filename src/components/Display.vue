@@ -181,9 +181,7 @@ export default {
 	watch: {
 		'lyric.image'(img) {
 			this.image = null;
-			if (img) {
-				this.backimgLoad();
-			}
+			if (img) this.backimgLoad();
 		}
 	},
 
@@ -194,10 +192,8 @@ export default {
 	},
 
 	beforeDestroy() {
-		// console.log(this.lyric);
-		if (this.lyric) {
-			this.$store.commit('saveLyric', this.lyric);
-		}
+		// save lyric object before before
+		if (this.lyric) this.$store.commit('saveLyric', this.lyric);
 	},
 
 	methods: {

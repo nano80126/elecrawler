@@ -54,8 +54,12 @@ module.exports = {
 			builderOptions: {
 				productName: 'lyric spider',
 				copyright: 'Copyright © 2020',
+				// directories: {
+				// 	buildResources: 'build'
+				// },
+				// // files: ['public/trayicon.ico'],
 				win: {
-					icon: 'build/logo.png',
+					// icon: 'build/logo.png',
 					target: [
 						{
 							target: 'nsis',
@@ -63,7 +67,6 @@ module.exports = {
 						}
 					]
 				},
-				files: ['build/*'],
 				nsis: {
 					oneClick: false,
 					allowElevation: true,

@@ -17,7 +17,9 @@ export default new Vuex.Store({
 		lyricObj: null,
 		player: null,
 		playerLoop: false,
-		playState: -1
+		playerShuffle: false,
+		playState: -1,
+		playList: []
 	},
 	getters: {
 		barsHidden(state) {
@@ -63,6 +65,18 @@ export default new Vuex.Store({
 			});
 		},
 
+		cuePlayerById(state, id) {
+			if (state.player) {
+				state.player.cueVideoById({ videoId: id, suggestedQuality: 'small' });
+			}
+		},
+
+		loadPlayerById(state, id) {
+			if (state.player) {
+				state.player.loadVideoById({ videoId: id, suggestedQuality: 'small' });
+			}
+		},
+
 		playVideo(state) {
 			// 確認可播放
 			if (state.playState != -1 || state.playState != 3) state.player.playVideo();
@@ -95,8 +109,12 @@ export default new Vuex.Store({
 		},
 
 		videoLoop(state, bool) {
-			state.player.setLoop(bool);
+			// state.player.setLoop(bool);
 			state.playerLoop = bool;
+		},
+
+		videoShuffle(state, bool) {
+			state.playerShuffle = bool;
 		},
 
 		destroyPlayer(state) {
@@ -106,6 +124,10 @@ export default new Vuex.Store({
 				state.playState = -1;
 			}
 			if (state.lyricObj) state.lyricObj = null;
+		},
+
+		setPlayList(state, list) {
+			state.playList = list;
 		}
 	},
 	actions: {},

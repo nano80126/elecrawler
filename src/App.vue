@@ -60,6 +60,28 @@
 					</v-tooltip>
 
 					<!-- <v-tooltip right transition="scroll-x-transition" open-delay="300">
+						<template v-slot:activator="{ attrs, on }">
+							<v-list-item exact v-bind="attrs" v-on="on" @click="cuePlayerID">
+								<v-list-item-content>
+									<v-icon small>fas fa-play</v-icon>
+								</v-list-item-content>
+							</v-list-item>
+						</template>
+						<span>cur</span>
+					</v-tooltip> -->
+
+					<!-- <v-tooltip right transition="scroll-x-transition" open-delay="300">
+						<template v-slot:activator="{ attrs, on }">
+							<v-list-item exact v-bind="attrs" v-on="on" @click="getRandom">
+								<v-list-item-content>
+									<v-icon small>fas fa-random</v-icon>
+								</v-list-item-content>
+							</v-list-item>
+						</template>
+						<span>random</span>
+					</v-tooltip> -->
+
+					<!-- <v-tooltip right transition="scroll-x-transition" open-delay="300">
 						<template v-slot:activator="{ on }">
 							<v-list-item to="/dev" exact v-on="on">
 								<v-list-item-content>
@@ -70,7 +92,7 @@
 						<span>テスト</span>
 					</v-tooltip> -->
 
-					<v-tooltip right transition="scroll-x-transition" open-delay="300">
+					<!-- <v-tooltip right transition="scroll-x-transition" open-delay="300">
 						<template v-slot:activator="{ attrs, on }">
 							<v-list-item to="/test" exact v-bind="attrs" v-on="on">
 								<v-list-item-content>
@@ -79,7 +101,7 @@
 							</v-list-item>
 						</template>
 						<span>テスト</span>
-					</v-tooltip>
+					</v-tooltip> -->
 				</v-list>
 
 				<template v-slot:append>
@@ -154,8 +176,6 @@
 
 			<v-bottom-sheet v-model="bottomSheet" inset>
 				<v-sheet class="text-center rounded-t-lg" color="blue-grey darken-3">
-					<!-- <v-btn class="mt-6" text color="error" @click="sheet = !sheet">close</v-btn> -->
-					<!-- <div class="py-3">This is a bottom sheet using the persistent prop</div> -->
 					<EmbedPlayer :sheet="bottomSheet" />
 				</v-sheet>
 			</v-bottom-sheet>
@@ -349,7 +369,24 @@ export default {
 					this.dialog = false;
 				}
 			});
+		},
+
+		cuePlayerID() {
+			this.$store.state.player.cueVideoById('DS2sP8CDLas');
+		},
+
+		loadPlayerID() {
+			this.$store.state.player.loadVideoById('DS2sP8CDLas');
 		}
+
+		// getRandom() {
+		// 	const arr = [];
+		// 	for (let i = 0; i < 500; i++) {
+		// 		arr.push(this.$lodash.random(0, 12));
+		// 	}
+		// 	const a = this.$lodash.groupBy(arr);
+		// 	console.log(a);
+		// }
 	}
 };
 </script>

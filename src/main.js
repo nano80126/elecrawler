@@ -49,7 +49,7 @@ Object.defineProperties(Vue.prototype, {
 		value:
 			process.env.NODE_ENV == 'development'
 				? path.resolve(remote.app.getPath('pictures'), 'lyric_scrawer')
-				: path.resolve(remote.app.getPath('exe'), '../pic')
+				: path.resolve(remote.app.getPath('exe'), '../pictures')
 	}
 	// $clipboard: {
 	// 	value: require('electron').clipboard
@@ -67,7 +67,7 @@ new Vue({
 	///
 	data() {
 		return {
-			windowIsMax: false,
+			windowIsMax: false, // used in app.vue for changing icon
 			///
 			webWidth: window.innerWidth,
 			webHeight: window.innerHeight,
@@ -78,16 +78,54 @@ new Vue({
 
 	watch: {
 		'$store.getters.playState'(state) {
-			console.log(state);
 			if (state == 0) {
 				const loop = this.$store.state.playerLoop;
+				const shuffle = this.$store.state.playerShuffle;
 				if (loop) setTimeout(() => this.$store.commit('playVideo'), 1500);
+				else if (shuffle)
+					setTimeout(() => {
+						const old = this.$store.state.player.getVideoData();
+						const arr = this.$lodash.without(this.$store.state.playList, old.video_id);
+						const videoID = arr[this.$lodash.random(0, arr.length - 1)];
+						this.$store.commit('loadPlayerById', videoID);
+						// code above for loading video // code below for get lyric object
+
+						// if route is List enable
+						if (this.$route.name == 'List') this.$store.commit('changeOverlay', true);
+						this.$dbList.findOne({ ytID: videoID }, async (err, doc) => {
+							if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+							const res = await this.$ipcRenderer.invoke('getLyric', { url: doc.lyricUrl });
+
+							const obj = Object.freeze({
+								key: res.lyricKey,
+								url: res.url,
+								title: res.mainTxt,
+								artist: res.artist,
+								lyric: res.lyricContent,
+								image: doc.imagePath || null,
+								imageSize: doc.imageSize || {}
+							});
+							this.$emit('getLyricByID', obj); // raise event for changing lyric obj in list.vue
+							this.$store.commit('saveLyric', obj); // save lyric obj for loading display.vue
+							this.$store.commit('changeOverlay', false); // disable overlay
+						});
+					}, 1500);
 			}
 		}
 	},
 
 	created() {
+		// set theme dark
 		this.$vuetify.theme.dark = true;
+
+		// create pictures file if not exists
+		this.$fs.exists(this.$picPath, exist => {
+			if (!exist) {
+				this.$fs.mkdir(this.$picPath, err => {
+					if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+				});
+			}
+		});
 	},
 
 	mounted() {

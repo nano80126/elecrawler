@@ -6,17 +6,27 @@
 				class="pl-3"
 				:style="{ 'min-height': `${$root.webHeight - 44}px`, 'max-width': isTwoColumn ? '416px' : null }"
 			>
-				<v-toolbar flat height="40" class="mb-2 mr-3 rounded-lg px-0">
-					<v-text-field v-model="filterStr" rounded dense hide-details placeholder="search" color="success">
-						<template v-slot:prepend-inner>
-							<v-icon small class="ml-n2 mr-1" style="margin-top: 6px;">
-								fas fa-search
-							</v-icon>
-						</template>
-					</v-text-field>
-				</v-toolbar>
+				<!-- <v-toolbar flat height="40" class="mb-2 mr-3 rounded-lg px-0"> -->
+				<v-text-field
+					v-model="filterStr"
+					filled
+					rounded
+					dense
+					hide-details
+					placeholder="サーチ"
+					color="success"
+					class="mr-3"
+				>
+					<template v-slot:prepend-inner>
+						<!-- style="margin-top: 6px;" -->
+						<v-icon left small class="mt-1 mr-1">
+							fas fa-search
+						</v-icon>
+					</template>
+				</v-text-field>
+				<!-- </v-toolbar> -->
 
-				<v-list two-line class="transparent py-0">
+				<v-list two-line class="transparent mt-2 py-0">
 					<!-- transparent subheader -->
 					<!--  -->
 					<!-- <v-subheader inset>sub header</v-subheader>
@@ -91,7 +101,7 @@
 					<v-card flat shaped width="100%">
 						<LyricDisplay :lyric="lyricObj" />
 						<v-divider />
-						<EmbedPlayer :videoID="this.lyricObj.ytID" />
+						<EmbedPlayer :videoID="this.videoID" />
 						<!-- <v-card-actions> -->
 						<!-- </v-card-actions> -->
 					</v-card>
@@ -126,7 +136,8 @@ export default {
 			filterStr: '',
 
 			list: [],
-			lyricObj: null
+			lyricObj: null,
+			videoID: null
 		};
 	},
 	computed: {
@@ -140,7 +151,12 @@ export default {
 			});
 		}
 	},
-	created() {},
+	created() {
+		// $on a new event if not exitst
+		if (!this.$root._events.getLyricByID) this.$root.$on('getLyricByID', obj => (this.lyricObj = obj));
+
+		console.log(this.$root._events);
+	},
 	mounted() {
 		this.$dbList
 			.find({})
@@ -148,8 +164,11 @@ export default {
 			.exec((err, doc) => {
 				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 				// console.log(doc);
+				this.$store.commit(
+					'setPlayList',
+					this.$lodash.filter(doc, 'ytID').map(e => e.ytID)
+				);
 
-				// console.log(doc);
 				const prom = [];
 				doc.forEach(async ele => {
 					if (ele.avatarPath) {
@@ -171,6 +190,9 @@ export default {
 					// this.list = this.$lodash.concat(doc, doc);
 					// console.log(this.list);
 				});
+
+				// console.log(doc.length);
+				// console.log(this.$lodash.map(doc, 'uniqueKey'));
 			});
 
 		this.lyricObj = this.$store.state.lyricObj;
@@ -187,8 +209,9 @@ export default {
 			this.$store.commit('changeOverlay', true);
 			this.expandWidth();
 
-			this.lyricObj = null;
-			this.$store.commit('destroyPlayer');
+			// 這邊判斷 player 是否存在
+			// this.lyricObj = null;
+			// this.$store.commit('destroyPlayer');
 			// this.$store.commit('clearLyric');
 
 			// this.$ipcRenderer.send('getLyric', { url: item.lyricUrl });
@@ -206,14 +229,16 @@ export default {
 							artist: res.artist,
 							lyric: res.lyricContent,
 							image: item.imagePath || null,
-							imageSize: item.imageSize || {},
-							ytID: item.ytID
+							imageSize: item.imageSize || {}
 						});
+						this.videoID = item.ytID;
 					});
 				}
 				this.$store.commit('changeOverlay', false);
 			});
-		}
+		},
+
+		getLyricByID() {}
 		// avatarLoad() {}
 	}
 };

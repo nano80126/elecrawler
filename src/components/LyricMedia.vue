@@ -26,7 +26,7 @@
 						rounded
 						dense
 						hide-details
-						placeholder="Youtubeのリンク"
+						placeholder="YouTubeのリンク"
 						class="mx-0"
 						color="success"
 						background-color="brown darken-4"
@@ -115,7 +115,7 @@
 							<v-icon small>fas fa-photo-video</v-icon>
 						</v-btn>
 					</template>
-					<span>Youtubeカバー画像をゲット</span>
+					<span>YouTubeカバー画像をゲット</span>
 				</v-tooltip>
 
 				<v-tooltip left open-delay="300">
@@ -351,15 +351,7 @@ export default {
 	computed: {},
 	watch: {},
 
-	created() {
-		this.$fs.exists(this.$picPath, exist => {
-			if (!exist) {
-				this.$fs.mkdir(this.$picPath, err => {
-					if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-				});
-			}
-		});
-	},
+	created() {},
 	mounted() {
 		this.$dbList.findOne({ uniqueKey: this.lyric.obj.key }, (err, doc) => {
 			if (err) {

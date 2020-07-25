@@ -75,7 +75,7 @@
 							<v-icon small>fas fa-forward</v-icon>
 						</v-btn>
 
-						<v-menu top left offset-y nudge-top="10" close-on-click>
+						<v-menu top left offset-y nudge-top="10">
 							<template v-slot:activator="{ attrs, on }">
 								<v-btn icon v-bind="attrs" v-on="on" :disabled="!player">
 									<v-icon small> fas fa-ellipsis-h</v-icon>
@@ -84,8 +84,16 @@
 							<v-list width="250px" flat class="py-0 grey darken-2">
 								<v-list-item @click.prevent="toggleLoop">
 									<v-list-item-title class="d-flex">
+										<v-icon small class="mr-3">fas fa-retweet</v-icon>
 										<span>ループ再生</span>
 										<v-icon v-show="loop" class="ml-auto" small>fas fa-check</v-icon>
+									</v-list-item-title>
+								</v-list-item>
+								<v-list-item @click.prevent="toggleShuffle">
+									<v-list-item-title class="d-flex">
+										<v-icon small class="mr-3">fas fa-random</v-icon>
+										<span>シャッフル再生</span>
+										<v-icon v-show="shuffle" class="ml-auto" small>fas fa-check</v-icon>
 									</v-list-item-title>
 								</v-list-item>
 							</v-list>
@@ -98,10 +106,6 @@
 					</v-btn>
 				</v-list-item-icon> -->
 				</v-list-item>
-				<!-- 
-			<v-list-item>
-				<v-btn @click="$store.commit('destroyPlayer')">destroy</v-btn>
-			</v-list-item> -->
 			</v-list>
 		</v-card-actions>
 	</div>
@@ -131,7 +135,8 @@ export default {
 
 			volume: 75,
 			volumeBack: 75,
-			loop: false,
+			// loop: false,
+			// shuffle: false,
 
 			// canPlay: true,
 			playState: -1
@@ -147,11 +152,29 @@ export default {
 			return this.$store.state.player || false;
 		},
 
+		loop: {
+			get() {
+				return this.$store.state.playerLoop;
+			},
+			set(b) {
+				this.$store.commit('videoLoop', b);
+			}
+		},
+
+		shuffle: {
+			get() {
+				return this.$store.state.playerShuffle;
+			},
+			set(b) {
+				this.$store.commit('videoShuffle', b);
+			}
+		},
+
 		progress: {
-			get: function() {
+			get() {
 				return (this.progressCurr / this.progressMax) * 100;
 			},
-			set: function(e) {
+			set(e) {
 				this.progressCurr = (this.progressMax * e) / 100;
 			}
 		}
@@ -168,19 +191,31 @@ export default {
 					break;
 				case 1:
 					this.checkProgress = setInterval(() => (this.progressCurr = this.player.getCurrentTime()), 250);
+					this.progressMax = this.player.getDuration();
+					break;
+				case 5:
+					this.progressMax = this.player.getDuration();
 					break;
 			}
 		},
 		sheet(e) {
 			if (e) this.CheckPlayer();
+		},
+
+		videoID(id) {
+			console.log(id);
+			if (id && id.length == 11) {
+				this.progressCurr = 0;
+				this.$store.commit('cuePlayerById', id);
+				// this.progressMax = this.player.getDuration();
+			}
+			// } else this.$store.commit('snackbar', { text: '無効な動画 ID', color: 'warning' });
 		}
 	},
 
 	mounted() {
-		// console.log('mouted');
 		if (!this.$store.state.player) {
 			this.IframeAPIReady(this.videoID);
-			// this.$store.commit('playVideo');
 		} else {
 			this.CheckPlayer();
 		}
@@ -215,10 +250,10 @@ export default {
 						onReady: e => {
 							e.target.setPlaybackQuality('small');
 							e.target.setVolume(75);
+							this.$store.state.playState = 5;
 							// e.target.setLoop(false);
 							// e.target.mute().playVideo();
-							this.$store.state.playState = 5;
-							this.progressMax = e.target.getDuration();
+							// this.progressMax = e.target.getDuration();
 						}
 					}
 				})
@@ -232,7 +267,7 @@ export default {
 			this.volume = this.volumeBack = player.getVolume();
 			this.progressCurr = player.getCurrentTime();
 			this.progressMax = player.getDuration();
-			this.loop = this.$store.state.playerLoop;
+			// this.loop = this.$store.state.playerLoop;
 
 			switch (this.$store.getters.playState.data) {
 				case 0:
@@ -246,8 +281,9 @@ export default {
 			}
 		},
 
+		// toogle volumn
 		onVolumeToggle() {
-			if (!this.$store.player) return;
+			if (!this.player) return;
 
 			if (this.volume > 0) {
 				this.volumeBack = this.volume;
@@ -257,20 +293,19 @@ export default {
 			this.$store.commit('videoSetVolume', this.volume);
 		},
 
+		// change volumn
 		onVolumeChange() {
-			if (!this.$store.player) return;
+			if (!this.player) return;
 
 			if (this.volume > 0) this.volumeBack = this.volume;
 			this.$store.commit('videoSetVolume', this.volume);
 		},
 
 		videoStart() {
-			// this.$root.$player.playVideo();
 			this.$store.commit('playVideo');
 		},
 
 		videoPause() {
-			// this.$root.$player.pauseVideo();
 			this.$store.commit('pauseVideo');
 		},
 
@@ -283,8 +318,13 @@ export default {
 		},
 
 		toggleLoop() {
-			this.$store.commit('videoLoop', !this.loop);
+			this.shuffle = false;
 			this.loop = !this.loop;
+		},
+
+		toggleShuffle() {
+			this.loop = false;
+			this.shuffle = !this.shuffle;
 		},
 
 		onProgressChanged(e) {

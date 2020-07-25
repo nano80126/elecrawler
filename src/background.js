@@ -1,6 +1,8 @@
 'use strict';
+/* global __static */
 
 import { app, protocol, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
+import path from 'path';
 
 import {
 	createProtocol
@@ -116,7 +118,7 @@ app.on('ready', () => {
 	// const trayIcon = nativeImage.createFromPath(iconPath);
 	// trayIcon.resize({ width: 16, height: 16 });
 	// console.log(iconPath);
-	tray = new Tray('build/trayicon.ico');
+	tray = new Tray(path.resolve(__static, 'icons/trayicon.ico'));
 	// console.log(path.resolve(__dirname, 'build/trayicon.ico'));
 	// console.log(path.resolve(__dirname, '/'));
 	// console.log(__dirname);
