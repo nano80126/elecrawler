@@ -226,6 +226,7 @@ export default {
 	},
 
 	methods: {
+		// running at player is not existing
 		IframeAPIReady(id) {
 			if (!id) return;
 
@@ -236,7 +237,7 @@ export default {
 				new youtube.Player('youtube-audio', {
 					height: 20,
 					// width: 500,
-					videoId: id || 'DS2sP8CDLas',
+					videoId: id,
 					playerVars: {
 						enablejsapi: 1,
 						autoplay: 0,
@@ -249,7 +250,7 @@ export default {
 					events: {
 						onReady: e => {
 							e.target.setPlaybackQuality('small');
-							e.target.setVolume(75);
+							e.target.setVolume(this.volume);
 							this.$store.state.playState = 5;
 							// e.target.setLoop(false);
 							// e.target.mute().playVideo();
@@ -260,6 +261,7 @@ export default {
 			);
 		},
 
+		// checking player in mounted when player already exists
 		CheckPlayer() {
 			const player = this.$store.state.player;
 

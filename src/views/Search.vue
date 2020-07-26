@@ -22,11 +22,11 @@
 							hide-details
 							placeholder="歌手名"
 							class="mx-1"
-							color="success"
+							color="info"
 							@keyup.enter="lyricSearch"
 						>
 							<template v-slot:prepend-inner>
-								<v-icon small class="mt-1 mr-1">fas fa-microphone-alt</v-icon>
+								<v-icon left small class="mt-1 mr-1">fas fa-microphone-alt</v-icon>
 							</template>
 						</v-text-field>
 					</v-col>
@@ -40,11 +40,11 @@
 							placeholder="曲名"
 							hide-details
 							class="mx-1"
-							color="success"
+							color="info"
 							@keyup.enter="lyricSearch"
 						>
 							<template v-slot:prepend-inner>
-								<v-icon small class="mt-1 mr-1">fas fa-music</v-icon>
+								<v-icon left small class="mt-1 mr-1">fas fa-music</v-icon>
 							</template>
 						</v-text-field>
 					</v-col>

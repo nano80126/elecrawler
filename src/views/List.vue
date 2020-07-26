@@ -111,7 +111,10 @@
 					<div class="d-flex align-center" style="height:100%">
 						<v-card flat shaped width="100%">
 							<v-card-subtitle class="text-center">
-								{ design a logo }
+								<v-icon size="48">fas fa-spider</v-icon>
+								<span class="mx-auto" style="position:absolute; bottom: 0;left:0; right:0">
+									Lyrics Crawler
+								</span>
 							</v-card-subtitle>
 						</v-card>
 					</div>
@@ -154,8 +157,6 @@ export default {
 	created() {
 		// $on a new event if not exitst
 		if (!this.$root._events.getLyricByID) this.$root.$on('getLyricByID', obj => (this.lyricObj = obj));
-
-		console.log(this.$root._events);
 	},
 	mounted() {
 		this.$dbList

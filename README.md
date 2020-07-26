@@ -28,13 +28,14 @@ This is a lyric crawler build by electron.
 * [x] Divide Display.vue and Embed.vue
 * [ ] Random play and change lyric object(testing) (almost deal in main.js)
 * [ ] Save YouTube Url in array for get multiple url (what about image?)
-* [ ] Keep player property using store for all component (volumun)
-* [ ] Mark those lyrics has been added when searching
+* [ ] Keep player property using store for all component (volumun) (testing)
+* [ ] Mark those lyrics has been added when searching (find/$name/)
 * [ ] vue i18n 
 
 ### Known bug 
+
 * [ ] Changing avatar will not work until application refresh
 * [ ] Volume bugs (different until adjust)
 * [ ] List can't loading until reload
 * [x] Play broken if click twice when just initializing
-* [ ] Can't get duration of videio After CueVideoByID 
+* [ ] Can't get duration of videio After CueVideoByID

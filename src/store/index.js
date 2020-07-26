@@ -2,6 +2,7 @@
 
 import Vue from 'vue';
 import Vuex from 'vuex';
+import { stat } from 'fs';
 // import { resolve } from 'core-js/fn/promise';
 
 Vue.use(Vuex);
@@ -19,6 +20,7 @@ export default new Vuex.Store({
 		playerLoop: false,
 		playerShuffle: false,
 		playState: -1,
+		playerVolume: 75,
 		playList: []
 	},
 	getters: {
@@ -68,12 +70,14 @@ export default new Vuex.Store({
 		cuePlayerById(state, id) {
 			if (state.player) {
 				state.player.cueVideoById({ videoId: id, suggestedQuality: 'small' });
+				state.player.setVolume(stat.playerVolume);
 			}
 		},
 
 		loadPlayerById(state, id) {
 			if (state.player) {
 				state.player.loadVideoById({ videoId: id, suggestedQuality: 'small' });
+				state.player.setVolume(stat.playerVolume);
 			}
 		},
 
@@ -103,6 +107,7 @@ export default new Vuex.Store({
 		},
 
 		videoSetVolume(state, value) {
+			state.playerVolume = value;
 			state.player.setVolume(value);
 			if (value == 0) state.player.mute();
 			else state.player.unMute();

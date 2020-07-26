@@ -59,7 +59,7 @@ module.exports = {
 				// },
 				// // files: ['public/trayicon.ico'],
 				win: {
-					// icon: 'build/logo.png',
+					icon: 'build/crawler.png',
 					target: [
 						{
 							target: 'nsis',
