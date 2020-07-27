@@ -2,7 +2,7 @@
 	<div>
 		<v-card class="mr-3" outlined>
 			<v-card-title>
-				<span class="ellipsis" v-text="lyric.obj.title" style="max-width: 500px" />
+				<span class="limited-width" v-text="lyric.obj.title" />
 				<v-spacer />
 				<v-tooltip left>
 					<template v-slot:activator="{ on }">
@@ -66,5 +66,10 @@ export default {
 .lyric-body {
 	font-family: 'メイリオ', 'ＭＳ Ｐゴシック', sans-serif;
 	font-weight: 600;
+}
+
+.limited-width {
+	max-width: calc(100% - 68px);
+	overflow-x: hidden;
 }
 </style>

@@ -111,9 +111,10 @@
 					<div class="d-flex align-center" style="height:100%">
 						<v-card flat shaped width="100%">
 							<v-card-subtitle class="text-center">
-								<v-icon size="48">fas fa-spider</v-icon>
-								<span class="mx-auto" style="position:absolute; bottom: 0;left:0; right:0">
+								<v-icon size="128">fas fa-spider</v-icon>
+								<span class="mx-auto logo-text" style="">
 									Lyrics Crawler
+									{{ $t('message') }}
 								</span>
 							</v-card-subtitle>
 						</v-card>
@@ -245,4 +246,12 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.logo-text {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	font-size: 32px;
+}
+</style>

@@ -116,6 +116,7 @@
 						</v-btn>
 					</template>
 					<span>YouTubeカバー画像をゲット</span>
+					<span>プレビュー画像</span>
 				</v-tooltip>
 
 				<v-tooltip left open-delay="300">

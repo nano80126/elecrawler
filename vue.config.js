@@ -39,8 +39,6 @@ module.exports = {
 
 	pluginOptions: {
 		electronBuilder: {
-			// externals: ['express'],
-			// externals: ['bufferutil', 'utf-8-validate'],
 			chainWebpackMainProcess: config => {
 				// Chain webpack config for electron main process only
 				config.externals({
@@ -50,14 +48,9 @@ module.exports = {
 				});
 			},
 			mainProcessWatch: ['src/crawler.js'],
-
 			builderOptions: {
 				productName: 'lyric spider',
 				copyright: 'Copyright © 2020',
-				// directories: {
-				// 	buildResources: 'build'
-				// },
-				// // files: ['public/trayicon.ico'],
 				win: {
 					icon: 'build/crawler.png',
 					target: [
@@ -75,6 +68,12 @@ module.exports = {
 					shortcutName: 'Spider'
 				}
 			}
+		},
+		i18n: {
+			locale: 'tw',
+			fallbackLocale: 'en',
+			localeDir: 'locales',
+			enableInSFC: false
 		}
 	}
 

@@ -1,0 +1,30 @@
+{
+	"message": "hello i18n !!",
+
+	"search": "Search",
+	"list": "List",
+	"player": "Player",
+	"settings": "Settings",
+	"clearData": "Clear data",
+	"exit": "Exit",
+
+	"singer": "Singer",
+	"song": "Song",
+	"keyWord": "Keywords",
+	"link": "Link",
+	"doSearchLyrics": "Hey, search lyrics.",
+	"listAdd": "Add to list",
+	"inTheList": "In the list",
+	"youtubeUrl": "YouTube URL",
+	"externalBrowser": "Search By external browser",
+	"getYouTubeCoverImage": "Get YouTube cover image",
+	"selectImage": "Select image",
+	"previewImage": "Capture a preview image",
+	"removeImage": "Remove image",
+	"save": "Save",
+	"dragAndDrop": "",
+
+	"search_alt": "Search",
+	"loop": "Loop",
+	"random": "Random"
+}

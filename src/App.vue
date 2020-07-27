@@ -70,16 +70,16 @@
 						<span>cur</span>
 					</v-tooltip> -->
 
-					<!-- <v-tooltip right transition="scroll-x-transition" open-delay="300">
+					<v-tooltip right transition="scroll-x-transition" open-delay="300">
 						<template v-slot:activator="{ attrs, on }">
-							<v-list-item exact v-bind="attrs" v-on="on" @click="getRandom">
+							<v-list-item exact v-bind="attrs" v-on="on" @click="TestFunc">
 								<v-list-item-content>
 									<v-icon small>fas fa-random</v-icon>
 								</v-list-item-content>
 							</v-list-item>
 						</template>
-						<span>random</span>
-					</v-tooltip> -->
+						<span>Test</span>
+					</v-tooltip>
 
 					<!-- <v-tooltip right transition="scroll-x-transition" open-delay="300">
 						<template v-slot:activator="{ on }">
@@ -337,8 +337,16 @@ export default {
 
 		loadPlayerID() {
 			this.$store.state.player.loadVideoById('DS2sP8CDLas');
-		}
+		},
 
+		TestFunc() {
+			// this
+			console.log(this.$i18n.locale);
+			console.log(this.$i18n);
+			if (this.$i18n.locale == 'en') this.$i18n.locale = 'tw';
+			else if (this.$i18n.locale == 'tw') this.$i18n.locale = 'jp';
+			else this.$i18n.locale = 'en';
+		}
 		// getRandom() {
 		// 	const arr = [];
 		// 	for (let i = 0; i < 500; i++) {
