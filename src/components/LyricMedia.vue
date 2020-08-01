@@ -3,7 +3,6 @@
 		<v-row no-gutters align="start" justify="start">
 			<v-col cols="12">
 				<v-toolbar flat dense height="40" color="transparent" class="px-0">
-					<!-- <v-app-bar-nav-icon></v-app-bar-nav-icon> -->
 					<v-btn
 						icon
 						small
@@ -59,32 +58,6 @@
 						</template>
 						<span>外部ブラウザでサーチ</span>
 					</v-tooltip>
-
-					<!-- <v-tooltip left>
-						<template v-slot:activator="{ on, attrs }">
-							<v-btn icon outlined class="ml-2" @click="removeImage" v-bind="attrs" v-on="on">
-								<v-icon small>fas fa-times</v-icon>
-							</v-btn>
-						</template>
-						<span>画像を削除する</span>
-					</v-tooltip> -->
-					<!-- <template v-slot:extension>
-						<v-spacer></v-spacer>
-
-						<v-btn small outlined text>
-							<v-icon small>fas fa-edit</v-icon>
-						</v-btn>
-
-						<v-btn
-							icon
-							small
-							:class="{ 'primary lighten-4': catchAvatar }"
-							:disabled="!imgurl"
-							@click="catchAvatar = !catchAvatar"
-						>
-							<v-icon small>fas fa-expand</v-icon>
-						</v-btn>
-					</template>-->
 				</v-toolbar>
 			</v-col>
 
@@ -194,7 +167,6 @@
 							style="outline: 0;"
 						></div>
 
-						<!-- <v-menu v-model="showMenu" absolute offset-x> -->
 						<v-card
 							id="imgCard"
 							flat
@@ -248,13 +220,7 @@
 								title
 								accept="image/jpeg, image/png, image/bmp"
 							/>
-
-							<!-- <v-card-text v-if="imgurl && false">
-								{{ imgurl.length }}
-							</v-card-text>-->
-							<!-- </template> -->
 						</v-card>
-						<!-- </v-menu> -->
 					</div>
 				</v-responsive>
 			</v-col>
@@ -275,14 +241,8 @@
 				{{ index != 'lyric' ? `${index}:` : null }}
 				{{ index != 'lyric' ? item : null }}
 			</div>
+			{{ lyric.obj.key }}
 		</template>
-
-		<!-- {{ this.$refs.img.$el.clientWidth }}
-		{{ this.$refs.img.$el.clientHeight }}-->
-
-		<!-- {{ catchAvatar }}
-		{{ startRectFlag }}
-		{{ showMenu }}-->
 
 		<v-menu
 			v-model="showMenu"
@@ -539,9 +499,6 @@ export default {
 
 		// 儲存 url、image、avatar
 		keepMedia() {
-			// if (!this.imgurl) return;
-
-			// console.log(this.imgurl);
 			if (this.imgurl) {
 				const image = this.$sharp(this.imgurl);
 				const promises = [];
@@ -643,7 +600,7 @@ export default {
 							path.forEach(p => {
 								this.$fs.exists(p, exist => {
 									if (exist) {
-										this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}.jpg`, err => {
+										this.$fs.unlink(p, err => {
 											if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
 										});
 									}

@@ -61,17 +61,6 @@
 
 					<!-- <v-tooltip right transition="scroll-x-transition" open-delay="300">
 						<template v-slot:activator="{ attrs, on }">
-							<v-list-item exact v-bind="attrs" v-on="on" @click="cuePlayerID">
-								<v-list-item-content>
-									<v-icon small>fas fa-play</v-icon>
-								</v-list-item-content>
-							</v-list-item>
-						</template>
-						<span>cur</span>
-					</v-tooltip> -->
-
-					<v-tooltip right transition="scroll-x-transition" open-delay="300">
-						<template v-slot:activator="{ attrs, on }">
 							<v-list-item exact v-bind="attrs" v-on="on" @click="TestFunc">
 								<v-list-item-content>
 									<v-icon small>fas fa-random</v-icon>
@@ -79,17 +68,6 @@
 							</v-list-item>
 						</template>
 						<span>Test</span>
-					</v-tooltip>
-
-					<!-- <v-tooltip right transition="scroll-x-transition" open-delay="300">
-						<template v-slot:activator="{ on }">
-							<v-list-item to="/dev" exact v-on="on">
-								<v-list-item-content>
-									<v-icon small>fas fa-code</v-icon>
-								</v-list-item-content>
-							</v-list-item>
-						</template>
-						<span>テスト</span>
 					</v-tooltip> -->
 				</v-list>
 
@@ -103,7 +81,12 @@
 									@click="bottomSheet = !bottomSheet"
 									v-show="$route.name != 'List'"
 								>
-									<v-badge :color="playerState[$store.state.playState]" dot style="width:100%;">
+									<v-badge
+										:color="playerState[$store.state.playState]"
+										dot
+										overlap
+										style="width:100%;"
+									>
 										<v-list-item-content>
 											<v-icon small>fas fa-music</v-icon>
 										</v-list-item-content>
@@ -114,7 +97,7 @@
 						</v-tooltip>
 						<!-- </v-list> -->
 
-						<v-menu rounded right min-width="120">
+						<v-menu rounded right min-width="150" v-model="menu">
 							<template v-slot:activator="{ on: menu, attrs }">
 								<!-- <v-list flat class="no-drag"> -->
 								<v-tooltip right transition="scroll-x-transition" open-delay="300">
@@ -129,12 +112,51 @@
 								</v-tooltip>
 							</template>
 							<v-list dense class="no-drag">
+								<v-menu
+									open-on-hover
+									top
+									offset-x
+									nudge-right="5"
+									transition="slide-y-reverse-transition"
+									close-delay="300"
+								>
+									<template v-slot:activator="{ on, attrs }">
+										<v-list-item v-bind="attrs" v-on="on" @click.stop :ripple="false">
+											<v-list-item-content>
+												<v-list-item-title>言語</v-list-item-title>
+											</v-list-item-content>
+
+											<v-list-item-icon class="mr-n4">
+												<v-icon small right>fas fa-caret-right</v-icon>
+											</v-list-item-icon>
+										</v-list-item>
+									</template>
+									<v-list>
+										<v-list-item-group v-model="language" color="grey" mandatory>
+											<v-list-item
+												v-for="(name, idx) in languages"
+												:key="`lang${idx}`"
+												:value="idx"
+											>
+												{{ name }}
+											</v-list-item>
+										</v-list-item-group>
+										<!-- <v-list-item>
+											{{ language }}
+										</v-list-item> -->
+									</v-list>
+								</v-menu>
+
 								<v-list-item @click="dialog = true">
-									<v-list-item-title>データをクリア</v-list-item-title>
+									<v-list-item-content>
+										<v-list-item-title>データをクリア</v-list-item-title>
+									</v-list-item-content>
 								</v-list-item>
 
 								<v-list-item @click="appClose">
-									<v-list-item-title>終了</v-list-item-title>
+									<v-list-item-content>
+										<v-list-item-title>終了</v-list-item-title>
+									</v-list-item-content>
 								</v-list-item>
 							</v-list>
 						</v-menu>
@@ -254,7 +276,11 @@ export default {
 			2: 'warning',
 			3: 'pink',
 			5: 'info'
-		})
+		}),
+
+		menu: false,
+		languages: Object.freeze({ tw: '中文', en: 'English', jp: '日本語' }),
+		language: 2
 	}),
 	computed: {
 		contentHeight() {
@@ -269,6 +295,10 @@ export default {
 		// 若 snackbars 全部 timeout 則清空
 		'$store.getters.barsVisible'(e) {
 			if (e == 0) this.$store.state.snackbars = [];
+		},
+		language(e) {
+			this.$i18n.locale = e;
+			this.menu = false;
 		}
 	},
 	created() {
@@ -331,14 +361,6 @@ export default {
 			});
 		},
 
-		cuePlayerID() {
-			this.$store.state.player.cueVideoById('DS2sP8CDLas');
-		},
-
-		loadPlayerID() {
-			this.$store.state.player.loadVideoById('DS2sP8CDLas');
-		},
-
 		TestFunc() {
 			// this
 			console.log(this.$i18n.locale);
@@ -347,14 +369,6 @@ export default {
 			else if (this.$i18n.locale == 'tw') this.$i18n.locale = 'jp';
 			else this.$i18n.locale = 'en';
 		}
-		// getRandom() {
-		// 	const arr = [];
-		// 	for (let i = 0; i < 500; i++) {
-		// 		arr.push(this.$lodash.random(0, 12));
-		// 	}
-		// 	const a = this.$lodash.groupBy(arr);
-		// 	console.log(a);
-		// }
 	}
 };
 </script>

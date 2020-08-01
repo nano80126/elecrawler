@@ -114,7 +114,7 @@
 								<v-icon size="128">fas fa-spider</v-icon>
 								<span class="mx-auto logo-text" style="">
 									Lyrics Crawler
-									{{ $t('message') }}
+									<!-- {{ $t('message') }} -->
 								</span>
 							</v-card-subtitle>
 						</v-card>
@@ -165,7 +165,7 @@ export default {
 			.sort({ artist: 1, title: 1, datetime: -1 })
 			.exec((err, doc) => {
 				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-				// console.log(doc);
+				console.log(doc);
 				this.$store.commit(
 					'setPlayList',
 					this.$lodash.filter(doc, 'ytID').map(e => e.ytID)

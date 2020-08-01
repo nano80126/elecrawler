@@ -60,7 +60,7 @@ async function listScraper(artist, title) {
 					data.list.push({
 						id: i,
 						title: songTitle,
-						href: href,
+						lyricUrl: href,
 						artist: songSinger,
 						lyric: lyric
 						// expanded: false

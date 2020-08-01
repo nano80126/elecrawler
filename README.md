@@ -23,14 +23,15 @@ This is a lyric crawler build by electron.
 * [x] Alias youtube url & image path with lyric object
 * [x] Get mp3 from **Youtube**
 * [x] Add global player(disable in route list)(disable when no youtube ID)
-* [ ] Design an icon 
+* [ ] Design an icon (Temporary done)
 * [x] Open default browser for search
 * [x] Divide Display.vue and Embed.vue
 * [ ] Random play and change lyric object(testing) (almost deal in main.js)
 * [ ] Save YouTube Url in array for get multiple url (what about image?)
 * [ ] Keep player property using store for all component (volumun) (testing)
 * [ ] Mark those lyrics has been added when searching (find/$name/)
-* [ ] vue i18n 
+* [ ] vue i18n (doing)
+* [x] Display.vue save colors
 
 ### Known bug 
 

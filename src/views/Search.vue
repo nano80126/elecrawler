@@ -129,12 +129,30 @@
 										<span class="ellipsis" style="position: absolute;">
 											{{ item.title }}
 										</span>
+
+										<v-btn
+											icon
+											v-if="item.isInList"
+											class="ml-auto mr-n2 no-active"
+											@click.prevent
+											:ripple="false"
+										>
+											<v-icon small color="grey">fas fa-list</v-icon>
+											<v-icon
+												size="16"
+												color="success darken-1"
+												class="mt-n2 mr-n1"
+												style="position:absolute; right:0;"
+											>
+												fas fa-check
+											</v-icon>
+										</v-btn>
 									</v-card-title>
 									<v-card-subtitle>{{ item.artist }}</v-card-subtitle>
 
 									<v-divider />
 									<v-card-actions>
-										<v-btn text color="info" @click="getLyric(item.href)">
+										<v-btn text color="info" @click="getLyric(item.lyricUrl)">
 											<v-icon>fas fa-link</v-icon>
 											<span class="ml-2 font-weight-bold">リンク</span>
 										</v-btn>
@@ -144,11 +162,8 @@
 										<v-tooltip left max-width="348" transition="slide-y-transition">
 											<template v-slot:activator="{ on, attrs }">
 												<v-btn icon v-bind="attrs" v-on="on">
-													<!-- @click="item.expanded = !item.expanded" -->
 													<v-icon style="transform: rotateY(180deg)">
 														far fa-comment-dots
-														<!-- {{ item.expanded ? 'fas fa-chevron-up' : '
-														fas fa-chevron-down' }} -->
 													</v-icon>
 												</v-btn>
 											</template>
@@ -252,6 +267,7 @@ export default {
 			lyricObj: null,
 			//
 			list: [],
+			historyList: [],
 			//
 			artist: null,
 			title: null,
@@ -305,13 +321,35 @@ export default {
 			});
 	},
 	mounted() {
+		this.$dbList.find({}, (err, doc) => {
+			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+			this.historyList = doc;
+		});
+
 		const included = this.$ipcRenderer.eventNames().includes('searchRes');
 		if (!included) {
 			this.$ipcRenderer.on('searchRes', (e, args) => {
-				if (args.error) console.error(args.error);
+				if (args.error) {
+					this.$store.commit('snackbar', { text: args.error, color: 'error' });
+				}
+				// console.error(args.error);
+
+				///////////////////
+				const intersection = this.$lodash.intersectionBy(args.list, this.historyList, 'lyricUrl');
+				///////////////////
 
 				this.$nextTick(() => {
 					args.list.forEach((obj, idx) => {
+						switch (intersection.length) {
+							case 0:
+								break;
+							case 1:
+								if (obj.lyricUrl == intersection[0].lyricUrl) obj.isInList = true;
+								break;
+							default:
+								if (this.$lodash.findIndex(intersection, ['lyricUrl', obj.lyricUrl]) != -1)
+									obj.isInList = true;
+						}
 						setTimeout(() => {
 							this.list.push(Object.freeze(obj));
 						}, idx * 50);
@@ -449,10 +487,19 @@ export default {
 
 <style lang="scss" scoped>
 .ellipsis {
-	width: calc(100% - 32px);
+	width: calc(100% - 64px);
+	// 12 + 16 + 36
 	overflow-x: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+.no-active {
+	cursor: default;
+	&:hover::before,
+	&:not(:hover)::before {
+		background-color: transparent;
+	}
 }
 
 .cardList-enter-active,

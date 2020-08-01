@@ -2,7 +2,6 @@
 
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { stat } from 'fs';
 // import { resolve } from 'core-js/fn/promise';
 
 Vue.use(Vuex);
@@ -16,6 +15,7 @@ export default new Vuex.Store({
 		isElectron: process.env.IS_ELECTRON ? true : false,
 		//
 		lyricObj: null,
+		lyricText: null,
 		player: null,
 		playerLoop: false,
 		playerShuffle: false,
@@ -54,6 +54,10 @@ export default new Vuex.Store({
 			state.lyricObj = obj;
 		},
 
+		saveText(state, txt) {
+			state.lyricText = txt;
+		},
+
 		clearLyric(state) {
 			if (state.lyricObj) {
 				state.lyricObj = null;
@@ -70,14 +74,14 @@ export default new Vuex.Store({
 		cuePlayerById(state, id) {
 			if (state.player) {
 				state.player.cueVideoById({ videoId: id, suggestedQuality: 'small' });
-				state.player.setVolume(stat.playerVolume);
+				state.player.setVolume(state.playerVolume);
 			}
 		},
 
 		loadPlayerById(state, id) {
 			if (state.player) {
 				state.player.loadVideoById({ videoId: id, suggestedQuality: 'small' });
-				state.player.setVolume(stat.playerVolume);
+				state.player.setVolume(state.playerVolume);
 			}
 		},
 

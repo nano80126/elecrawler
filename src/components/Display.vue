@@ -54,7 +54,7 @@
 					</v-btn>
 				</template>
 
-				<v-btn-toggle v-model="mainColor" color="grey lighten-3" dense group class="grey darken-2">
+				<v-btn-toggle v-model="mainColor" color="grey lighten-3" dense group class="grey darken-2" mandatory>
 					<v-btn v-for="(c, k) in colors" :key="`m${k}`" :value="c" text>
 						<v-icon :color="c">fas fa-square</v-icon>
 					</v-btn>
@@ -68,7 +68,7 @@
 					</v-btn>
 				</template>
 
-				<v-btn-toggle v-model="subColor" color="grey lighten-3" dense group class="grey darken-2">
+				<v-btn-toggle v-model="subColor" color="grey lighten-3" dense group class="grey darken-2" mandatory>
 					<v-btn v-for="(c, k) in colors" :key="`m${k}`" :value="c" text>
 						<v-icon :color="c">fas fa-square</v-icon>
 					</v-btn>
@@ -153,6 +153,7 @@ export default {
 				'warning',
 				'orange',
 				'purple',
+				'white',
 				'grey',
 				'black'
 			]),
@@ -189,11 +190,19 @@ export default {
 		if (this.lyric && this.lyric.image) {
 			this.backimgLoad();
 		}
+
+		const text = this.$store.state.lyricText;
+		if (text) {
+			this.mainColor = text.main;
+			this.subColor = text.sub;
+			this.textAlign = text.align;
+		}
 	},
 
 	beforeDestroy() {
 		// save lyric object before before
 		if (this.lyric) this.$store.commit('saveLyric', this.lyric);
+		this.$store.commit('saveText', { main: this.mainColor, sub: this.subColor, align: this.textAlign });
 	},
 
 	methods: {

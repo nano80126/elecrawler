@@ -19,7 +19,7 @@
 			<v-divider />
 
 			<v-card-text
-				class="primary--text text--darken-2 font-weight-bold lyric-body"
+				class="teal--text text--lighten-1 font-weight-bold lyric-body"
 				v-html="lyric.obj.lyric || '<span>歌詞が存在しない。</span>'"
 			/>
 
