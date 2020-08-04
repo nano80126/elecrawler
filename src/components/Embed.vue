@@ -271,7 +271,7 @@ export default {
 			this.progressMax = player.getDuration();
 			// this.loop = this.$store.state.playerLoop;
 
-			switch (this.$store.getters.playState.data) {
+			switch (this.$store.getters.playState) {
 				case 0:
 					this.progressCurr = this.progressMax;
 					break;

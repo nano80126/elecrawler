@@ -72,22 +72,43 @@
 									<!-- {{ item.avatar }} -->
 								</v-list-item-content>
 								<v-list-item-action>
-									<!-- <span v-if="item"> {{ item.ytID || null }} {{ item.ytUrl || null }} </span> -->
-									<v-tooltip left dark>
-										<template v-slot:activator="{ attrs, on }">
-											<v-btn icon @click="getLyric(item)" v-bind="attrs" v-on="on">
-												<v-icon color="grey lighten-1" small>fas fa-info-circle</v-icon>
-											</v-btn>
+									<v-menu bottom right offset-x nudge-right="15" min-width="150">
+										<template v-slot:activator="{ on: menu, attrs }">
+											<v-tooltip left dark>
+												<template v-slot:activator="{ on: tooltip }">
+													<v-btn icon v-bind="attrs" v-on="{ ...tooltip, ...menu }">
+														<!-- @click="getLyric(item)" -->
+														<!-- @click.right="menuShowCmd(menu, attrs, value)" -->
+														<v-icon color="grey lighten-1" small>
+															fas fa-info
+														</v-icon>
+													</v-btn>
+												</template>
+												<span>
+													<v-icon
+														class="mr-2"
+														:color="item.ytUrl ? 'success' : 'error'"
+														size="20"
+													>
+														fas fa-music
+													</v-icon>
+													<v-icon :color="item.imagePath ? 'success' : 'error'" size="20">
+														fas fa-image
+													</v-icon>
+												</span>
+											</v-tooltip>
 										</template>
-										<span>
-											<v-icon class="mr-2" :color="item.ytUrl ? 'success' : 'error'" size="20">
-												fas fa-music
-											</v-icon>
-											<v-icon :color="item.imagePath ? 'success' : 'error'" size="20">
-												fas fa-image
-											</v-icon>
-										</span>
-									</v-tooltip>
+										<v-list dense color="brown darken-4" outlined class="py-0">
+											<v-list-item>1</v-list-item>
+											<v-list-item>2</v-list-item>
+											<v-list-item>3</v-list-item>
+											<v-divider />
+											<v-list-item @click="removeFromList(item.uniqueKey, $event)">
+												<v-icon small>fas fa-times</v-icon>
+												<span class="ml-3">削除</span>
+											</v-list-item>
+										</v-list>
+									</v-menu>
 								</v-list-item-action>
 							</v-list-item>
 						</template>
@@ -122,6 +143,16 @@
 				</template>
 			</v-col>
 		</v-row>
+
+		<!--   absolute-->
+		<!-- <v-menu v-model="showMenu" offset-y :position-x="menuX" :position-y="menuY" fixed min-width="150">
+			<v-list color="blue-grey lighten-2">
+				<v-list-item>1</v-list-item>
+				<v-list-item>2</v-list-item>
+				<v-list-item>3</v-list-item>
+				<v-list-item>4</v-list-item>
+			</v-list>
+		</v-menu> -->
 	</div>
 </template>
 
@@ -141,7 +172,12 @@ export default {
 
 			list: [],
 			lyricObj: null,
-			videoID: null
+			videoID: null,
+
+			showMenu: false,
+			attach: null,
+			menuX: 0,
+			menuY: 0
 		};
 	},
 	computed: {
@@ -156,6 +192,7 @@ export default {
 		}
 	},
 	created() {
+		console.log(this.$root._events);
 		// $on a new event if not exitst
 		if (!this.$root._events.getLyricByID) this.$root.$on('getLyricByID', obj => (this.lyricObj = obj));
 	},
@@ -165,7 +202,9 @@ export default {
 			.sort({ artist: 1, title: 1, datetime: -1 })
 			.exec((err, doc) => {
 				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+
 				console.log(doc);
+
 				this.$store.commit(
 					'setPlayList',
 					this.$lodash.filter(doc, 'ytID').map(e => e.ytID)
@@ -200,7 +239,9 @@ export default {
 		this.lyricObj = this.$store.state.lyricObj;
 	},
 
-	beforeDestroy() {},
+	beforeDestroy() {
+		this.$root.$off('getLyricByID');
+	},
 
 	methods: {
 		expandWidth() {
@@ -238,6 +279,43 @@ export default {
 				}
 				this.$store.commit('changeOverlay', false);
 			});
+		},
+
+		removeFromList(key) {
+			// 刪除資料庫
+			this.$dbList.remove({ uniqueKey: key }, {}, err => {
+				if (err) {
+					this.$store.commit('snackbar', { text: err, color: 'error' });
+					return;
+				}
+
+				// 刪除圖片
+				const files = [`${this.$picPath}\\${key}.jpg`, `${this.$picPath}\\${key}_avatar.jpg`];
+				files.forEach(file => {
+					this.$fs.exists(file, exist => {
+						if (exist) {
+							this.$fs.unlink(file, err => {
+								if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+							});
+						}
+					});
+				});
+				// 刪除列表
+				const index = this.$lodash.findIndex(this.list, ['uniqueKey', key]);
+				this.list.splice(index, 1);
+			});
+		},
+
+		menuShowCmd() {
+			// e.preventDefault();
+			// console.log(e.target);
+			// this.showMenu = false;
+			// // this.attach = e.target;
+			// this.menuX = e.target.offsetX - e.offsetX;
+			// this.menuY = e.target.offsetY - e.offsetY;
+			// this.$nextTick(() => {
+			// 	this.showMenu = true;
+			// });
 		},
 
 		getLyricByID() {}

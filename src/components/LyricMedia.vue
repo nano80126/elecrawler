@@ -6,7 +6,7 @@
 					<v-btn
 						icon
 						small
-						class="ml-n4 mr-3"
+						class="ml-n4"
 						width="36"
 						height="36"
 						@click="
@@ -19,21 +19,41 @@
 						<v-icon>{{ bigImage ? 'fas fa-chevron-right' : 'fas fa-chevron-left' }}</v-icon>
 					</v-btn>
 
+					<!-- <v-hover v-model="fieldHover"> -->
 					<v-text-field
-						v-model="url"
+						v-model="url[urlIndex]"
 						filled
 						rounded
 						dense
 						hide-details
 						placeholder="YouTubeのリンク"
-						class="mx-0"
-						color="success"
-						background-color="brown darken-4"
+						class="ml-3"
+						@mousewheel="mouseWheel"
 					>
+						<!-- <template v-slot:prepend>
+							<v-icon color="red">fab fa-youtube</v-icon>
+						</template> -->
+
 						<template v-slot:prepend-inner>
-							<v-icon left small class="mt-1" color="red">fab fa-youtube</v-icon>
+							<v-badge :value="badge" :content="urlIndex + 1" overlap left bottom color="orange">
+								<v-hover v-model="badge" close-delay="500">
+									<v-icon left color="red" style="cursor:default;">fab fa-youtube</v-icon>
+								</v-hover>
+							</v-badge>
+						</template>
+
+						<template v-slot:append>
+							<v-tooltip left>
+								<template v-slot:activator="{ on }">
+									<v-icon right size="24" color="success" v-on="on" @click="addUrl">
+										fas fa-plus
+									</v-icon>
+								</template>
+								<span>合計: {{ url.length }}</span>
+							</v-tooltip>
 						</template>
 					</v-text-field>
+					<!-- </v-hover> -->
 
 					<v-tooltip left open-delay="300">
 						<template v-slot:activator="{ on, attrs }">
@@ -41,7 +61,7 @@
 								icon
 								outlined
 								class="ml-2"
-								color="primary lighten-4"
+								color="primary lighten-2"
 								dark
 								width="36"
 								height="36"
@@ -62,6 +82,7 @@
 			</v-col>
 
 			<v-col cols="12" class="mt-3 d-flex align-center">
+				<!-- <v-chip v-show="fieldHover">{{ urlIndex }}</v-chip> -->
 				<v-chip class="mr-2 pr-4" color="light-blue" text-color="white">
 					{{ imgSize.width }} &times; {{ imgSize.height }}
 					<v-icon right small>fas fa-expand</v-icon>
@@ -74,7 +95,7 @@
 				<v-spacer />
 				<!--  -->
 
-				<v-tooltip left>
+				<v-tooltip bottom>
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn
 							icon
@@ -83,7 +104,7 @@
 							@click="getVideoImg"
 							v-bind="attrs"
 							v-on="on"
-							:disabled="url == null || url.length == 0"
+							:disabled="url[0] == null || url[0].length == 0"
 						>
 							<v-icon small>fas fa-photo-video</v-icon>
 						</v-btn>
@@ -92,7 +113,7 @@
 					<span>プレビュー画像</span>
 				</v-tooltip>
 
-				<v-tooltip left open-delay="300">
+				<v-tooltip bottom open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn
 							icon
@@ -112,13 +133,13 @@
 				<!-- <v-btn outlined icon class="ml-2">
 					<v-icon small>far fa-square</v-icon>
 				</v-btn>-->
-				<v-tooltip left open-delay="300">
+				<v-tooltip bottom open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn
 							icon
 							outlined
 							class="ml-2"
-							:class="{ 'primary lighten-4': catchAvatar }"
+							:class="{ 'blue-grey darken-2': catchAvatar }"
 							:disabled="!imgurl"
 							@click="catchAvatar = !catchAvatar"
 							v-bind="attrs"
@@ -130,7 +151,7 @@
 					<span>アバターキャプチャ</span>
 				</v-tooltip>
 
-				<v-tooltip left open-delay="300">
+				<v-tooltip bottom open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn icon outlined class="ml-2" @click="removeImage()" v-bind="attrs" v-on="on">
 							<v-icon small>fas fa-times</v-icon>
@@ -141,7 +162,7 @@
 
 				<!--  -->
 				<v-divider vertical class="mx-2" />
-				<v-tooltip left open-delay="300">
+				<v-tooltip bottom open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn outlined icon v-bind="attrs" v-on="on" @click="keepMedia">
 							<v-icon small>fas fa-download</v-icon>
@@ -242,6 +263,8 @@
 				{{ index != 'lyric' ? item : null }}
 			</div>
 			{{ lyric.obj.key }}
+			<br />
+			{{ url }}
 		</template>
 
 		<v-menu
@@ -286,11 +309,16 @@ export default {
 	},
 	data() {
 		return {
-			url: null,
+			url: [],
+			urlIndex: 0,
 			///
 			disableDialog: false,
 			///
 			imgurl: null,
+			//
+			badge: false,
+			badgeTimeout: null,
+			// fieldHover: false,
 			// imgbuf: null,
 			dragging: false,
 			canPaste: false,
@@ -301,16 +329,23 @@ export default {
 			//
 			rectAbs: { x: 0, y: 0, width: 0, height: 0 },
 			rectPercent: { x: 0, y: 0, width: 0, height: 0 },
-
 			imgSize: { width: 0, height: 0 },
-
 			menuPos: { x: 0, y: 0 },
-
 			fitRatio: 0
 		};
 	},
 	computed: {},
-	watch: {},
+	watch: {
+		urlIndex() {
+			this.badge = true;
+			clearTimeout(this.badgeTimeout);
+			this.$nextTick(() => {
+				this.badgeTimeout = setTimeout(() => {
+					this.badge = false;
+				}, 1000);
+			});
+		}
+	},
 
 	created() {},
 	mounted() {
@@ -341,7 +376,7 @@ export default {
 					});
 				});
 			}
-			this.url = doc.ytUrl || null;
+			this.url = Array.isArray(doc.ytUrl) ? doc.ytUrl : [doc.ytUrl];
 			console.log(doc);
 		});
 	},
@@ -351,13 +386,26 @@ export default {
 			this.$shell.openExternal(url);
 		},
 
+		mouseWheel(e) {
+			if (e.deltaY > 0) {
+				this.urlIndex = this.urlIndex + 1 > this.url.length - 1 ? this.url.length - 1 : this.urlIndex + 1;
+			} else {
+				this.urlIndex = this.urlIndex - 1 < 0 ? 0 : this.urlIndex - 1;
+			}
+		},
+
+		addUrl() {
+			this.url.push(null);
+			this.urlIndex = this.url.length - 1;
+		},
+
 		// 取得影片預覽圖
 		async getVideoImg(e) {
 			e.preventDefault();
 			e.stopPropagation();
 			// this.removeImage();
 
-			const v = this.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+			const v = this.url[0].match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
 			if (v && v[0].length == 11) {
 				const buf = await this.$ipcRenderer.invoke('invokeAxios', v);
 
@@ -532,7 +580,14 @@ export default {
 						console.log('Done!', res);
 
 						const obj = this.lyric.obj;
-						const v = this.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+
+						this.url = this.$lodash.compact(this.url);
+						const urlIdArr = [];
+						this.url.forEach(u => {
+							const id = u.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+							if (id && id[0].length == 11) urlIdArr.push(id[0]);
+						});
+						// const v = this.url[0].match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
 						// add image / avatart to list
 						this.$dbList.update(
 							{ uniqueKey: obj.key },
@@ -540,7 +595,8 @@ export default {
 								$set: {
 									// uniqueKey: this.lyricObj.key,
 									ytUrl: this.url,
-									ytID: v && v[0].length == 11 ? v[0] : null,
+									// ytID: v && v[0].length == 11 ? v[0] : null,
+									ytID: urlIdArr,
 									imagePath: `${this.$picPath}\\${obj.key}.jpg`,
 									imageSize: Object.freeze(this.imgSize),
 									rectangle: Object.freeze(this.rectPercent),
@@ -569,14 +625,21 @@ export default {
 					});
 			} else {
 				const obj = this.lyric.obj;
-				const v = this.url ? this.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/) : null;
+
+				this.url = this.$lodash.compact(this.url);
+				const urlIdArr = [];
+				this.url.forEach(u => {
+					const id = u.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+					if (id && id[0].length == 11) urlIdArr.push(id[0]);
+				});
+				// const v = this.url ? this.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/) : null;
 
 				this.$dbList.update(
 					{ uniqueKey: obj.key },
 					{
 						$set: {
 							ytUrl: this.url,
-							ytID: v && v[0].length == 11 ? v[0] : null,
+							ytID: urlIdArr,
 							imagePath: null,
 							imageSize: {},
 							rectangle: {},

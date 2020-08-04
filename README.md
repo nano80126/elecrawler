@@ -14,6 +14,10 @@ This is a lyric crawler build by electron.
 - English
 - Chinese
 
+### Waiting
+
+* [ ] Design an icon
+* [ ] vue i18n
 
 ### Onprogress
 
@@ -23,15 +27,15 @@ This is a lyric crawler build by electron.
 * [x] Alias youtube url & image path with lyric object
 * [x] Get mp3 from **Youtube**
 * [x] Add global player(disable in route list)(disable when no youtube ID)
-* [ ] Design an icon (Temporary done)
 * [x] Open default browser for search
 * [x] Divide Display.vue and Embed.vue
 * [ ] Random play and change lyric object(testing) (almost deal in main.js)
-* [ ] Save YouTube Url in array for get multiple url (what about image?)
 * [ ] Keep player property using store for all component (volumun) (testing)
 * [ ] Mark those lyrics has been added when searching (find/$name/)
-* [ ] vue i18n (doing)
 * [x] Display.vue save colors
+* [ ] Save YouTube Url in array for get multiple url (what about image?)
+* [ ] Delete specific lyric in List.vue, and multiple 
+* [ ] Add multiple url use mouse wheel
 
 ### Known bug 
 
@@ -40,3 +44,4 @@ This is a lyric crawler build by electron.
 * [ ] List can't loading until reload
 * [x] Play broken if click twice when just initializing
 * [ ] Can't get duration of videio After CueVideoByID
+* [x] Can't change lyric object in shuffle mode when route has changed
