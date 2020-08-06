@@ -87,7 +87,7 @@
 												<span>
 													<v-icon
 														class="mr-2"
-														:color="item.ytUrl ? 'success' : 'error'"
+														:color="item.ytObj ? 'success' : 'error'"
 														size="20"
 													>
 														fas fa-music
@@ -99,9 +99,11 @@
 											</v-tooltip>
 										</template>
 										<v-list dense color="brown darken-4" outlined class="py-0">
-											<v-list-item>1</v-list-item>
-											<v-list-item>2</v-list-item>
-											<v-list-item>3</v-list-item>
+											<v-list-item v-for="(url, idx) in item.ytUrl" :key="item.ytID[idx]">
+												{{ url }}
+											</v-list-item>
+											<!-- <v-list-item>2</v-list-item> -->
+											<!-- <v-list-item>3</v-list-item> -->
 											<v-divider />
 											<v-list-item @click="removeFromList(item.uniqueKey, $event)">
 												<v-icon small>fas fa-times</v-icon>
@@ -223,7 +225,6 @@ export default {
 							});
 						prom.push(buf);
 					}
-					// console.log(ele);
 				});
 				// wait all promise done
 				Promise.all(prom).then(() => {

@@ -25,6 +25,9 @@ yarn-error.log*
 # old files
 *_old.vue
 
+# env
+*.env
+
 # Electron-builder output
 /dist_electron
 

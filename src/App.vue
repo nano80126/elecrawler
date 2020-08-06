@@ -303,8 +303,6 @@ export default {
 	},
 	created() {
 		// console.log(this.$vuetify);
-		if (process.env.NODE_ENV == 'development') console.log('env', process.env);
-		// ////
 
 		this.$router.beforeEach((to, from, next) => {
 			next();

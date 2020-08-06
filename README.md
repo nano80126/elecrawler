@@ -36,6 +36,7 @@ This is a lyric crawler build by electron.
 * [ ] Save YouTube Url in array for get multiple url (what about image?)
 * [ ] Delete specific lyric in List.vue, and multiple 
 * [ ] Add multiple url use mouse wheel
+* [ ] Get youtube data use youtube data v3 api
 
 ### Known bug 
 

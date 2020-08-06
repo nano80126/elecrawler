@@ -21,7 +21,7 @@
 
 					<!-- <v-hover v-model="fieldHover"> -->
 					<v-text-field
-						v-model="url[urlIndex]"
+						v-model="url"
 						filled
 						rounded
 						dense
@@ -29,6 +29,7 @@
 						placeholder="YouTubeのリンク"
 						class="ml-3"
 						@mousewheel="mouseWheel"
+						@blur="fieldBlur"
 					>
 						<!-- <template v-slot:prepend>
 							<v-icon color="red">fab fa-youtube</v-icon>
@@ -49,7 +50,7 @@
 										fas fa-plus
 									</v-icon>
 								</template>
-								<span>合計: {{ url.length }}</span>
+								<span>合計: {{ urlObj.length }}</span>
 							</v-tooltip>
 						</template>
 					</v-text-field>
@@ -104,7 +105,7 @@
 							@click="getVideoImg"
 							v-bind="attrs"
 							v-on="on"
-							:disabled="url[0] == null || url[0].length == 0"
+							:disabled="urlObj[0].url == null || urlObj[0].url.length == 0"
 						>
 							<v-icon small>fas fa-photo-video</v-icon>
 						</v-btn>
@@ -264,7 +265,7 @@
 			</div>
 			{{ lyric.obj.key }}
 			<br />
-			{{ url }}
+			{{ urlObj }}
 		</template>
 
 		<v-menu
@@ -309,7 +310,7 @@ export default {
 	},
 	data() {
 		return {
-			url: [],
+			urlObj: [{ url: null }],
 			urlIndex: 0,
 			///
 			disableDialog: false,
@@ -334,7 +335,17 @@ export default {
 			fitRatio: 0
 		};
 	},
-	computed: {},
+	computed: {
+		url: {
+			get() {
+				return this.urlObj[this.urlIndex].url;
+			},
+			set(value) {
+				if (!value) this.urlObj[this.urlIndex].url = null;
+				else this.urlObj[this.urlIndex].url = value;
+			}
+		}
+	},
 	watch: {
 		urlIndex() {
 			this.badge = true;
@@ -376,7 +387,8 @@ export default {
 					});
 				});
 			}
-			this.url = Array.isArray(doc.ytUrl) ? doc.ytUrl : [doc.ytUrl];
+
+			// this.urlObj = Array.isArray(doc.ytUrl) ? doc.ytUrl : [doc.ytUrl];
 			console.log(doc);
 		});
 	},
@@ -388,15 +400,35 @@ export default {
 
 		mouseWheel(e) {
 			if (e.deltaY > 0) {
-				this.urlIndex = this.urlIndex + 1 > this.url.length - 1 ? this.url.length - 1 : this.urlIndex + 1;
+				this.urlIndex = this.urlIndex + 1 > this.urlObj.length - 1 ? this.urlObj.length - 1 : this.urlIndex + 1;
 			} else {
 				this.urlIndex = this.urlIndex - 1 < 0 ? 0 : this.urlIndex - 1;
 			}
 		},
 
+		fieldBlur(e) {
+			console.log(e);
+			this.urlObj.forEach(item => {
+				const id = item.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+				if (id && id[0].length == 11) {
+					this.$axios
+						.get('https://www.googleapis.com/youtube/v3/videos', {
+							params: { part: 'snippet', id: id[0], key: process.env.VUE_APP_YOUTUBE_DATA_API_KEY }
+						})
+						.then(res => {
+							Object.assign(item, { id: id[0], title: res.data.items[0].snippet.title });
+						})
+						.catch(err => {
+							this.$store.commit('snackbar', { text: err, color: 'error' });
+						});
+				}
+			});
+			console.log(this.urlObj);
+		},
+
 		addUrl() {
-			this.url.push(null);
-			this.urlIndex = this.url.length - 1;
+			this.urlObj.push({ url: null });
+			this.urlIndex = this.urlObj.length - 1;
 		},
 
 		// 取得影片預覽圖
@@ -405,7 +437,7 @@ export default {
 			e.stopPropagation();
 			// this.removeImage();
 
-			const v = this.url[0].match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+			const v = this.urlObj[0].url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
 			if (v && v[0].length == 11) {
 				const buf = await this.$ipcRenderer.invoke('invokeAxios', v);
 
@@ -581,12 +613,13 @@ export default {
 
 						const obj = this.lyric.obj;
 
-						this.url = this.$lodash.compact(this.url);
-						const urlIdArr = [];
-						this.url.forEach(u => {
-							const id = u.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-							if (id && id[0].length == 11) urlIdArr.push(id[0]);
-						});
+						// this.urlObj = this.$lodash.compact(this.urlObj);
+						this.urlObj = this.urlObj.filter(e => e.url != null);
+						// const urlIdArr = [];
+						// this.urlObj.forEach(u => {
+						// 	const id = u.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+						// 	if (id && id[0].length == 11) urlIdArr.push(id[0]);
+						// });
 						// const v = this.url[0].match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
 						// add image / avatart to list
 						this.$dbList.update(
@@ -594,9 +627,9 @@ export default {
 							{
 								$set: {
 									// uniqueKey: this.lyricObj.key,
-									ytUrl: this.url,
+									ytObj: this.urlObj,
 									// ytID: v && v[0].length == 11 ? v[0] : null,
-									ytID: urlIdArr,
+									// ytID: urlIdArr,
 									imagePath: `${this.$picPath}\\${obj.key}.jpg`,
 									imageSize: Object.freeze(this.imgSize),
 									rectangle: Object.freeze(this.rectPercent),
@@ -626,20 +659,21 @@ export default {
 			} else {
 				const obj = this.lyric.obj;
 
-				this.url = this.$lodash.compact(this.url);
-				const urlIdArr = [];
-				this.url.forEach(u => {
-					const id = u.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-					if (id && id[0].length == 11) urlIdArr.push(id[0]);
-				});
+				// this.urlObj = this.$lodash.compact(this.url);
+				this.urlObj = this.urlObj.filter(e => e.url != null);
+				// const urlIdArr = [];
+				// this.url.forEach(u => {
+				// 	const id = u.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+				// 	if (id && id[0].length == 11) urlIdArr.push(id[0]);
+				// });
 				// const v = this.url ? this.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/) : null;
 
 				this.$dbList.update(
 					{ uniqueKey: obj.key },
 					{
 						$set: {
-							ytUrl: this.url,
-							ytID: urlIdArr,
+							ytObj: this.urlObj,
+							// ytID: urlIdArr,
 							imagePath: null,
 							imageSize: {},
 							rectangle: {},

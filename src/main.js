@@ -20,9 +20,9 @@ Object.defineProperties(Vue.prototype, {
 	$lodash: {
 		value: require('lodash')
 	},
-	// $axiosMain: {
-	// 	value: remote.require('axios')
-	// },
+	$axios: {
+		value: require('axios')
+	},
 	$dbHistory: {
 		value: require('./plugins/nedb').historyDB
 	},
@@ -133,6 +133,9 @@ new Vue({
 	},
 
 	mounted() {
+		if (process.env.NODE_ENV == 'development') console.log('env', process.env);
+		// ////
+
 		window.onresize = () => {
 			this.webWidth = window.innerWidth;
 			this.webHeight = window.innerHeight;
