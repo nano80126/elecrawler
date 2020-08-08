@@ -1,10 +1,10 @@
 <template>
 	<div>
 		<v-card-actions>
-			<v-list class="py-0" dense width="100%" color="transparent">
+			<v-list class="py-0" dense width="100%" color="transparent" :disabled="!videoID">
 				<v-list-item :disabled="!player">
 					<v-list-item-content>
-						<div class="d-flex align-center">
+						<div class="d-flex align-center progress-container">
 							<span>{{ $moment.utc(progressCurr * 1000).format('mm:ss') }}</span>
 							<v-progress-linear
 								v-model="progress"
@@ -205,9 +205,15 @@ export default {
 		videoID(id) {
 			console.log(id);
 			if (id && id.length == 11) {
+				if (!this.$store.state.player) {
+					this.IframeAPIReady(this.videoID);
+				} else {
+					this.progressCurr = 0;
+					this.$store.commit('cuePlayerById', id);
+				}
+			} else {
 				this.progressCurr = 0;
-				this.$store.commit('cuePlayerById', id);
-				// this.progressMax = this.player.getDuration();
+				this.progressMax = 0;
 			}
 			// } else this.$store.commit('snackbar', { text: '無効な動画 ID', color: 'warning' });
 		}
@@ -337,4 +343,16 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.v-list--disabled {
+	// 進度調
+	.progress-container {
+		opacity: 0.3 !important;
+	}
+
+	// 控制按鈕
+	button > span > i {
+		color: rgba(255, 255, 255, 0.3) !important;
+	}
+}
+</style>

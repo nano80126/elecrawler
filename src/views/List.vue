@@ -74,37 +74,55 @@
 								<v-list-item-action>
 									<v-menu bottom right offset-x nudge-right="15" min-width="150">
 										<template v-slot:activator="{ on: menu, attrs }">
-											<v-tooltip left dark>
-												<template v-slot:activator="{ on: tooltip }">
-													<v-btn icon v-bind="attrs" v-on="{ ...tooltip, ...menu }">
-														<!-- @click="getLyric(item)" -->
-														<!-- @click.right="menuShowCmd(menu, attrs, value)" -->
-														<v-icon color="grey lighten-1" small>
-															fas fa-info
-														</v-icon>
-													</v-btn>
-												</template>
-												<span>
-													<v-icon
-														class="mr-2"
-														:color="item.ytObj ? 'success' : 'error'"
-														size="20"
-													>
-														fas fa-music
-													</v-icon>
-													<v-icon :color="item.imagePath ? 'success' : 'error'" size="20">
-														fas fa-image
-													</v-icon>
-												</span>
-											</v-tooltip>
+											<!-- <v-tooltip left dark>
+												<template v-slot:activator="{ on: tooltip }"> -->
+											<v-btn icon v-bind="attrs" v-on="menu">
+												<!-- v-on="{ ...tooltip, ...menu }" @click="getLyric(item)" -->
+												<!-- @click.right="menuShowCmd(menu, attrs, value)" -->
+												<v-icon color="grey lighten-1" small>
+													fas fa-info
+												</v-icon>
+											</v-btn>
+											<!-- </template>
+											</v-tooltip> -->
 										</template>
 										<v-list dense color="brown darken-4" outlined class="py-0">
-											<v-list-item v-for="(url, idx) in item.ytUrl" :key="item.ytID[idx]">
-												{{ url }}
+											<v-list-item>
+												<v-icon
+													class="mr-3"
+													:color="item.ytObj ? 'success' : 'error'"
+													size="20"
+												>
+													fas fa-music
+												</v-icon>
+												<v-icon
+													class="mx-3"
+													:color="item.imagePath ? 'success' : 'error'"
+													size="20"
+												>
+													fas fa-image
+												</v-icon>
 											</v-list-item>
-											<!-- <v-list-item>2</v-list-item> -->
-											<!-- <v-list-item>3</v-list-item> -->
 											<v-divider />
+
+											<template v-if="item.ytObj">
+												<v-list-item
+													v-for="(obj, idx) in item.ytObj"
+													:key="item.ytObj[idx].id"
+													@click="getLyric(item, item.ytObj[idx].id)"
+												>
+													<!-- <span class="marquee"> -->
+													{{ obj.title }}
+													<!-- </span> -->
+												</v-list-item>
+											</template>
+											<template v-else>
+												<v-list-item @click="getLyric(item, null)">
+													{{ item.artist }} - {{ item.title }}
+												</v-list-item>
+											</template>
+											<v-divider />
+
 											<v-list-item @click="removeFromList(item.uniqueKey, $event)">
 												<v-icon small>fas fa-times</v-icon>
 												<span class="ml-3">削除</span>
@@ -194,7 +212,7 @@ export default {
 		}
 	},
 	created() {
-		console.log(this.$root._events);
+		// console.log(this.$root._events);
 		// $on a new event if not exitst
 		if (!this.$root._events.getLyricByID) this.$root.$on('getLyricByID', obj => (this.lyricObj = obj));
 	},
@@ -207,10 +225,18 @@ export default {
 
 				console.log(doc);
 
-				this.$store.commit(
-					'setPlayList',
-					this.$lodash.filter(doc, 'ytID').map(e => e.ytID)
-				);
+				// commit save to list
+				const filter = this.$lodash.filter(doc, 'ytObj').map(e => e.ytObj); // remove no youtube obj
+				const flatten = this.$lodash.flatten(filter).map(e => e.id); // flatten all youtube id
+				this.$store.commit('setPlayList', Object.freeze(flatten));
+
+				console.log(this.$store.state.playList);
+
+				// console.log(doc);
+				// const a = this.$lodash.filter(doc, 'ytObj').map(e => e.ytObj);
+				// console.log(a);
+				// console.log(this.$lodash.flatten(a).map(e => e.id));
+				// console.log(this.$store.state.playList);
 
 				const prom = [];
 				doc.forEach(async ele => {
@@ -249,7 +275,7 @@ export default {
 			if (!this.isTwoColumn) this.$ipcRenderer.send('windowWidth', { width: 1600, height: this.windowHeight });
 		},
 
-		async getLyric(item) {
+		async getLyric(item, ytID) {
 			this.$store.commit('changeOverlay', true);
 			this.expandWidth();
 
@@ -275,7 +301,7 @@ export default {
 							image: item.imagePath || null,
 							imageSize: item.imageSize || {}
 						});
-						this.videoID = item.ytID;
+						this.videoID = ytID;
 					});
 				}
 				this.$store.commit('changeOverlay', false);
@@ -332,5 +358,31 @@ export default {
 	left: 0;
 	right: 0;
 	font-size: 32px;
+}
+
+.marquee {
+	position: absolute;
+	left: 0;
+	text-align: center;
+	width: 150%;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	// height:50px;
+	// background:#f00;
+	animation-name: marqueeAnime;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+	animation-duration: 2.5s;
+}
+
+@keyframes marqueeAnime {
+	from {
+		margin-left: 100%;
+		// margin-right: 0;
+	}
+	to {
+		margin-left: -250%;
+		// margin-right: 150%;
+	}
 }
 </style>

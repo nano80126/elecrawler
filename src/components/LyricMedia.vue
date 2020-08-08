@@ -387,8 +387,7 @@ export default {
 					});
 				});
 			}
-
-			// this.urlObj = Array.isArray(doc.ytUrl) ? doc.ytUrl : [doc.ytUrl];
+			this.urlObj = doc.ytObj;
 			console.log(doc);
 		});
 	},
@@ -406,24 +405,27 @@ export default {
 			}
 		},
 
-		fieldBlur(e) {
-			console.log(e);
-			this.urlObj.forEach(item => {
+		fieldBlur(/*e*/) {
+			this.urlObj.forEach((item, itemKey) => {
 				const id = item.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-				if (id && id[0].length == 11) {
+				if (id && id[0].length == 11 && item.id !== id[0]) {
 					this.$axios
 						.get('https://www.googleapis.com/youtube/v3/videos', {
 							params: { part: 'snippet', id: id[0], key: process.env.VUE_APP_YOUTUBE_DATA_API_KEY }
 						})
 						.then(res => {
-							Object.assign(item, { id: id[0], title: res.data.items[0].snippet.title });
+							this.$set(
+								this.urlObj,
+								itemKey,
+								Object.assign(item, { id: id[0], title: res.data.items[0].snippet.title })
+							);
+							// Object.assign(item, { id: id[0], title: res.data.items[0].snippet.title });
 						})
 						.catch(err => {
 							this.$store.commit('snackbar', { text: err, color: 'error' });
 						});
 				}
 			});
-			console.log(this.urlObj);
 		},
 
 		addUrl() {

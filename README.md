@@ -19,6 +19,10 @@ This is a lyric crawler build by electron.
 * [ ] Design an icon
 * [ ] vue i18n
 
+### Learning 
+
+* [ ] Typescript
+
 ### Onprogress
 
 * [x] Drop or paste an image and show real time
@@ -29,14 +33,15 @@ This is a lyric crawler build by electron.
 * [x] Add global player(disable in route list)(disable when no youtube ID)
 * [x] Open default browser for search
 * [x] Divide Display.vue and Embed.vue
-* [ ] Random play and change lyric object(testing) (almost deal in main.js)
-* [ ] Keep player property using store for all component (volumun) (testing)
-* [ ] Mark those lyrics has been added when searching (find/$name/)
+* [x] Random play and change lyric object(testing) (almost deal in main.js)
+* [x] Keep player property using store for all component (volumun) (testing)
+* [x] Mark those lyrics has been added when searching (find/$name/)
 * [x] Display.vue save colors
-* [ ] Save YouTube Url in array for get multiple url (what about image?)
-* [ ] Delete specific lyric in List.vue, and multiple 
-* [ ] Add multiple url use mouse wheel
-* [ ] Get youtube data use youtube data v3 api
+* [x] Save YouTube Url in array for get multiple url (what about image? get from first)
+* [x] Delete specific lyric in List.vue, and multiple 
+* [x] Add multiple url use mouse wheel
+* [x] Get youtube data use youtube data v3 api
+* [x] Simple lyric and background with no embeded youtube
 
 ### Known bug 
 

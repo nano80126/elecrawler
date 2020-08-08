@@ -91,12 +91,15 @@ new Vue({
 						const old = this.$store.state.player.getVideoData();
 						const arr = this.$lodash.without(this.$store.state.playList, old.video_id);
 						const videoID = arr[this.$lodash.random(0, arr.length - 1)];
+
 						this.$store.commit('loadPlayerById', videoID);
 						// code above for loading video // code below for get lyric object
 
 						// if route is List enable
 						if (this.$route.name == 'List') this.$store.commit('changeOverlay', true);
-						this.$dbList.findOne({ ytID: videoID }, async (err, doc) => {
+						// this.$dbList.findOne({ 'ytObj.id': videoID }, async (err, doc) => {
+						// findOne of ytObj arr has one of element match videoID
+						this.$dbList.findOne({ ytObj: { $elemMatch: { id: videoID } } }, async (err, doc) => {
 							if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 							const res = await this.$ipcRenderer.invoke('getLyric', { url: doc.lyricUrl });
 
