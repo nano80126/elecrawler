@@ -16,6 +16,9 @@ export default new Vuex.Store({
 		//
 		lyricObj: null,
 		lyricText: null,
+		///
+		// checkProgress: null,
+		intervalArray: [],
 		player: null,
 		playerLoop: false,
 		playerShuffle: false,
@@ -63,6 +66,24 @@ export default new Vuex.Store({
 				state.lyricObj = null;
 			}
 		},
+
+		psuhIntervalArr(state, interval) {
+			state.intervalArray.push(interval);
+		},
+
+		clearIntervalArr(state) {
+			state.intervalArray.forEach(id => {
+				clearInterval(id);
+			});
+			state.intervalArray = [];
+		},
+		// playerProgress(state, interval) {
+		// 	state.checkProgress = interval;
+		// },
+
+		// clearProgress(state) {
+		// 	clearInterval(state.checkProgress);
+		// },
 
 		creatPlayer(state, yt) {
 			state.player = yt;

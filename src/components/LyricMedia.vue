@@ -387,8 +387,8 @@ export default {
 					});
 				});
 			}
-			this.urlObj = doc.ytObj;
-			console.log(doc);
+			this.urlObj = doc.ytObj || this.urlObj;
+			// console.log(doc);
 		});
 	},
 	methods: {
@@ -487,7 +487,7 @@ export default {
 				// const base64 = e.target.result.replace(/^data:image\/\w+;base64,/, '');
 				// const buf = Buffer.from(base64, 'base64');
 				const buf = e.target.result;
-				console.log(buf);
+				// console.log(buf);
 
 				let image = this.$sharp(Buffer.from(buf)).toFormat('jpeg');
 				const { width } = await image.metadata();
@@ -526,7 +526,7 @@ export default {
 
 			image.toBuffer((err, data, info) => {
 				if (err) console.warn(err);
-				console.log(data);
+				// console.log(data);
 				this.imgurl = data;
 
 				this.$nextTick(() => {
@@ -611,7 +611,7 @@ export default {
 
 				Promise.all(promises)
 					.then(res => {
-						console.log('Done!', res);
+						console.warn('Done!', res);
 
 						const obj = this.lyric.obj;
 

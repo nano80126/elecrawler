@@ -230,7 +230,7 @@ export default {
 				const flatten = this.$lodash.flatten(filter).map(e => e.id); // flatten all youtube id
 				this.$store.commit('setPlayList', Object.freeze(flatten));
 
-				console.log(this.$store.state.playList);
+				// console.log(this.$store.state.playList);
 
 				// console.log(doc);
 				// const a = this.$lodash.filter(doc, 'ytObj').map(e => e.ytObj);
@@ -279,6 +279,7 @@ export default {
 			this.$store.commit('changeOverlay', true);
 			this.expandWidth();
 
+			if (!ytID) this.$store.commit('destroyPlayer'); // id == null => destory player
 			// 這邊判斷 player 是否存在
 			// this.lyricObj = null;
 			// this.$store.commit('destroyPlayer');

@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<v-card-actions>
-			<v-list class="py-0" dense width="100%" color="transparent" :disabled="!videoID">
+			<v-list class="py-0" dense width="100%" color="transparent">
 				<v-list-item :disabled="!player">
 					<v-list-item-content>
 						<div class="d-flex align-center progress-container">
@@ -131,8 +131,9 @@ export default {
 
 			progressCurr: 0,
 			progressMax: 0,
-			checkProgress: null,
-
+			// checkProgress: null,
+			//
+			//
 			volume: 75,
 			volumeBack: 75,
 			// loop: false,
@@ -149,7 +150,7 @@ export default {
 		},
 
 		player() {
-			return this.$store.state.player || false;
+			return this.$store.state.player;
 		},
 
 		loop: {
@@ -182,15 +183,30 @@ export default {
 
 	watch: {
 		'$store.getters.playState'(state) {
+			console.log(state);
 			this.playState = state;
-			clearInterval(this.checkProgress);
+			// this.$store.commit('clearProgress');
+			// console.log(this.$store.state.intervalArray);
+			this.$store.commit('clearIntervalArr');
 
 			switch (state) {
+				case -1:
+					this.progress = 0;
+					this.$nextTick(() => (this.progressMax = 0));
+					break;
 				case 0:
 					this.progressCurr = this.progressMax;
 					break;
 				case 1:
-					this.checkProgress = setInterval(() => (this.progressCurr = this.player.getCurrentTime()), 250);
+					// this.$store.commit(
+					// 	'playerProgress',
+					// eslint-disable-next-line no-case-declarations
+					this.$store.commit(
+						'psuhIntervalArr',
+						setInterval(() => {
+							this.progressCurr = this.$store.state.player.getCurrentTime();
+						}, 250)
+					);
 					this.progressMax = this.player.getDuration();
 					break;
 				case 5:
@@ -198,24 +214,22 @@ export default {
 					break;
 			}
 		},
+
+		// watch change from app.vue
 		sheet(e) {
 			if (e) this.CheckPlayer();
 		},
 
 		videoID(id) {
-			console.log(id);
 			if (id && id.length == 11) {
+				// id is valid
 				if (!this.$store.state.player) {
 					this.IframeAPIReady(this.videoID);
 				} else {
 					this.progressCurr = 0;
 					this.$store.commit('cuePlayerById', id);
 				}
-			} else {
-				this.progressCurr = 0;
-				this.progressMax = 0;
 			}
-			// } else this.$store.commit('snackbar', { text: '無効な動画 ID', color: 'warning' });
 		}
 	},
 
@@ -228,7 +242,8 @@ export default {
 	},
 
 	beforeDestroy() {
-		clearInterval(this.checkProgress);
+		// clearInterval(this.checkProgress);
+		this.$store.commit('clearIntervalArr');
 	},
 
 	methods: {
@@ -270,21 +285,22 @@ export default {
 		// checking player in mounted when player already exists
 		CheckPlayer() {
 			const player = this.$store.state.player;
-
 			this.playState = player.getPlayerState();
 			this.volume = this.volumeBack = player.getVolume();
 			this.progressCurr = player.getCurrentTime();
 			this.progressMax = player.getDuration();
-			// this.loop = this.$store.state.playerLoop;
 
-			switch (this.$store.getters.playState) {
+			switch (this.playState) {
 				case 0:
 					this.progressCurr = this.progressMax;
 					break;
 				case 1:
-					this.checkProgress = setInterval(() => {
-						this.progressCurr = this.$store.state.player.getCurrentTime();
-					}, 250);
+					this.$store.commit(
+						'psuhIntervalArr',
+						setInterval(() => {
+							this.progressCurr = this.$store.state.player.getCurrentTime();
+						}, 250)
+					);
 					break;
 			}
 		},

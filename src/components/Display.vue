@@ -146,12 +146,12 @@ export default {
 			//
 			colors: Object.freeze([
 				'primary',
-				'info',
+				'cyan',
 				'success',
 				'teal',
 				'error',
 				'warning',
-				'orange',
+				'yellow',
 				'purple',
 				'white',
 				'grey',
