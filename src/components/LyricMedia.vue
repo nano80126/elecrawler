@@ -291,74 +291,67 @@
 	</div>
 </template>
 
-<script>
-import debounce from 'lodash/debounce';
+<script lang="ts">
+// import debounce from 'lodash/debounce';
 
-export default {
-	name: 'LyricMedia',
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
-	props: {
-		bigImage: {
-			type: Boolean,
-			required: true
-		},
-
-		lyric: {
-			type: Object,
-			required: true
-		}
-	},
-	data() {
-		return {
-			urlObj: [{ url: null }],
-			urlIndex: 0,
-			///
-			disableDialog: false,
-			///
-			imgurl: null,
-			//
-			badge: false,
-			badgeTimeout: null,
-			// fieldHover: false,
-			// imgbuf: null,
-			dragging: false,
-			canPaste: false,
-			//
-			catchAvatar: false, // start select rectangle
-			startRectFlag: false, // on when left mouse down
-			showMenu: false, // show menu when right mouse up
-			//
-			rectAbs: { x: 0, y: 0, width: 0, height: 0 },
-			rectPercent: { x: 0, y: 0, width: 0, height: 0 },
-			imgSize: { width: 0, height: 0 },
-			menuPos: { x: 0, y: 0 },
-			fitRatio: 0
+@Component
+export default class Media extends Vue {
+	@Prop() bigImage!: boolean;
+	@Prop() lyric!: {
+		obj: {
+			key: string;
+			url: string;
+			title: string;
+			artist: string;
+			lyric: string;
 		};
-	},
-	computed: {
-		url: {
-			get() {
-				return this.urlObj[this.urlIndex].url;
-			},
-			set(value) {
-				if (!value) this.urlObj[this.urlIndex].url = null;
-				else this.urlObj[this.urlIndex].url = value;
-			}
-		}
-	},
-	watch: {
-		urlIndex() {
-			this.badge = true;
-			clearTimeout(this.badgeTimeout);
-			this.$nextTick(() => {
-				this.badgeTimeout = setTimeout(() => {
-					this.badge = false;
-				}, 1000);
-			});
-		}
-	},
+	};
 
-	created() {},
+	private urlObj: Array<{ url: string | null; id?: string; title?: string }> = [{ url: null }];
+	private urlIndex = 0;
+	//
+	private disableDialog = false;
+	//
+	private imgurl: string = null;
+
+	private badge = false;
+	private badgeTimeout: NodeJS.Timeout;
+
+	private dragging = false;
+	private canPaste = false;
+	//
+	private catchAvatar = false;
+	private startRectFlag = false;
+	private showMenu = false;
+	//
+	private rectAbs = { x: 0, y: 0, width: 0, height: 0 };
+	private rectPercent = { x: 0, y: 0, width: 0, height: 0 };
+	private imgSize = { width: 0, height: 0 };
+	private menuPos = { x: 0, y: 0 };
+	private fitRatio = 0;
+	///
+	get url(): string {
+		return this.urlObj[this.urlIndex].url;
+	}
+
+	set url(value) {
+		if (!value) this.urlObj[this.urlIndex].url = null;
+		else this.urlObj[this.urlIndex].url = value;
+	}
+
+	@Watch('urlIndex')
+	OnUrlIndexChanged() {
+		this.badge = true;
+		clearTimeout(this.badgeTimeout);
+		this.$nextTick(() => {
+			this.badgeTimeout = setTimeout(() => {
+				this.badge = false;
+			}, 1000);
+		});
+	}
+
 	mounted() {
 		this.$dbList.findOne({ uniqueKey: this.lyric.obj.key }, (err, doc) => {
 			if (err) {
@@ -376,7 +369,7 @@ export default {
 						this.$set(this.imgSize, 'width', info.width);
 						this.$set(this.imgSize, 'height', info.height);
 
-						const regionFreeze = this.$refs['region-freeze'];
+						const regionFreeze = this.$refs['region-freeze'] as HTMLElement;
 						if (regionFreeze && doc.rectangle != {}) {
 							this.rectPercent = doc.rectangle;
 							regionFreeze.style.left = `${this.rectPercent.x}%`;
@@ -390,23 +383,28 @@ export default {
 			this.urlObj = doc.ytObj || this.urlObj;
 			// console.log(doc);
 		});
-	},
-	methods: {
-		openWindow(keyWord) {
-			const url = `https://www.youtube.com/results?search_query=${keyWord}`;
-			this.$shell.openExternal(url);
-		},
+	}
 
-		mouseWheel(e) {
-			if (e.deltaY > 0) {
-				this.urlIndex = this.urlIndex + 1 > this.urlObj.length - 1 ? this.urlObj.length - 1 : this.urlIndex + 1;
-			} else {
-				this.urlIndex = this.urlIndex - 1 < 0 ? 0 : this.urlIndex - 1;
-			}
-		},
+	private openWindow(keyWord: string): void {
+		const url = `https://www.youtube.com/results?search_query=${keyWord}`;
+		this.$shell.openExternal(url);
+	}
 
-		fieldBlur(/*e*/) {
-			this.urlObj.forEach((item, itemKey) => {
+	private mouseWheel(e: MouseWheelEvent): void {
+		if (e.deltaY > 0) {
+			this.urlIndex = this.urlIndex + 1 > this.urlObj.length - 1 ? this.urlObj.length - 1 : this.urlIndex + 1;
+		} else {
+			this.urlIndex = this.urlIndex - 1 < 0 ? 0 : this.urlIndex - 1;
+		}
+	}
+
+	private fieldBlur(/*e*/): void {
+		// this.urlObj = this.urlObj.filter(o => {
+		// 	return o.url && o.url.length > 0;
+		// });
+		// this.urlObj.filter(o => o.url != null);
+		this.urlObj.forEach((item, itemKey: number) => {
+			if (item.url != null && item.url.length > 0) {
 				const id = item.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
 				if (id && id[0].length == 11 && item.id !== id[0]) {
 					this.$axios
@@ -425,468 +423,433 @@ export default {
 							this.$store.commit('snackbar', { text: err, color: 'error' });
 						});
 				}
-			});
-		},
-
-		addUrl() {
-			this.urlObj.push({ url: null });
-			this.urlIndex = this.urlObj.length - 1;
-		},
-
-		// 取得影片預覽圖
-		async getVideoImg(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			// this.removeImage();
-
-			const v = this.urlObj[0].url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-			if (v && v[0].length == 11) {
-				const buf = await this.$ipcRenderer.invoke('invokeAxios', v);
-
-				if (buf.Error) {
-					// No cover image exists
-					this.$store.commit('snackbar', { text: buf.message, color: 'error' });
-					return;
-				}
-
-				let image = this.$sharp(Buffer.from(buf));
-				const { width } = await image.metadata();
-
-				if (width > 1440) image = image.resize(1440);
-
-				image.toBuffer((err, data, info) => {
-					if (err) console.error(err);
-					this.imgurl = data;
-
-					this.$nextTick(() => {
-						this.$set(this.imgSize, 'width', info.width);
-						this.$set(this.imgSize, 'height', info.height);
-					});
-				});
-			} else {
-				this.$store.commit('snackbar', { text: '無効なURL', color: 'warning' });
 			}
-		},
+		});
+	}
 
-		// 貼上圖片
-		onPaste(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			// this.removeImage();
+	private addUrl(): void {
+		this.urlObj.push({ url: null });
+		this.urlIndex = this.urlObj.length - 1;
+	}
 
-			const items = e.clipboardData.files;
-			if (items.length == 0 || !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
-				console.error('no image or not image');
+	private async getVideoImg(e: Event): Promise<void> {
+		e.preventDefault();
+		e.stopPropagation();
+
+		const videoID = this.urlObj[0].url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+		if (videoID && videoID[0].length == 11) {
+			const buf = await this.$ipcRenderer.invoke('invokeAxios', videoID);
+
+			if (buf.Error) {
+				this.$store.commit('snackbar', { text: buf.message, color: 'error' });
 				return;
 			}
 
-			const file = items[0];
-			const reader = new FileReader();
-
-			reader.addEventListener('load', async e => {
-				// const base64 = e.target.result.replace(/^data:image\/\w+;base64,/, '');
-				// const buf = Buffer.from(base64, 'base64');
-				const buf = e.target.result;
-				// console.log(buf);
-
-				let image = this.$sharp(Buffer.from(buf)).toFormat('jpeg');
-				const { width } = await image.metadata();
-				if (width > 1440) image = image.resize(1440);
-
-				image.toBuffer((err, data, info) => {
-					if (err) this.$store.commit('commit', { text: err, color: 'error' });
-
-					this.imgurl = data;
-					this.$nextTick(() => {
-						this.$set(this.imgSize, 'width', info.width);
-						this.$set(this.imgSize, 'height', info.height);
-					});
-				});
-			});
-			reader.readAsArrayBuffer(file);
-			e.target.blur();
-		},
-
-		// 拖曳載入圖片
-		async onChange(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			// this.removeImage();
-
-			const items = e.target.files || e.dataTransfer.files;
-			if (items.length == 0 || !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
-				console.error('no image or not image');
-				return;
-			}
-
-			const filePath = items[0].path;
-			let image = this.$sharp(filePath);
+			let image = this.$sharp(Buffer.from(buf));
 			const { width } = await image.metadata();
+
 			if (width > 1440) image = image.resize(1440);
 
-			image.toBuffer((err, data, info) => {
-				if (err) console.warn(err);
-				// console.log(data);
+			image.toBuffer((err: string, data: string, info: { width: number; height: number }) => {
+				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 				this.imgurl = data;
-
 				this.$nextTick(() => {
 					this.$set(this.imgSize, 'width', info.width);
 					this.$set(this.imgSize, 'height', info.height);
 				});
+				console.log(info);
 			});
+		} else {
+			this.$store.commit('snackbar', { text: '無効なURL', color: 'warning' });
+		}
+	}
 
-			this.$refs.file.value = null;
-		},
+	private onPaste(e): void {
+		e.preventDefault();
+		e.stopPropagation();
 
-		// dialog 選擇圖片
-		dialogImage() {
-			this.disableDialog = true;
-			this.$remote.dialog
-				.showOpenDialog({
-					filters: [{ name: 'Images', extensions: ['jpg', 'png', 'bmp'] }]
-				})
-				.then(async res => {
-					if (!res.canceled) {
-						this.removeImage();
+		const items = e.clipboardData.files;
+		if (items.length == 0 || !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
+			console.error('no image or not image');
+			return;
+		}
 
-						const filePath = res.filePaths[0];
-						let image = this.$sharp(filePath);
-						const { width } = await image.metadata();
+		const file = items[0] as File;
+		const reader = new FileReader();
 
-						if (width > 1440) image = image.resize(1440);
+		reader.addEventListener('load', async e => {
+			// const base64 = e.target.result.replace(/^data:image\/\w+;base64,/, '');
+			// const buf = Buffer.from(base64, 'base64');
+			const buf = e.target.result;
+			// console.log(buf);
 
-						image.toBuffer((err, data, info) => {
-							if (err) console.warn(err);
-							this.imgurl = data;
+			let image = this.$sharp(Buffer.from(buf)).toFormat('jpeg');
+			const { width } = await image.metadata();
+			if (width > 1440) image = image.resize(1440);
 
-							this.$nextTick(() => {
-								this.$set(this.imgSize, 'width', info.width);
-								this.$set(this.imgSize, 'height', info.height);
-							});
-						});
-					}
-				})
-				.catch(err => {
-					if (err) {
-						this.$store.commit('snackbar', {
-							text: err,
-							color: 'error'
-						});
-					}
-				})
-				.finally(() => {
-					this.disableDialog = false;
+			image.toBuffer((err: string, data: string, info: { width: number; height: number }) => {
+				if (err) this.$store.commit('commit', { text: err, color: 'error' });
+
+				this.imgurl = data;
+				this.$nextTick(() => {
+					this.$set(this.imgSize, 'width', info.width);
+					this.$set(this.imgSize, 'height', info.height);
 				});
-		},
+				console.log(info);
+			});
+		});
+		reader.readAsArrayBuffer(file);
+		e.target.blur();
+	}
 
-		// 儲存 url、image、avatar
-		keepMedia() {
-			if (this.imgurl) {
-				const image = this.$sharp(this.imgurl);
-				const promises = [];
+	private async onChange(e) {
+		e.preventDefault();
+		e.stopPropagation();
 
-				const x = Math.round((this.imgSize.width * this.rectPercent.x) / 100);
-				const y = Math.round((this.imgSize.height * this.rectPercent.y) / 100);
-				const w = Math.round((this.imgSize.width * this.rectPercent.width) / 100);
-				const h = Math.round((this.imgSize.height * this.rectPercent.height) / 100);
+		const items = (e.target.files || e.dataTransfer.files) as File[];
+		if (items.length == 0 || !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
+			console.error('no image or not image');
+			return;
+		}
 
+		const filePath = items[0].path;
+		let image = this.$sharp(filePath);
+		const { width } = await image.metadata();
+		if (width > 1440) image = image.resize(1440);
+
+		image.toBuffer((err: string, data: string, info: { width: number; height: number }) => {
+			if (err) console.warn(err);
+			// console.log(data);
+			this.imgurl = data;
+
+			this.$nextTick(() => {
+				this.$set(this.imgSize, 'width', info.width);
+				this.$set(this.imgSize, 'height', info.height);
+			});
+		});
+
+		(this.$refs.file as HTMLInputElement).value = null;
+	}
+
+	private dialogImage() {
+		this.disableDialog = true;
+		this.$remote.dialog
+			.showOpenDialog({
+				filters: [{ name: 'Images', extensions: ['jpg', 'png', 'bmp'] }]
+			})
+			.then(async res => {
+				if (!res.canceled) {
+					this.removeImage();
+
+					const filePath = res.filePaths[0];
+					let image = this.$sharp(filePath);
+					const { width } = await image.metadata();
+
+					if (width > 1440) image = image.resize(1440);
+
+					image.toBuffer((err, data, info) => {
+						if (err) console.warn(err);
+						this.imgurl = data;
+
+						this.$nextTick(() => {
+							this.$set(this.imgSize, 'width', info.width);
+							this.$set(this.imgSize, 'height', info.height);
+						});
+					});
+				}
+			})
+			.catch(err => {
+				if (err) {
+					this.$store.commit('snackbar', {
+						text: err,
+						color: 'error'
+					});
+				}
+			})
+			.finally(() => {
+				this.disableDialog = false;
+			});
+	}
+
+	private keepMedia(): void {
+		if (this.imgurl) {
+			const image = this.$sharp(this.imgurl);
+			const promises = [];
+
+			const x = Math.round((this.imgSize.width * this.rectPercent.x) / 100);
+			const y = Math.round((this.imgSize.height * this.rectPercent.y) / 100);
+			const w = Math.round((this.imgSize.width * this.rectPercent.width) / 100);
+			const h = Math.round((this.imgSize.height * this.rectPercent.height) / 100);
+
+			promises.push(
+				image
+					.clone()
+					.toFormat('jpeg')
+					.toFile(`${this.$picPath}\\${this.lyric.obj.key}.jpg`)
+			);
+
+			//
+			if (w > 0 && h > 0) {
 				promises.push(
 					image
 						.clone()
+						.extract({ left: x, top: y, width: w, height: h })
+						.resize(128, 128, { fit: this.$sharp.fit.outside, withoutEnlargement: true })
 						.toFormat('jpeg')
-						.toFile(`${this.$picPath}\\${this.lyric.obj.key}.jpg`)
+						.toFile(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`)
 				);
+			}
 
-				//
-				if (w > 0 && h > 0) {
-					promises.push(
-						image
-							.clone()
-							.extract({ left: x, top: y, width: w, height: h })
-							.resize(128, 128, { fit: this.$sharp.fit.outside, withoutEnlargement: true })
-							.toFormat('jpeg')
-							.toFile(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`)
-					);
-				}
+			Promise.all(promises)
+				.then(res => {
+					console.warn('Done!', res);
 
-				Promise.all(promises)
-					.then(res => {
-						console.warn('Done!', res);
+					const obj = this.lyric.obj;
 
-						const obj = this.lyric.obj;
+					// this.urlObj = this.$lodash.compact(this.urlObj);
+					this.urlIndex = 0; // Set index to 0 or maybe return url not in urlObj
+					this.urlObj = this.urlObj.filter(e => e.url != null && e.url.length > 0);
 
-						// this.urlObj = this.$lodash.compact(this.urlObj);
-						this.urlObj = this.urlObj.filter(e => e.url != null);
-						// const urlIdArr = [];
-						// this.urlObj.forEach(u => {
-						// 	const id = u.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-						// 	if (id && id[0].length == 11) urlIdArr.push(id[0]);
-						// });
-						// const v = this.url[0].match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-						// add image / avatart to list
-						this.$dbList.update(
-							{ uniqueKey: obj.key },
-							{
-								$set: {
-									// uniqueKey: this.lyricObj.key,
-									ytObj: this.urlObj,
-									// ytID: v && v[0].length == 11 ? v[0] : null,
-									// ytID: urlIdArr,
-									imagePath: `${this.$picPath}\\${obj.key}.jpg`,
-									imageSize: Object.freeze(this.imgSize),
-									rectangle: Object.freeze(this.rectPercent),
-									avatarPath: w > 0 && h > 0 ? `${this.$picPath}\\${obj.key}_avatar.jpg` : null,
-									datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-								}
-							},
-							{ upsert: false },
-							err => {
-								if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-								else this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
+					// const urlIdArr = [];
+					// this.urlObj.forEach(u => {
+					// 	const id = u.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+					// 	if (id && id[0].length == 11) urlIdArr.push(id[0]);
+					// });
+					// const v = this.url[0].match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+					// add image / avatart to list
+					this.$dbList.update(
+						{ uniqueKey: obj.key },
+						{
+							$set: {
+								// uniqueKey: this.lyricObj.key,
+								ytObj: this.urlObj,
+								// ytID: v && v[0].length == 11 ? v[0] : null,
+								// ytID: urlIdArr,
+								imagePath: `${this.$picPath}\\${obj.key}.jpg`,
+								imageSize: Object.freeze(this.imgSize),
+								rectangle: Object.freeze(this.rectPercent),
+								avatarPath: w > 0 && h > 0 ? `${this.$picPath}\\${obj.key}_avatar.jpg` : null,
+								datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
 							}
-						);
-					})
-					.catch(err => {
-						if (err) {
-							this.$store.commit('snackbar', { text: err, color: 'error' });
-
-							this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}.jpg`, err => {
-								if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
-							});
-							this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`, err => {
-								if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
-							});
+						},
+						{ upsert: false },
+						err => {
+							if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+							else this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
 						}
-					});
-			} else {
-				const obj = this.lyric.obj;
+					);
+				})
+				.catch(err => {
+					if (err) {
+						this.$store.commit('snackbar', { text: err, color: 'error' });
 
-				// this.urlObj = this.$lodash.compact(this.url);
-				this.urlObj = this.urlObj.filter(e => e.url != null);
-				// const urlIdArr = [];
-				// this.url.forEach(u => {
-				// 	const id = u.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-				// 	if (id && id[0].length == 11) urlIdArr.push(id[0]);
-				// });
-				// const v = this.url ? this.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/) : null;
-
-				this.$dbList.update(
-					{ uniqueKey: obj.key },
-					{
-						$set: {
-							ytObj: this.urlObj,
-							// ytID: urlIdArr,
-							imagePath: null,
-							imageSize: {},
-							rectangle: {},
-							avatarPath: null,
-							datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-						}
-					},
-					{ upsert: true },
-					(err, nb) => {
-						if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-
-						// 確認有更新後刪除
-						if (nb > 0) {
-							this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
-
-							const path = [
-								`${this.$picPath}\\${this.lyric.obj.key}.jpg`,
-								`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`
-							];
-
-							path.forEach(p => {
-								this.$fs.exists(p, exist => {
-									if (exist) {
-										this.$fs.unlink(p, err => {
-											if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
-										});
-									}
-								});
-							});
-						}
+						this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}.jpg`, err => {
+							if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
+						});
+						this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`, err => {
+							if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
+						});
 					}
-				);
-			}
-		},
-
-		// 刪除 image
-		removeImage() {
-			this.imgurl = null; // 重置 imgurl
-			this.imgSize.width = this.imgSize.height = 0; // 重置 imgSize
-			this.fitRatio = 0; // 重置縮小倍率
-			// this.$refs.file.value = null; // 重置 file
-			//
-			this.catchAvatar = false;
-			this.startRectFlag = false;
-			this.showMenu = false;
-		},
-
-		// crosshair 十字移動
-		crossMove(e) {
-			if (!this.imgurl || !this.catchAvatar) return;
-
-			const x = e.offsetX - 2 < 0 ? 0 : e.offsetX - 2;
-			const y = e.offsetY - 2 < 0 ? 0 : e.offsetY - 2;
-			this.$refs.hairV.style.left = `${e.offsetX}px`;
-			this.$refs.hairH.style.top = `${e.offsetY}px`;
-			this.$refs.pos.innerText = `X:${x}, Y:${y}`;
-			// this.$refs.pos.style.top = `${e.offsetY}px`;
-			// this.$refs.pos.style.left = `${e.offsetX}px`;
-			if (this.startRectFlag) {
-				const w = this.$refs.img.$el.clientWidth;
-				const h = this.$refs.img.$el.clientHeight;
-				// console.log(w, h);
-
-				if (e.offsetX < this.rectAbs.x) this.$refs.region.style.left = `${(100 * e.offsetX) / w}%`;
-				else this.$refs.region.style.left = `${(100 * this.rectAbs.x) / w}%`;
-				if (e.offsetY < this.rectAbs.y) this.$refs.region.style.top = `${(100 * e.offsetY) / h}%`;
-				else this.$refs.region.style.top = `${(100 * this.rectAbs.y) / h}%`;
-				// this.$refs.region.style.left =
-
-				this.rectAbs.width = Math.abs(e.offsetX - this.rectAbs.x) + 1;
-				this.rectAbs.height = Math.abs(e.offsetY - this.rectAbs.y) + 1;
-				this.$refs.region.style.width = `${(100 * this.rectAbs.width) / w}%`;
-				this.$refs.region.style.height = `${(100 * this.rectAbs.height) / h}%`;
-			}
-		},
-
-		// crosshair 十字重置 // 移出 v-card 時
-		// crossReset(e) {
-		crossReset() {
-			// console.log(e);
-			if (!this.imgurl || !this.catchAvatar) return;
-
-			this.$refs.hairH.style.top = 0;
-			this.$refs.hairV.style.left = 0;
-			this.$refs.pos.innerText = 'X:0, Y:0';
-			this.startRectFlag = false;
-			// if (this.startRectFlag) {
-			// 	this.startRectFlag = false;
-
-			// 	this.$nextTick(() => {
-			// 		const region = this.$refs.region;
-			// 		// console.log(region);
-
-			// 		this.rectPercent.x = parseFloat(this.$lodash.trimEnd(region.style.left, '%'));
-			// 		this.rectPercent.y = parseFloat(this.$lodash.trimEnd(region.style.top, '%'));
-			// 		this.rectPercent.width = parseFloat(this.$lodash.trimEnd(region.style.width, '%'));
-			// 		this.rectPercent.height = parseFloat(this.$lodash.trimEnd(region.style.height, '%'));
-
-			// 		this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
-			// 		this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
-			// 		this.$nextTick(() => {
-			// 			if (this.rectAbs.width <= 5 || this.rectAbs.height <= 5) return;
-			// 			else if (this.rectAbs.width >= 128 && this.rectAbs.height >= 128) this.showMenu = true;
-			// 			else {
-			// 				this.$store.commit('snackbar', {
-			// 					text: 'must large than 128 x128 ',
-			// 					color: 'info'
-			// 				});
-			// 			}
-			// 		});
-			// 	});
-			// }
-		},
-
-		// 開始框選圖片 // left button down
-		rectOn(e) {
-			if (!this.imgurl || !this.catchAvatar) return;
-			// console.log(e);
-			if (e.button == 0) {
-				this.startRectFlag = true;
-
-				this.$nextTick(() => {
-					const w = this.$refs.img.$el.clientWidth;
-					const h = this.$refs.img.$el.clientHeight;
-
-					this.rectAbs.x = e.offsetX - 1;
-					this.rectAbs.y = e.offsetY - 1;
-
-					this.rectAbs.width = this.rectAbs.height = 0;
-					this.rectPercent.width = this.rectPercent.height = 0;
-					this.$refs.region.style.width = this.$refs.region.style.height = 0;
-
-					this.$refs.region.style.left = `${this.rectAbs.x / w}%`;
-					this.$refs.region.style.top = `${this.rectAbs.y / h}%`;
-
-					this.$nextTick(() => (this.showMenu = false));
 				});
-			}
-		},
+		} else {
+			const obj = this.lyric.obj;
 
-		// 停止框選圖片 // left button up
-		rectOff(e) {
-			if (!this.imgurl || !this.catchAvatar) return;
-			if (e.button == 0 && this.startRectFlag) {
-				this.startRectFlag = false;
+			// this.urlObj = this.$lodash.compact(this.url);
+			this.urlObj = this.urlObj.filter(e => e.url != null);
+			// const urlIdArr = [];
+			// this.url.forEach(u => {
+			// 	const id = u.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+			// 	if (id && id[0].length == 11) urlIdArr.push(id[0]);
+			// });
+			// const v = this.url ? this.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/) : null;
 
-				this.$nextTick(() => {
-					const region = this.$refs.region;
-					// console.log(region);
+			this.$dbList.update(
+				{ uniqueKey: obj.key },
+				{
+					$set: {
+						ytObj: this.urlObj,
+						// ytID: urlIdArr,
+						imagePath: null,
+						imageSize: {},
+						rectangle: {},
+						avatarPath: null,
+						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+					}
+				},
+				{ upsert: true },
+				(err, nb) => {
+					if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 
-					this.rectPercent.x = parseFloat(this.$lodash.trimEnd(region.style.left, '%'));
-					this.rectPercent.y = parseFloat(this.$lodash.trimEnd(region.style.top, '%'));
-					this.rectPercent.width = parseFloat(this.$lodash.trimEnd(region.style.width, '%'));
-					this.rectPercent.height = parseFloat(this.$lodash.trimEnd(region.style.height, '%'));
+					// 確認有更新後刪除
+					if (nb > 0) {
+						this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
 
-					this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
-					this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
-					this.$nextTick(() => {
-						if (this.rectAbs.width <= 5 || this.rectAbs.height <= 5) return;
-						else if (
-							(this.imgSize.width * this.rectPercent.width) / 100 >= 128 &&
-							(this.imgSize.height * this.rectPercent.height) / 100 >= 128
-						) {
-							this.showMenu = true;
-						} else {
-							this.$store.commit('snackbar', {
-								text: 'サイズが足りない(128x128以上)',
-								color: 'info'
+						const path = [
+							`${this.$picPath}\\${this.lyric.obj.key}.jpg`,
+							`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`
+						];
+
+						path.forEach(p => {
+							this.$fs.exists(p, exist => {
+								if (exist) {
+									this.$fs.unlink(p, err => {
+										if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
+									});
+								}
 							});
-						}
-					});
-				});
-			}
-		},
-
-		// 更新圖片縮小倍率
-		updateRatio() {
-			this.$nextTick(() => {
-				if (this.$refs.img) this.fitRatio = this.$refs.img.$el.clientWidth / this.imgSize.width;
-			});
-		},
-
-		// 更新圖片縮小倍率 // after window change size
-		resize: debounce(function() {
-			this.showMenu = false;
-			this.updateRatio();
-		}, 300),
-
-		// 放棄框選之矩形
-		rejectRect() {
-			Object.keys(this.rectAbs).forEach(k => (this.rectAbs[k] = 0));
-			Object.keys(this.rectPercent).forEach(k => (this.rectPercent[k] = 0));
-			//
-			this.catchRect = false;
-		},
-
-		// 接受框選之矩形
-		acceptRect() {
-			const regionFreeze = this.$refs['region-freeze'];
-			regionFreeze.style.left = `${this.rectPercent.x}%`;
-			regionFreeze.style.top = `${this.rectPercent.y}%`;
-			regionFreeze.style.width = `${this.rectPercent.width}%`;
-			regionFreeze.style.height = `${this.rectPercent.height}%`;
-			//
-			const region = this.$refs['region'];
-			region.style.width = region.style.height = 0;
-			//
-			this.catchAvatar = false;
+						});
+					}
+				}
+			);
 		}
 	}
-};
+
+	private removeImage(): void {
+		this.imgurl = null; // 重置 imgurl
+		this.imgSize.width = this.imgSize.height = 0; // 重置 imgSize
+		this.fitRatio = 0; // 重置縮小倍率
+		// this.$refs.file.value = null; // 重置 file
+		//
+		this.catchAvatar = false;
+		this.startRectFlag = false;
+		this.showMenu = false;
+	}
+
+	private crossMove(e: MouseEvent): void {
+		if (!this.imgurl || !this.catchAvatar) return;
+
+		const x = e.offsetX - 2 < 0 ? 0 : e.offsetX - 2;
+		const y = e.offsetY - 2 < 0 ? 0 : e.offsetY - 2;
+		(this.$refs.hairV as HTMLLIElement).style.left = `${e.offsetX}px`;
+		(this.$refs.hairH as HTMLLIElement).style.top = `${e.offsetY}px`;
+		(this.$refs.pos as HTMLLIElement).innerText = `X:${x}, Y:${y}`;
+		// this.$refs.pos.style.top = `${e.offsetY}px`;
+		// this.$refs.pos.style.left = `${e.offsetX}px`;
+		if (this.startRectFlag) {
+			const w = (this.$refs.img as Vue).$el.clientWidth;
+			const h = (this.$refs.img as Vue).$el.clientHeight;
+			// console.log(w, h);
+
+			const region = this.$refs.region as HTMLDivElement;
+
+			if (e.offsetX < this.rectAbs.x) region.style.left = `${(100 * e.offsetX) / w}%`;
+			else region.style.left = `${(100 * this.rectAbs.x) / w}%`;
+			if (e.offsetY < this.rectAbs.y) region.style.top = `${(100 * e.offsetY) / h}%`;
+			else region.style.top = `${(100 * this.rectAbs.y) / h}%`;
+			// this.$refs.region.style.left =
+
+			this.rectAbs.width = Math.abs(e.offsetX - this.rectAbs.x) + 1;
+			this.rectAbs.height = Math.abs(e.offsetY - this.rectAbs.y) + 1;
+			region.style.width = `${(100 * this.rectAbs.width) / w}%`;
+			region.style.height = `${(100 * this.rectAbs.height) / h}%`;
+		}
+	}
+
+	private crossReset() {
+		// console.log(e);
+		if (!this.imgurl || !this.catchAvatar) return;
+
+		(this.$refs.hairH as HTMLDivElement).style.top = '0';
+		(this.$refs.hairV as HTMLDivElement).style.left = '0';
+		(this.$refs.pos as HTMLSpanElement).innerText = 'X:0, Y:0';
+		this.startRectFlag = false;
+	}
+
+	private rectOn(e: MouseEvent) {
+		if (!this.imgurl || !this.catchAvatar) return;
+		//
+		if (e.button == 0) {
+			this.startRectFlag = true;
+
+			this.$nextTick(() => {
+				const w = (this.$refs.img as Vue).$el.clientWidth;
+				const h = (this.$refs.img as Vue).$el.clientHeight;
+
+				this.rectAbs.x = e.offsetX - 1;
+				this.rectAbs.y = e.offsetY - 1;
+
+				this.rectAbs.width = this.rectAbs.height = 0;
+				this.rectPercent.width = this.rectPercent.height = 0;
+
+				const region = this.$refs.region as HTMLDivElement;
+				region.style.width = '0';
+				region.style.height = '0';
+				region.style.left = `${this.rectAbs.x / w}%`;
+				region.style.top = `${this.rectAbs.y / h}%`;
+
+				this.$nextTick(() => (this.showMenu = false));
+			});
+		}
+	}
+
+	private rectOff(e: MouseEvent) {
+		if (!this.imgurl || !this.catchAvatar) return;
+		//
+		if (e.button == 0 && this.startRectFlag) {
+			this.startRectFlag = false;
+
+			this.$nextTick(() => {
+				const region = this.$refs.region as HTMLDivElement;
+				// console.log(region);
+
+				this.rectPercent.x = parseFloat(this.$lodash.trimEnd(region.style.left, '%'));
+				this.rectPercent.y = parseFloat(this.$lodash.trimEnd(region.style.top, '%'));
+				this.rectPercent.width = parseFloat(this.$lodash.trimEnd(region.style.width, '%'));
+				this.rectPercent.height = parseFloat(this.$lodash.trimEnd(region.style.height, '%'));
+
+				this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
+				this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
+				this.$nextTick(() => {
+					if (this.rectAbs.width <= 5 || this.rectAbs.height <= 5) return;
+					else if (
+						(this.imgSize.width * this.rectPercent.width) / 100 >= 128 &&
+						(this.imgSize.height * this.rectPercent.height) / 100 >= 128
+					) {
+						this.showMenu = true;
+					} else {
+						this.$store.commit('snackbar', {
+							text: 'サイズが足りない(128x128以上)',
+							color: 'info'
+						});
+					}
+				});
+			});
+		}
+	}
+
+	private updateRatio() {
+		this.$nextTick(() => {
+			if (this.$refs.img) {
+				this.fitRatio = (this.$refs.img as Vue).$el.clientWidth / this.imgSize.width;
+			}
+		});
+	}
+
+	private resize() {
+		this.showMenu = false;
+		this.updateRatio();
+	}
+
+	private rejectRect() {
+		Object.keys(this.rectAbs).forEach(k => (this.rectAbs[k] = 0));
+		Object.keys(this.rectPercent).forEach(k => (this.rectPercent[k] = 0));
+		//
+		// this.catchRect = false;
+	}
+
+	private acceptRect() {
+		const regionFreeze = this.$refs['region-freeze'] as HTMLDivElement;
+		regionFreeze.style.left = `${this.rectPercent.x}%`;
+		regionFreeze.style.top = `${this.rectPercent.y}%`;
+		regionFreeze.style.width = `${this.rectPercent.width}%`;
+		regionFreeze.style.height = `${this.rectPercent.height}%`;
+		//
+		const region = this.$refs.region as HTMLDivElement;
+		region.style.width = region.style.height = '0';
+		//
+		this.catchAvatar = false;
+	}
+}
 </script>
 
 <style lang="scss" scoped>

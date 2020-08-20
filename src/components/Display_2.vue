@@ -114,61 +114,77 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+<script>
+// import player from '@/components/Embed.vue';
+// import card from '@/components/LyricCard.vue';
+import debounce from 'lodash/debounce';
 
-@Component
-export default class Display extends Vue {
-	@Prop() lyric: {
-		key: string;
-		url: string;
-		title: string;
-		artist: string;
-		lyric: string;
-		image?: string;
-		imageSize: {};
-	};
+export default {
+	props: {
+		lyric: {
+			type: Object,
+			required: false
+		}
 
-	private image: string | null = null;
-	private mainColor = 'primary';
-	private subColor = 'grey';
-	private textAlign = 'left';
+		// backImg: {
+		// 	type: String,
+		// 	required: false
+		// }
+	},
 
-	private colors: Readonly<Array<string>> = Object.freeze([
-		'primary',
-		'cyan',
-		'success',
-		'teal',
-		'error',
-		'warning',
-		'yellow',
-		'purple',
-		'white',
-		'grey',
-		'black'
-	]);
+	components: {
+		// embedPlayer: player
+	},
 
-	private fullImg = true;
-	private bkOpacity = 0.36;
+	data() {
+		return {
+			image: null,
+			//
+			mainColor: 'primary',
+			subColor: 'grey',
+			textAlign: 'left',
+			//
+			colors: Object.freeze([
+				'primary',
+				'cyan',
+				'success',
+				'teal',
+				'error',
+				'warning',
+				'yellow',
+				'purple',
+				'white',
+				'grey',
+				'black'
+			]),
+			//
+			fullImg: true,
+			bkOpacity: 0.36
+		};
+	},
 
-	get backSize(): {} | null {
-		return this.lyric ? this.lyric.imageSize : null;
-		// if (this.lyric)
-		// else return null;
-	}
+	computed: {
+		backSize() {
+			if (this.lyric) return this.lyric.imageSize;
+			else return null;
+		},
 
-	get backOpacity(): number {
-		return this.bkOpacity;
-	}
-	set backOpacity(val) {
-		this.bkOpacity = val;
-	}
+		backOpacity: {
+			get() {
+				return this.bkOpacity;
+			},
+			set: debounce(function(val) {
+				this.bkOpacity = val;
+			}, 100)
+		}
+	},
 
-	@Watch('lyric.image')
-	changeLyricImage(img: string) {
-		this.image = null;
-		if (img) this.backimgLoad();
-	}
+	watch: {
+		'lyric.image'(img) {
+			this.image = null;
+			if (img) this.backimgLoad();
+		}
+	},
 
 	mounted() {
 		if (this.lyric && this.lyric.image) {
@@ -181,24 +197,29 @@ export default class Display extends Vue {
 			this.subColor = text.sub;
 			this.textAlign = text.align;
 		}
-	}
+	},
 
 	beforeDestroy() {
+		// save lyric object before before
 		if (this.lyric) this.$store.commit('saveLyric', this.lyric);
 		this.$store.commit('saveText', { main: this.mainColor, sub: this.subColor, align: this.textAlign });
-	}
+	},
 
-	backimgLoad() {
-		this.$sharp(this.lyric.image)
-			.toBuffer()
-			.then(data => {
-				this.image = data;
-			})
-			.catch(err => {
-				this.$store.commit('snackbar', { text: err, color: 'error' });
-			});
+	methods: {
+		backimgLoad() {
+			this.$sharp(this.lyric.image)
+				.toBuffer()
+				.then(data => {
+					this.image = data;
+				})
+				.catch(err => {
+					this.$store.commit('snackbar', { text: err, color: 'error' });
+				});
+		},
+
+		imgLoaded() {}
 	}
-}
+};
 </script>
 
 <style lang="scss" scoped>

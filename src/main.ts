@@ -5,7 +5,12 @@ import store from './store';
 import vuetify from './plugins/vuetify';
 import i18n from './plugins/i18n';
 import path from 'path';
-import { remote } from 'electron';
+import { remote, Remote, IpcRenderer, ipcRenderer } from 'electron';
+
+// import moment, { moments} from "moment";
+import lodash, { LoDashStatic } from 'lodash';
+import axios, { AxiosStatic } from 'axios';
+// import sharp from 'sharp';
 
 // import fs from 'fs';
 
@@ -18,10 +23,11 @@ Object.defineProperties(Vue.prototype, {
 		value: require('moment')
 	},
 	$lodash: {
-		value: require('lodash')
+		value: lodash
 	},
 	$axios: {
-		value: require('axios')
+		// value: require('axios')
+		value: axios
 	},
 	$dbHistory: {
 		value: require('./plugins/nedb').historyDB
@@ -36,10 +42,11 @@ Object.defineProperties(Vue.prototype, {
 		value: require('electron').shell
 	},
 	$ipcRenderer: {
-		value: require('electron').ipcRenderer
+		value: ipcRenderer
 	},
 	$sharp: {
 		value: require('sharp')
+		// value: sharp
 	},
 	$fs: {
 		value: require('fs')
@@ -60,6 +67,27 @@ Object.defineProperties(Vue.prototype, {
 	// 	value: require('electron').nativeImage
 	// }
 });
+
+declare module 'vue/types/vue' {
+	interface Vue {
+		$moment: Function;
+		$axios: AxiosStatic;
+		$lodash: LoDashStatic;
+		$sharp: any;
+		$fs: any;
+
+		$dbHistory: any;
+		$dbList: any;
+		$ipcRenderer: IpcRenderer;
+		$remote: Remote;
+		$picPath: string;
+
+		///
+		webWidth?: number;
+		webHeight?: number;
+		_events?: any;
+	}
+}
 
 new Vue({
 	router,
@@ -128,7 +156,7 @@ new Vue({
 		// create pictures file if not exists
 		this.$fs.exists(this.$picPath, exist => {
 			if (!exist) {
-				this.$fs.mkdir(this.$picPath, err => {
+				this.$fs.mkdir(this.$picPath, (err: string) => {
 					if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 				});
 			}

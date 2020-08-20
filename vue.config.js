@@ -1,3 +1,4 @@
+/* eslint-disable */
 const webpack = require('webpack');
 
 module.exports = {
@@ -25,6 +26,11 @@ module.exports = {
 			.tap(args => {
 				args.compilerOptions.whitespace = 'preserve';
 			});
+		// .end()
+		// .rule('ts')
+		// .use('ts-loader');
+
+		// config.module.rule('ts').use('ts-loader');
 
 		// config.externals({
 		// 	express: 'express'

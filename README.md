@@ -21,7 +21,8 @@ This is a lyric crawler build by electron.
 
 ### Learning 
 
-* [ ] Typescript
+* [ ] Typescript (search nodejs + typescript)
+* [ ] Test after changing to typescript
 
 ### Onprogress
 

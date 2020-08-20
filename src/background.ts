@@ -1,8 +1,9 @@
 'use strict';
 /* global __static */
+declare const __static: string;
 
 import { app, protocol, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
-import path from 'path';
+import * as path from 'path';
 
 import {
 	createProtocol
@@ -15,7 +16,9 @@ import './crawler';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win;
+// let win: BrowserWindow | null = null;
+let win: BrowserWindow | null = null;
+let tray: Tray | null = null;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
@@ -101,7 +104,7 @@ function createWindow() {
 }
 
 app.on('before-quit', () => {
-	tray.destroy();
+	if (tray) tray.destroy();
 });
 
 // Quit when all windows are closed.
@@ -113,7 +116,6 @@ app.on('window-all-closed', () => {
 	}
 });
 
-let tray = null;
 app.on('ready', () => {
 	// const iconPath = path.resolve(__dirname, 'trayicon.ico');
 	// const trayIcon = nativeImage.createFromPath(iconPath);
@@ -171,6 +173,7 @@ app.whenReady().then(() => {
 
 ipcMain.on('windowMin', () => {
 	win.minimize();
+	// win?.minimize();
 });
 
 ipcMain.on('windowMax', () => {

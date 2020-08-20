@@ -1,0 +1,10 @@
+"babel-eslint": "^10.0.3",
+
+"minimist": "^1.2.5",
+
+"preinstall": "npx npm-force-resolutions",
+
+
+"resolutions": {
+    "minimist": "^1.2.5"
+}

@@ -250,125 +250,121 @@
 		</v-app>
 	</div>
 </template>
-<script>
+
+<script lang="ts">
 import player from '@/components/Embed.vue';
 
-export default {
-	name: 'App',
+import { Component, Vue, Watch } from 'vue-property-decorator';
 
+@Component({
 	components: {
-		// HelloWorld
-		// connect: connect
 		EmbedPlayer: player
-	},
+	}
+})
+export default class APP extends Vue {
+	// $root!: {
+	// 	webHeight: number;
+	// };
 
-	data: () => ({
-		SHOW: false,
+	private SHOW = false;
+	private dialog = false;
+	private bottomSheet = false;
 
-		dialog: false,
+	private playerState: Readonly<{}> = Object.freeze({
+		'-1': 'grey darken-2',
+		0: 'lime',
+		1: 'light-green',
+		2: 'warning',
+		3: 'pink',
+		5: 'info'
+	});
 
-		bottomSheet: false,
+	private menu = false;
+	private languages = Object.freeze({
+		tw: '中文',
+		en: 'English',
+		jp: '日本語'
+	});
+	private language = 2;
 
-		playerState: Object.freeze({
-			'-1': 'grey darken-2',
-			0: 'lime',
-			1: 'light-green',
-			2: 'warning',
-			3: 'pink',
-			5: 'info'
-		}),
+	get contentHeight() {
+		return `${this.$root.webHeight - 38}px`;
+	}
 
-		menu: false,
-		languages: Object.freeze({ tw: '中文', en: 'English', jp: '日本語' }),
-		language: 2
-	}),
-	computed: {
-		contentHeight() {
-			return `${this.$root.webHeight - 38}px`;
-		},
+	get barsHidden(): number {
+		return this.$store.getters.barsHidden;
+	}
 
-		barsHidden() {
-			return this.$store.getters.barsHidden;
-		}
-	},
-	watch: {
-		// 若 snackbars 全部 timeout 則清空
-		'$store.getters.barsVisible'(e) {
-			if (e == 0) this.$store.state.snackbars = [];
-		},
-		language(e) {
-			this.$i18n.locale = e;
-			this.menu = false;
-		}
-	},
+	@Watch('$store.getters.barsVisible')
+	onBarsVisibleChange(value) {
+		if (value == 0) this.$store.state.snackbars = [];
+	}
+	@Watch('language')
+	onLanguageChange(value) {
+		this.$i18n.locale = value;
+		this.menu = false;
+	}
+
+	// life cycle
 	created() {
-		// console.log(this.$vuetify);
-
 		this.$router.beforeEach((to, from, next) => {
 			next();
 		});
+	}
 
-		// if not electron
-		if (!this.$store.state.isElectron) {
-			// this.wsInitCreate();
-		}
-	},
 	mounted() {
 		this.SHOW = true;
 		this.bottomSheet = false;
-	},
-	methods: {
-		windowMin() {
-			this.$ipcRenderer.send('windowMin');
-			// this.$remote.BrowserWindow.getFocusedWindow().minimize();
-		},
-
-		windowMax() {
-			this.$ipcRenderer.send('windowMax');
-			// this.$remote.BrowserWindow.getFocusedWindow().maximize();
-		},
-
-		windowRestore() {
-			this.$ipcRenderer.send('windowRestore');
-			// this.$remote.BrowserWindow.getFocusedWindow().restore();
-		},
-
-		windowHide() {
-			this.$ipcRenderer.send('windowHide');
-			// this.$remote.BrowserWindow.getFocusedWindow().hide();
-		},
-
-		appClose() {
-			this.$ipcRenderer.send('windowClose');
-		},
-
-		dataEmpty() {
-			this.$dbList.remove({}, { multi: true }, err => {
-				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-				else {
-					const files = this.$fs.readdirSync(this.$picPath);
-
-					files.forEach(file => {
-						this.$fs.unlink(`${this.$picPath}\\${file}`, err => {
-							if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-						});
-					});
-
-					this.dialog = false;
-				}
-			});
-		},
-
-		TestFunc() {
-			// this
-			console.log(this.$i18n.locale);
-			console.log(this.$i18n);
-			if (this.$i18n.locale == 'en') this.$i18n.locale = 'tw';
-			else if (this.$i18n.locale == 'tw') this.$i18n.locale = 'jp';
-			else this.$i18n.locale = 'en';
-		}
 	}
-};
+
+	// methods
+	private windowMin() {
+		this.$ipcRenderer.send('windowMin');
+	}
+
+	private windowMax() {
+		this.$ipcRenderer.send('windowMax');
+	}
+
+	private windowRestore() {
+		this.$ipcRenderer.send('windowRestore');
+	}
+
+	private windowHide() {
+		this.$ipcRenderer.send('windowHide');
+	}
+
+	private appClose() {
+		// window close // if all window closed, then app will close too
+		this.$ipcRenderer.send('windowClose');
+	}
+
+	private dataEmpty() {
+		this.$dbList.remove({}, { multi: true }, err => {
+			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+			else {
+				const files = this.$fs.readdirSync(this.$picPath);
+
+				files.forEach(file => {
+					this.$fs.unlink(`${this.$picPath}\\${file}`, err => {
+						if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+					});
+				});
+
+				this.dialog = false;
+			}
+		});
+	}
+
+	private TestFunc() {
+		// this
+		console.log(this.$i18n.locale);
+		console.log(this.$i18n);
+		if (this.$i18n.locale == 'en') this.$i18n.locale = 'tw';
+		else if (this.$i18n.locale == 'tw') this.$i18n.locale = 'jp';
+		else this.$i18n.locale = 'en';
+	}
+}
 </script>
 
 <style lang="scss" scoped>

@@ -251,75 +251,65 @@
 	</div>
 </template>
 
-<script>
-import card from '@/components/LyricCard.vue';
+<script lang="ts">
+import board from '@/components/Board.vue';
 import media from '@/components/LyricMedia.vue';
 
-export default {
+import { Component, Vue } from 'vue-property-decorator';
+
+@Component({
 	components: {
-		// lyricCard: () => import(/* webpackChunkName */ '@/components/LyricCard.vue'),
-		lyricCard: card,
-		// lyricMedia: () => import(/* webpackChunkName */ '@/components/LyricMedia.vue')
+		lyricCard: board,
 		lyricMedia: media
-	},
-	data() {
-		return {
-			lyricObj: null,
-			//
-			list: [],
-			historyList: [],
-			//
-			artist: null,
-			title: null,
-			//
-			bigImage: false,
-			// searchType: 'title',
-			// types: Object.freeze({
-			// 	artist: '歌手名',
-			// 	title: '曲名'
-			// }),
+	}
+})
+export default class Search extends Vue {
+	private lyricObj = null;
+	//
+	private list: Array<{}> = [];
+	private historyList: Array<{}> = [];
 
-			keywords: []
-		};
-	},
-	computed: {
-		canSearch() {
-			return (this.title && this.title.length > 0) || (this.artist && this.artist.length > 0);
-		},
+	private artist = '';
+	private title = '';
 
-		windowWidth() {
-			return this.$root.webWidth;
-		},
+	private bigImage = false;
 
-		windowHeight() {
-			return this.$root.webHeight;
-		},
+	private keywords: Array<string> = [];
 
-		isTwoColumn() {
-			return this.$root.webWidth >= 960 && !this.bigImage;
-		},
+	get canSearch(): boolean {
+		return this.title?.length > 0 || this.artist?.length > 0;
+	}
 
-		isThreeColumn() {
-			return this.$root.webWidth >= 1440 && this.lyricObj;
-		}
-		// textFieldHeight() {
-		// 	return this.$refs.btn.clientHeight;
-		// }
-	},
+	get windowWidth(): number {
+		return this.$root.webWidth;
+	}
+
+	get windowHeight(): number {
+		return this.$root.webHeight;
+	}
+
+	get isTwoColumn(): boolean {
+		return this.$root.webWidth >= 960 && !this.bigImage;
+	}
+
+	get isThreeColumn(): boolean {
+		return this.$root.webWidth >= 1440 && this.lyricObj;
+	}
 
 	created() {
-		// console.log(this);
 		this.$dbHistory
 			.find({})
 			.sort({ datetime: -1 })
 			.limit(5)
-			.exec((err, doc) => {
+			.exec((err: string, doc: Array<string>) => {
 				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 				this.keywords = doc;
-				// console.log(doc);
-				// if (process.env.NODE_ENV == 'development') console.log(doc);
 			});
-	},
+		// this.$dbList.remove({ uniqueKey: 'jb71306082' }, err => {
+		// 	console.log(err);
+		// });
+	}
+
 	mounted() {
 		this.$dbList.find({}, (err, doc) => {
 			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
@@ -344,7 +334,7 @@ export default {
 							case 0:
 								break;
 							case 1:
-								if (obj.lyricUrl == intersection[0].lyricUrl) obj.isInList = true;
+								if (obj.lyricUrl == intersection[0]['lyricUrl']) obj.isInList = true;
 								break;
 							default:
 								if (this.$lodash.findIndex(intersection, ['lyricUrl', obj.lyricUrl]) != -1)
@@ -381,108 +371,94 @@ export default {
 						};
 					});
 				});
-				console.log(args);
+
 				this.$store.commit('changeOverlay', false);
 			});
 		}
-	},
+	}
 
 	beforeDestroy() {
 		this.$ipcRenderer.removeAllListeners('searchRes');
 		this.$ipcRenderer.removeAllListeners('lyricRes');
-	},
-
-	methods: {
-		lyricSearch() {
-			if (!this.canSearch) return;
-			this.$store.commit('changeOverlay', true);
-
-			this.bigImage = false;
-			this.lyricObj = null;
-			this.list = [];
-			this.$ipcRenderer.send('searchReq', {
-				artist: this.artist,
-				title: this.title
-			});
-			///
-			this.historySave(this.artist, this.title);
-		},
-
-		historySearch(att, tle) {
-			this.$store.commit('changeOverlay', true);
-
-			this.bigImage = false;
-			this.lyricObj = null;
-			this.list = [];
-			this.$ipcRenderer.send('searchReq', {
-				artist: att,
-				title: tle
-			});
-		},
-
-		historySave(att, tle) {
-			this.$dbHistory.update(
-				{ artist: att, title: tle },
-				{ artist: att, title: tle, datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss') },
-				{ upsert: true },
-				(err, nb) => {
-					if (err) console.warn(err);
-
-					console.log(nb);
-				}
-			);
-		},
-
-		getLyric(url) {
-			this.$store.commit('changeOverlay', true);
-			this.$ipcRenderer.send('getLyric', { url });
-		},
-
-		listAdd() {
-			// this.$dbAdmin.ensureIndex();
-			this.$dbList.ensureIndex({ fieldName: 'uniqueKey', unique: true }, err => {
-				if (err) console.warn(err);
-			});
-
-			this.$dbList.update(
-				{ uniqueKey: this.lyricObj.obj.key },
-				{
-					$set: {
-						// uniqueKey: this.lyricObj.key,
-						artist: this.lyricObj.obj.artist,
-						title: this.lyricObj.obj.title,
-						lyricUrl: this.lyricObj.obj.url,
-						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-					}
-				},
-				{ upsert: true },
-				(err, nb) => {
-					if (err) console.warn(err);
-					console.log(nb);
-				}
-			);
-
-			// console.log(this.lyricObj);
-			// this.$dbList.update(
-			// 	{ artist: att, title: tle },
-			// 	{ artist: att, title: tle,  ,datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss') },
-			// 	{ upsert: true },
-			// 	(err, nb) => {
-			// 		if (err) console.warn(err);
-			// 		console.log(nb);
-			// 		// ADD TO LIST
-			// 	}
-			// );
-		},
-
-		expandWidth() {
-			if (!this.isTwoColumn && !this.isThreeColumn) {
-				this.$ipcRenderer.send('windowWidth', { width: 960, height: this.windowHeight });
-				this.bigImage = false;
-			} else this.$ipcRenderer.send('windowWidth', { width: 480, height: this.windowHeight });
-		}
 	}
-};
+
+	private lyricSearch() {
+		if (!this.canSearch) return;
+		this.$store.commit('changeOverlay', true);
+
+		this.bigImage = false;
+		this.lyricObj = null;
+		this.list = [];
+		this.$ipcRenderer.send('searchReq', {
+			artist: this.artist,
+			title: this.title
+		});
+		///
+		this.historySave(this.artist, this.title);
+	}
+
+	private historySearch(artist, title) {
+		this.$store.commit('changeOverlay', true);
+
+		this.bigImage = false;
+		this.lyricObj = null;
+		this.list = [];
+		this.$ipcRenderer.send('searchReq', {
+			artist: artist,
+			title: title
+		});
+	}
+
+	private historySave(artist, title) {
+		this.$dbHistory.update(
+			{ artist, title },
+			{
+				$set: { artist, title, datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss') }
+			},
+			{ upsert: true },
+			(err, nb) => {
+				if (err) console.warn(err);
+				console.log(nb);
+			}
+		);
+	}
+
+	private getLyric(url) {
+		this.$store.commit('changeOverlay', true);
+		this.$ipcRenderer.send('getLyric', { url });
+	}
+
+	// public listAdd() {
+	// 	this.$dbList.ensureIndex({ fieldName: 'uniqueKey', unique: true }, err => {
+	// 		if (err) console.warn(err);
+	// 	});
+
+	// 	this.$dbList.update(
+	// 		{ uniqueKey: this.lyricObj.obj.key },
+	// 		{
+	// 			$set: {
+	// 				// uniqueKey: this.lyricObj.key,
+	// 				artist: this.lyricObj.obj.artist,
+	// 				title: this.lyricObj.obj.title,
+	// 				lyricUrl: this.lyricObj.obj.url,
+	// 				datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+	// 			}
+	// 		},
+	// 		{ upsert: true },
+	// 		(err, nb) => {
+	// 			if (err) console.warn(err);
+	// 			console.log(nb);
+	// 		}
+	// 	);
+	// }
+
+	private expandWidth() {
+		if (!this.isTwoColumn && !this.isThreeColumn) {
+			this.$ipcRenderer.send('windowWidth', { width: 960, height: this.windowHeight });
+			this.bigImage = false;
+		} else this.$ipcRenderer.send('windowWidth', { width: 480, height: this.windowHeight });
+	}
+}
 </script>
 
 <style lang="scss" scoped>

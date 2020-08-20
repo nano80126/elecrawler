@@ -27,15 +27,15 @@ export default new Vuex.Store({
 		playList: []
 	},
 	getters: {
-		barsHidden(state) {
+		barsHidden(state): number {
 			return state.snackbars.filter(x => !x.show).length;
 		},
 
-		barsVisible(state) {
+		barsVisible(state): number {
 			return state.snackbars.filter(x => x.show).length;
 		},
 
-		playState(state) {
+		playState(state): number {
 			return state.playState;
 		}
 	},
@@ -44,7 +44,7 @@ export default new Vuex.Store({
 			state.overlay = bool;
 		},
 
-		snackbar(state, bar) {
+		snackbar(state, bar: { color?: string; timeout?: number; text?: string }) {
 			state.snackbars.push({
 				show: true,
 				color: bar.color || null,
@@ -67,7 +67,7 @@ export default new Vuex.Store({
 			}
 		},
 
-		psuhIntervalArr(state, interval) {
+		pushIntervalArr(state, interval) {
 			state.intervalArray.push(interval);
 		},
 
@@ -108,7 +108,7 @@ export default new Vuex.Store({
 
 		playVideo(state) {
 			// 確認可播放
-			if (state.playState != -1 || state.playState != 3) state.player.playVideo();
+			if (state.playState != -1 && state.playState != 3) state.player.playVideo();
 			if (state.player.isMuted()) state.player.unMute(); // 若靜音則開啟
 		},
 

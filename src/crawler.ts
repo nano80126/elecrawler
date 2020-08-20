@@ -1,20 +1,21 @@
-/* eslint-disable camelcase */
+/* eslint-disable @typescript-eslint/camelcase */
 'use strict';
 
 import axios from 'axios';
 import cheerio from 'cheerio';
+// const cheerio = require('cheerio');
 
 import { ipcMain } from 'electron';
 
 // const axios = require('axios');
 // const { ipcMain } = require('electron');
 
-async function listScraper(artist, title) {
+async function listScraper(artist: string, title: string): Promise<Record<string, any>> {
 	// const att = artist ? encodeURI(artist) : '';
 	// const tle = title ? encodeURI(title) : '';
 	// const url = `https://utaten.com/lyric/search?sort=&artist_name=${att}&title=${tle}&form_open=0&show_artists=1`;
 
-	const opt = {
+	const opt: Record<string, any> = {
 		sort: null,
 		artist_name: artist,
 		title: title,
@@ -22,7 +23,7 @@ async function listScraper(artist, title) {
 		show_artists: 1
 	};
 
-	const data = {
+	const data: { error: string | null; list: Record<string, any>[] } = {
 		error: null,
 		list: []
 	};
@@ -75,10 +76,10 @@ async function listScraper(artist, title) {
 	return data;
 }
 
-async function lyricGetter(subUrl) {
+async function lyricGetter(subUrl: string): Promise<Record<string, any>> {
 	const url = `https://utaten.com/${subUrl}`;
 
-	const data = { error: null };
+	const data: { error: string | null } = { error: null };
 
 	await axios
 		.get(url)
@@ -103,7 +104,7 @@ async function lyricGetter(subUrl) {
 				.html();
 
 			Object.assign(data, {
-				lyricKey: subUrl.match(/(?<=^\/lyric\/)\w+(?=\/$)/)[0],
+				lyricKey: subUrl.match(/(?<=^\/lyric\/)\w+(?=\/$)/)![0],
 				url: subUrl,
 				mainTxt,
 				artist,
