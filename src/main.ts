@@ -4,15 +4,17 @@ import router from './router';
 import store from './store';
 import vuetify from './plugins/vuetify';
 import i18n from './plugins/i18n';
+import { listDB, historyDB, NeDBStatic } from './plugins/nedb';
+
 import path from 'path';
-import { remote, Remote, IpcRenderer, ipcRenderer } from 'electron';
+import { remote, Remote, IpcRenderer, ipcRenderer, shell, Shell } from 'electron';
 
 // import moment, { moments} from "moment";
 import lodash, { LoDashStatic } from 'lodash';
 import axios, { AxiosStatic } from 'axios';
-// import sharp from 'sharp';
-
-// import fs from 'fs';
+import sharp, { Sharp, FitEnum } from 'sharp';
+// import sharp, { FitEnum, Sharp, SharpOptions } from 'sharp';
+// import {} } from "nedb"
 
 // import { adminDB, errorDB } from './plugins/nedb';
 
@@ -30,22 +32,22 @@ Object.defineProperties(Vue.prototype, {
 		value: axios
 	},
 	$dbHistory: {
-		value: require('./plugins/nedb').historyDB
+		value: historyDB
 	},
 	$dbList: {
-		value: require('./plugins/nedb').listDB
+		value: listDB
 	},
 	// $dbLyric: {
 	// 	value: require('./plugins/nedb').lyricDB
 	// },
 	$shell: {
-		value: require('electron').shell
+		value: shell
 	},
 	$ipcRenderer: {
 		value: ipcRenderer
 	},
 	$sharp: {
-		value: require('sharp')
+		value: sharp
 		// value: sharp
 	},
 	$fs: {
@@ -73,19 +75,23 @@ declare module 'vue/types/vue' {
 		$moment: Function;
 		$axios: AxiosStatic;
 		$lodash: LoDashStatic;
-		$sharp: any;
-		$fs: any;
+		// $sharp: Function;
+		$sharp(input: Buffer | string): Sharp;
+		$sharpFit: FitEnum;
+		// $sharp: Function(option?:SharpOptions) | { fit?: FitEnum };
+		$fs: { readdirSync: Function; unlink: Function; exists: Function };
 
-		$dbHistory: any;
-		$dbList: any;
+		$dbHistory: NeDBStatic;
+		$dbList: NeDBStatic;
 		$ipcRenderer: IpcRenderer;
 		$remote: Remote;
+		$shell: Shell;
 		$picPath: string;
 
 		///
 		webWidth?: number;
 		webHeight?: number;
-		_events?: any;
+		_events?: { getLyricByID: [Function] };
 	}
 }
 
@@ -164,7 +170,7 @@ new Vue({
 	},
 
 	mounted() {
-		if (process.env.NODE_ENV == 'development') console.log('env', process.env);
+		if (process.env.NODE_ENV == 'development') console.warn('env', process.env);
 		// ////
 
 		window.onresize = () => {

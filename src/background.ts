@@ -1,5 +1,6 @@
 'use strict';
-/* global __static */
+
+// /* global __static */
 declare const __static: string;
 
 import { app, protocol, BrowserWindow, ipcMain, Tray, Menu } from 'electron';

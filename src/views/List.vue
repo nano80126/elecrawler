@@ -221,16 +221,17 @@ export default class List extends Vue {
 	// life cycle
 	created() {
 		if (!this.$root._events.getLyricByID) this.$root.$on('getLyricByID', obj => (this.lyricObj = obj));
+		this.$store.commit('changeOverlay', true);
 	}
 
 	mounted() {
 		this.$dbList
 			.find({})
 			.sort({ artist: 1, title: 1, datetime: -1 })
-			.exec((err: string, doc) => {
+			.exec((err, doc) => {
 				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 
-				console.log(doc);
+				console.warn('List', doc);
 
 				const filter = this.$lodash.filter(doc, 'ytObj').map(e => e.ytObj); // remove no youtube obj
 				const flatten = this.$lodash.flatten(filter).map(e => e.id); // flatten all youtube id
@@ -253,6 +254,7 @@ export default class List extends Vue {
 
 				Promise.all(prom).then(() => {
 					this.list = doc;
+					this.$store.commit('changeOverlay', false);
 				});
 			});
 

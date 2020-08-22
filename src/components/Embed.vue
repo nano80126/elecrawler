@@ -162,7 +162,7 @@ export default class Embed extends Vue {
 
 	@Watch('$store.getters.playState')
 	onPlayStateChange(state) {
-		console.log(state);
+		// console.log(state);
 		this.playState = state;
 
 		this.$store.commit('clearIntervalArr');
@@ -196,7 +196,7 @@ export default class Embed extends Vue {
 
 	@Watch('videoID')
 	onVideoIDChange(value?: string) {
-		console.log(value);
+		// console.log(value);
 		if (value?.length == 11) {
 			if (!this.$store.state.player) {
 				this.IframeAPIReady(value);

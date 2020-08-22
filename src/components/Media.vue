@@ -314,7 +314,7 @@ export default class Media extends Vue {
 	//
 	private disableDialog = false;
 	//
-	private imgurl: string = null;
+	private imgurl: Buffer = null;
 
 	private badge = false;
 	private badgeTimeout: NodeJS.Timeout;
@@ -450,14 +450,14 @@ export default class Media extends Vue {
 
 			if (width > 1440) image = image.resize(1440);
 
-			image.toBuffer((err: string, data: string, info: { width: number; height: number }) => {
+			image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
 				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 				this.imgurl = data;
 				this.$nextTick(() => {
 					this.$set(this.imgSize, 'width', info.width);
 					this.$set(this.imgSize, 'height', info.height);
 				});
-				console.log(info);
+				console.warn('info', info);
 			});
 		} else {
 			this.$store.commit('snackbar', { text: '無効なURL', color: 'warning' });
@@ -487,7 +487,7 @@ export default class Media extends Vue {
 			const { width } = await image.metadata();
 			if (width > 1440) image = image.resize(1440);
 
-			image.toBuffer((err: string, data: string, info: { width: number; height: number }) => {
+			image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
 				if (err) this.$store.commit('commit', { text: err, color: 'error' });
 
 				this.imgurl = data;
@@ -495,7 +495,7 @@ export default class Media extends Vue {
 					this.$set(this.imgSize, 'width', info.width);
 					this.$set(this.imgSize, 'height', info.height);
 				});
-				console.log(info);
+				console.warn('info', info);
 			});
 		});
 		reader.readAsArrayBuffer(file);
@@ -517,7 +517,7 @@ export default class Media extends Vue {
 		const { width } = await image.metadata();
 		if (width > 1440) image = image.resize(1440);
 
-		image.toBuffer((err: string, data: string, info: { width: number; height: number }) => {
+		image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
 			if (err) console.warn(err);
 			// console.log(data);
 			this.imgurl = data;
@@ -594,7 +594,7 @@ export default class Media extends Vue {
 					image
 						.clone()
 						.extract({ left: x, top: y, width: w, height: h })
-						.resize(128, 128, { fit: this.$sharp.fit.outside, withoutEnlargement: true })
+						.resize(128, 128, { fit: this.$sharpFit.outside, withoutEnlargement: true })
 						.toFormat('jpeg')
 						.toFile(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`)
 				);

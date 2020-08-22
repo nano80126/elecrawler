@@ -39,7 +39,7 @@
 	],
 	"exclude": [
 		"node_modules",
-		"src/background.ts",
-		"src/crawler.ts",
+		// "src/background.ts",
+		// "src/crawler.ts",
 	]
 }

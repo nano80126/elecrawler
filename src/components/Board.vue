@@ -43,7 +43,7 @@ export default class Board extends Vue {
 	@Prop({ type: Boolean }) exist!: boolean;
 
 	mounted() {
-		console.log(this.lyric);
+		console.warn(this.lyric);
 	}
 
 	private listAdd() {
@@ -66,9 +66,9 @@ export default class Board extends Vue {
 					}
 				},
 				{ upsert: true },
-				(err, nb) => {
+				err => {
 					if (err) console.warn(err);
-					console.log(nb);
+					// console.log(nb);
 				}
 			);
 			this.$emit('update:exist', true);

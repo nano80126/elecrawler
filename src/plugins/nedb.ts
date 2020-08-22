@@ -15,6 +15,8 @@ const listDB = new database({
 	autoload: true
 });
 
+type NeDBStatic = Nedb;
+
 // const lyricDB = new database({
 // 	filename: path.resolve(remote.app.getPath('userData'), 'lyric.db'),
 // 	autoload: true
@@ -26,4 +28,4 @@ const listDB = new database({
 // });
 
 // export { historyDB, listDB, lyricDB };
-export { historyDB, listDB };
+export { historyDB, listDB, NeDBStatic };

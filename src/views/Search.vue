@@ -253,7 +253,7 @@
 
 <script lang="ts">
 import board from '@/components/Board.vue';
-import media from '@/components/LyricMedia.vue';
+import media from '@/components/Media.vue';
 
 import { Component, Vue } from 'vue-property-decorator';
 
@@ -268,12 +268,12 @@ export default class Search extends Vue {
 	//
 	private list: Array<{}> = [];
 	private historyList: Array<{}> = [];
-
+	//
 	private artist = '';
 	private title = '';
-
+	//
 	private bigImage = false;
-
+	//
 	private keywords: Array<string> = [];
 
 	get canSearch(): boolean {
@@ -301,7 +301,7 @@ export default class Search extends Vue {
 			.find({})
 			.sort({ datetime: -1 })
 			.limit(5)
-			.exec((err: string, doc: Array<string>) => {
+			.exec((err: Error, doc: string[]) => {
 				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 				this.keywords = doc;
 			});
@@ -311,7 +311,7 @@ export default class Search extends Vue {
 	}
 
 	mounted() {
-		this.$dbList.find({}, (err, doc) => {
+		this.$dbList.find({}, (err: string, doc: Array<{}>) => {
 			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 			this.historyList = doc;
 		});
@@ -327,7 +327,6 @@ export default class Search extends Vue {
 				///////////////////
 				const intersection = this.$lodash.intersectionBy(args.list, this.historyList, 'lyricUrl');
 				///////////////////
-
 				this.$nextTick(() => {
 					args.list.forEach((obj, idx) => {
 						switch (intersection.length) {
@@ -418,7 +417,7 @@ export default class Search extends Vue {
 			{ upsert: true },
 			(err, nb) => {
 				if (err) console.warn(err);
-				console.log(nb);
+				console.warn('Affected number', nb);
 			}
 		);
 	}

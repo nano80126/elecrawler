@@ -129,7 +129,7 @@ export default class Display extends Vue {
 		imageSize: {};
 	};
 
-	private image: string | null = null;
+	private image: Buffer | null = null;
 	private mainColor = 'primary';
 	private subColor = 'grey';
 	private textAlign = 'left';
@@ -189,14 +189,16 @@ export default class Display extends Vue {
 	}
 
 	backimgLoad() {
-		this.$sharp(this.lyric.image)
-			.toBuffer()
-			.then(data => {
-				this.image = data;
-			})
-			.catch(err => {
-				this.$store.commit('snackbar', { text: err, color: 'error' });
-			});
+		this.$sharp(this.lyric.image).toBuffer((err: Error, data: Buffer) => {
+			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+			this.image = data;
+		});
+		// .then(data => {
+		// 	this.image = data;
+		// })
+		// .catch(err => {
+		// 	this.$store.commit('snackbar', { text: err, color: 'error' });
+		// });
 	}
 }
 </script>

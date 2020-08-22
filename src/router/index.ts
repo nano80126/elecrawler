@@ -15,17 +15,17 @@ const routes = [
 		path: '/list',
 		name: 'List',
 		component: () => import(/* webpackChunkName */ '@/views/List.vue')
-	},
-	{
-		path: '/dev',
-		name: 'Media',
-		component: () => import(/* webpackChunkName */ '@/components/LyricMedia.vue')
-	},
-	{
-		path: '/test',
-		name: 'EmbedViedo',
-		component: () => import(/* webpackChunkName */ '@/components/Embed.vue')
 	}
+	// {
+	// 	path: '/dev',
+	// 	name: 'Media',
+	// 	component: () => import(/* webpackChunkName */ '@/components/LyricMedia.vue')
+	// },
+	// {
+	// 	path: '/test',
+	// 	name: 'EmbedViedo',
+	// 	component: () => import(/* webpackChunkName */ '@/components/Embed.vue')
+	// }
 ];
 
 const router = new VueRouter({
