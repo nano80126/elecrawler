@@ -292,7 +292,7 @@
 </template>
 
 <script lang="ts">
-// import debounce from 'lodash/debounce';
+import debounce from 'lodash/debounce';
 
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
@@ -353,6 +353,8 @@ export default class Media extends Vue {
 	}
 
 	mounted() {
+		// console.log(this);
+		// console.log(this.$debounce);
 		this.$dbList.findOne({ uniqueKey: this.lyric.obj.key }, (err, doc) => {
 			if (err) {
 				this.$store.commit('snackbar', { text: err, color: 'error' });
@@ -446,18 +448,21 @@ export default class Media extends Vue {
 			}
 
 			let image = this.$sharp(Buffer.from(buf));
-			const { width } = await image.metadata();
+			// const { width } = await image.metadata();
 
-			if (width > 1440) image = image.resize(1440);
+			image.metadata().then(meta => {
+				const { width } = meta;
+				if (width > 1440) image = image.resize(1440);
 
-			image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
-				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-				this.imgurl = data;
-				this.$nextTick(() => {
-					this.$set(this.imgSize, 'width', info.width);
-					this.$set(this.imgSize, 'height', info.height);
+				image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
+					if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+					this.imgurl = data;
+					this.$nextTick(() => {
+						this.$set(this.imgSize, 'width', info.width);
+						this.$set(this.imgSize, 'height', info.height);
+					});
+					console.warn('info', info);
 				});
-				console.warn('info', info);
 			});
 		} else {
 			this.$store.commit('snackbar', { text: '無効なURL', color: 'warning' });
@@ -477,93 +482,106 @@ export default class Media extends Vue {
 		const file = items[0] as File;
 		const reader = new FileReader();
 
-		reader.addEventListener('load', async e => {
+		reader.addEventListener('load', e => {
 			// const base64 = e.target.result.replace(/^data:image\/\w+;base64,/, '');
 			// const buf = Buffer.from(base64, 'base64');
 			const buf = e.target.result;
-			// console.log(buf);
 
 			let image = this.$sharp(Buffer.from(buf)).toFormat('jpeg');
-			const { width } = await image.metadata();
-			if (width > 1440) image = image.resize(1440);
 
-			image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
-				if (err) this.$store.commit('commit', { text: err, color: 'error' });
+			console.log(image);
 
-				this.imgurl = data;
-				this.$nextTick(() => {
-					this.$set(this.imgSize, 'width', info.width);
-					this.$set(this.imgSize, 'height', info.height);
+			image.metadata().then(meta => {
+				const { width } = meta;
+				if (width > 1440) image = image.resize(1440);
+
+				// const { width } = await image.metadata();
+				image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
+					if (err) this.$store.commit('commit', { text: err, color: 'error' });
+
+					this.imgurl = data;
+					this.$nextTick(() => {
+						this.$set(this.imgSize, 'width', info.width);
+						this.$set(this.imgSize, 'height', info.height);
+					});
+					console.warn('info', info);
 				});
-				console.warn('info', info);
 			});
 		});
 		reader.readAsArrayBuffer(file);
 		e.target.blur();
 	}
 
-	private async onChange(e) {
+	private onChange(e) {
 		e.preventDefault();
 		e.stopPropagation();
 
 		const items = (e.target.files || e.dataTransfer.files) as File[];
 		if (items.length == 0 || !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
-			console.error('no image or not image');
+			// console.error('no image or not image');
+			this.$store.commit('snackbar', { text: '無効なイメージ', color: 'warning' });
 			return;
 		}
 
 		const filePath = items[0].path;
 		let image = this.$sharp(filePath);
-		const { width } = await image.metadata();
-		if (width > 1440) image = image.resize(1440);
 
-		image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
-			if (err) console.warn(err);
-			// console.log(data);
-			this.imgurl = data;
+		image.metadata().then(meta => {
+			const { width } = meta;
+			if (width > 1440) image = image.resize(1440);
 
-			this.$nextTick(() => {
-				this.$set(this.imgSize, 'width', info.width);
-				this.$set(this.imgSize, 'height', info.height);
+			image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
+				if (err) console.warn(err);
+				// console.log(data);
+				this.imgurl = data;
+
+				this.$nextTick(() => {
+					this.$set(this.imgSize, 'width', info.width);
+					this.$set(this.imgSize, 'height', info.height);
+				});
 			});
 		});
 
-		(this.$refs.file as HTMLInputElement).value = null;
+		(this.$refs.file as HTMLInputElement).value = null; // set file content to null
 	}
 
 	private dialogImage() {
 		this.disableDialog = true;
-		this.$remote.dialog
-			.showOpenDialog({
-				filters: [{ name: 'Images', extensions: ['jpg', 'png', 'bmp'] }]
-			})
-			.then(async res => {
+
+		this.$ipcRenderer
+			.invoke('dialogImage')
+			.then((res: { canceled: boolean; filePaths: string[] }) => {
+				console.log(res);
 				if (!res.canceled) {
 					this.removeImage();
 
 					const filePath = res.filePaths[0];
-					let image = this.$sharp(filePath);
-					const { width } = await image.metadata();
+					const image = this.$sharp(filePath);
 
-					if (width > 1440) image = image.resize(1440);
+					// const { width } = image.metadata().then(res=> {
+					console.log(1, image);
 
-					image.toBuffer((err, data, info) => {
-						if (err) console.warn(err);
-						this.imgurl = data;
+					image.metadata().then(meta => {
+						console.log(2, meta);
+						// const { width } = meta;
+						// if (width > 1440) image = image.resize({ width: 1440 });
 
-						this.$nextTick(() => {
-							this.$set(this.imgSize, 'width', info.width);
-							this.$set(this.imgSize, 'height', info.height);
+						image.toBuffer((err, data, info) => {
+							if (err) console.warn(err);
+							console.log(3, data);
+							this.imgurl = data;
+
+							this.$nextTick(() => {
+								this.$set(this.imgSize, 'width', info.width);
+								this.$set(this.imgSize, 'height', info.height);
+							});
 						});
 					});
 				}
 			})
-			.catch(err => {
+			.catch((err: string) => {
 				if (err) {
-					this.$store.commit('snackbar', {
-						text: err,
-						color: 'error'
-					});
+					this.$store.commit('snackbar', { text: err, color: 'error' });
 				}
 			})
 			.finally(() => {
@@ -825,10 +843,19 @@ export default class Media extends Vue {
 		});
 	}
 
-	private resize() {
+	private resize = debounce(() => {
 		this.showMenu = false;
 		this.updateRatio();
-	}
+	}, 300);
+
+	// private resize() {
+	// 	console.log(123);
+	// 	this.$debounce(() => {
+	// 		this.showMenu = false;
+	// 		this.updateRatio();
+	// 		console.log(this);
+	// 	}, 300)();
+	// }
 
 	private rejectRect() {
 		Object.keys(this.rectAbs).forEach(k => (this.rectAbs[k] = 0));

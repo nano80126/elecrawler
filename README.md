@@ -43,6 +43,9 @@ This is a lyric crawler build by electron.
 * [x] Add multiple url use mouse wheel
 * [x] Get youtube data use youtube data v3 api
 * [x] Simple lyric and background with no embeded youtube
+* [ ] Open dialog in main process
+* [ ] Use debounce in typescript
+* [ ] Fix nedb in electron 9
 
 ### Known bug 
 

@@ -309,15 +309,19 @@ export default class List extends Vue {
 
 			// 刪除圖片
 			const files = [`${this.$picPath}\\${key}.jpg`, `${this.$picPath}\\${key}_avatar.jpg`];
-			files.forEach(file => {
-				this.$fs.exists(file, exist => {
-					if (exist) {
-						this.$fs.unlink(file, err => {
-							if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-						});
-					}
-				});
+			// files.forEach(file => {
+			// 	this.$fs.exists(file, exist => {
+			// 		if (exist) {
+			// 			this.$fs.unlink(file, err => {
+			// 				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+			// 			});
+			// 		}
+			// 	});
+			// });
+			this.$ipcRenderer.invoke('removeFile', { files }).then(res => {
+				console.log(res);
 			});
+
 			// 刪除列表
 			const index = this.$lodash.findIndex(this.list, ['uniqueKey', key]);
 			this.list.splice(index, 1);

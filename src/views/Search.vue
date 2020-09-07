@@ -308,6 +308,15 @@ export default class Search extends Vue {
 		// this.$dbList.remove({ uniqueKey: 'jb71306082' }, err => {
 		// 	console.log(err);
 		// });
+
+		this.$ipcRenderer
+			.invoke('historyFind')
+			.then(res => {
+				console.log(res);
+			})
+			.catch(err => {
+				console.log(err);
+			});
 	}
 
 	mounted() {
@@ -409,17 +418,35 @@ export default class Search extends Vue {
 	}
 
 	private historySave(artist, title) {
-		this.$dbHistory.update(
-			{ artist, title },
-			{
-				$set: { artist, title, datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss') }
-			},
-			{ upsert: true },
-			(err, nb) => {
-				if (err) console.warn(err);
-				console.warn('Affected number', nb);
-			}
-		);
+		// this.$dbHistory.update(
+		// 	{ artist, title },
+		// 	{
+		// 		$set: { artist, title, datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss') }
+		// 	},
+		// 	{ upsert: true },
+		// 	(err, nb) => {
+		// 		if (err) console.warn(err);
+		// 		console.warn('Affected number', nb);
+		// 	}
+		// );
+
+		this.$ipcRenderer
+			.invoke('historyUpsert', {
+				query: { artist, title },
+				data: {
+					$set: {
+						artist,
+						title,
+						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+					}
+				}
+			})
+			.then(res => {
+				console.log(res);
+			})
+			.catch(err => {
+				console.error(err);
+			});
 	}
 
 	private getLyric(url) {

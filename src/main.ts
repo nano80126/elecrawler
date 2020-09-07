@@ -7,12 +7,14 @@ import i18n from './plugins/i18n';
 import { listDB, historyDB, NeDBStatic } from './plugins/nedb';
 
 import path from 'path';
-import { remote, Remote, IpcRenderer, ipcRenderer, shell, Shell } from 'electron';
+import * as fs from 'fs';
+import { remote, IpcRenderer, ipcRenderer, shell, Shell } from 'electron';
 
-// import moment, { moments} from "moment";
+import moment, { Moment, MomentInput } from 'moment';
 import lodash, { LoDashStatic } from 'lodash';
 import axios, { AxiosStatic } from 'axios';
 import sharp, { Sharp, FitEnum } from 'sharp';
+
 // import sharp, { FitEnum, Sharp, SharpOptions } from 'sharp';
 // import {} } from "nedb"
 
@@ -22,11 +24,12 @@ import './style.scss';
 
 Object.defineProperties(Vue.prototype, {
 	$moment: {
-		value: require('moment')
+		value: moment
 	},
 	$lodash: {
 		value: lodash
 	},
+
 	$axios: {
 		// value: require('axios')
 		value: axios
@@ -50,12 +53,15 @@ Object.defineProperties(Vue.prototype, {
 		value: sharp
 		// value: sharp
 	},
+	$sharpFit: {
+		value: sharp.fit
+	},
 	$fs: {
-		value: require('fs')
+		value: fs
 	},
-	$remote: {
-		value: remote
-	},
+	// $remote: {
+	// 	value: remote
+	// },
 	$picPath: {
 		value:
 			process.env.NODE_ENV == 'development'
@@ -72,19 +78,20 @@ Object.defineProperties(Vue.prototype, {
 
 declare module 'vue/types/vue' {
 	interface Vue {
-		$moment: Function;
+		$moment(input?: MomentInput): Moment;
 		$axios: AxiosStatic;
 		$lodash: LoDashStatic;
+
 		// $sharp: Function;
 		$sharp(input: Buffer | string): Sharp;
 		$sharpFit: FitEnum;
 		// $sharp: Function(option?:SharpOptions) | { fit?: FitEnum };
-		$fs: { readdirSync: Function; unlink: Function; exists: Function };
+		$fs: { readdirSync: Function; unlink: Function; exists: Function; mkdir: Function };
 
 		$dbHistory: NeDBStatic;
 		$dbList: NeDBStatic;
 		$ipcRenderer: IpcRenderer;
-		$remote: Remote;
+		// $remote: Remote;
 		$shell: Shell;
 		$picPath: string;
 
@@ -160,24 +167,34 @@ new Vue({
 		this.$vuetify.theme.dark = true;
 
 		// create pictures file if not exists
-		this.$fs.exists(this.$picPath, exist => {
-			if (!exist) {
-				this.$fs.mkdir(this.$picPath, (err: string) => {
-					if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-				});
-			}
+		// this.$fs.exists(this.$picPath, (exist: boolean) => {
+		// 	if (!exist) {
+		// 		this.$fs.mkdir(this.$picPath, (err: string) => {
+		// 			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+		// 		});
+		// 	}
+		// });
+
+		this.$dbList.find({}).exec((err, doc) => {
+			console.log('err', err);
+			console.log('doc', doc);
 		});
+
+		// make pictures directory
+		this.$ipcRenderer.send('mkPicDir');
 	},
 
 	mounted() {
 		if (process.env.NODE_ENV == 'development') console.warn('env', process.env);
 		// ////
 
-		window.onresize = () => {
+		window.onresize = async () => {
 			this.webWidth = window.innerWidth;
 			this.webHeight = window.innerHeight;
 
-			this.windowIsMax = this.$remote.BrowserWindow.getFocusedWindow().isMaximized();
+			// this.windowIsMax = this.$remote.BrowserWindow.getFocusedWindow().isMaximized();
+			this.windowIsMax = await this.$ipcRenderer.invoke('isMaxmized');
+
 			// console.log(this.$vuetify.breakpoint);
 		};
 
@@ -196,7 +213,5 @@ new Vue({
 				// console.log(num);
 			}
 		);
-	},
-
-	methods: {}
+	}
 }).$mount('#app');

@@ -104,7 +104,7 @@ async function lyricGetter(subUrl: string): Promise<{}> {
 				.html();
 
 			Object.assign(data, {
-				lyricKey: subUrl.match(/(?<=^\/lyric\/)\w+(?=\/$)/)[0],
+				lyricKey: subUrl.match(/(?<=^\/lyric\/)\w+(?=\/$)/)?.[0],
 				url: subUrl,
 				mainTxt,
 				artist,

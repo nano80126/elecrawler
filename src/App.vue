@@ -296,11 +296,11 @@ export default class APP extends Vue {
 	}
 
 	@Watch('$store.getters.barsVisible')
-	onBarsVisibleChange(value) {
+	onBarsVisibleChange(value: number) {
 		if (value == 0) this.$store.state.snackbars = [];
 	}
 	@Watch('language')
-	onLanguageChange(value) {
+	onLanguageChange(value: string) {
 		this.$i18n.locale = value;
 		this.menu = false;
 	}
@@ -340,19 +340,31 @@ export default class APP extends Vue {
 	}
 
 	private dataEmpty() {
-		this.$dbList.remove({}, { multi: true }, err => {
+		console.log(123);
+		this.$dbList.remove({}, { multi: true }, (err, nb) => {
 			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 			else {
-				const files = this.$fs.readdirSync(this.$picPath);
+				// const files = this.$fs.readdirSync(this.$picPath);
 
-				files.forEach(file => {
-					this.$fs.unlink(`${this.$picPath}\\${file}`, err => {
-						if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+				// this.$ipcRenderer.invoke('removeFile', { files, }).then(res => {
+				// 	console.log(res);
+				// });
+				this.$ipcRenderer
+					.invoke('emptyDir', { dirPath: 'P:/Users/Administrator/Pictures/lyric_scrawer' })
+					.then(res => {
+						console.log(res);
 					});
-				});
+
+				// files.forEach(file => {
+				// 	this.$fs.unlink(`${this.$picPath}\\${file}`, err => {
+				// 		if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+				// 	});
+				// });
 
 				this.dialog = false;
 			}
+
+			console.log(err, nb);
 		});
 	}
 
