@@ -25,6 +25,7 @@ module.exports = {
 		// 'no-var': 'error'
 		// 'prefer-const': 'error',
 		'max-len': ['error', { code: 120, tabWidth: 4 }]
+		// 'max-len': ['error', { tabWidth: 4 }]
 		// camelcase: 'error'
 	}
 };

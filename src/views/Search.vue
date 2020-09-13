@@ -74,8 +74,8 @@
 						<v-col cols class="px-3 ellipsis" style="width:100%;">
 							<!-- <div style="overflow-x:auto; white-space:nowrap;"> -->
 							<v-chip
-								v-for="words in keywords"
-								:key="words._id"
+								v-for="(words, key) in keywords"
+								:key="`keywords${key}`"
 								small
 								class="ml-2 mt-1"
 								color="light-blue lighten-1"
@@ -132,7 +132,7 @@
 
 										<v-btn
 											icon
-											v-if="item.isInList"
+											v-if="item.exist"
 											class="ml-auto mr-n2 no-active"
 											@click.prevent
 											:ripple="false"
@@ -264,7 +264,7 @@ import { Component, Vue } from 'vue-property-decorator';
 	}
 })
 export default class Search extends Vue {
-	private lyricObj = null;
+	private lyricObj: { obj: {}; exist: boolean } | null = null;
 	//
 	private list: Array<{}> = [];
 	private historyList: Array<{}> = [];
@@ -293,25 +293,23 @@ export default class Search extends Vue {
 	}
 
 	get isThreeColumn(): boolean {
-		return this.$root.webWidth >= 1440 && this.lyricObj;
+		return this.$root.webWidth >= 1440 && this.lyricObj != null;
 	}
 
 	created() {
-		this.$dbHistory
-			.find({})
-			.sort({ datetime: -1 })
-			.limit(5)
-			.exec((err: Error, doc: string[]) => {
-				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-				this.keywords = doc;
-			});
-		// this.$dbList.remove({ uniqueKey: 'jb71306082' }, err => {
-		// 	console.log(err);
-		// });
+		// this.$dbHistory
+		// 	.find({})
+		// 	.sort({ datetime: -1 })
+		// 	.limit(5)
+		// 	.exec((err: Error, doc: string[]) => {
+		// 		if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+		// 		this.keywords = doc;
+		// 	});
 
 		this.$ipcRenderer
-			.invoke('historyFind')
+			.invoke('historyFind', { query: {} })
 			.then(res => {
+				this.keywords = res;
 				console.log(res);
 			})
 			.catch(err => {
@@ -320,64 +318,114 @@ export default class Search extends Vue {
 	}
 
 	mounted() {
-		this.$dbList.find({}, (err: string, doc: Array<{}>) => {
-			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-			this.historyList = doc;
-		});
+		// load list saved
+		// this.$dbList.find({}, (err: string, doc: Array<{}>) => {
+		// 	if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+		// 	this.historyList = doc;
+		// });
+		this.$ipcRenderer
+			.invoke('listFind', { query: {} })
+			.then(res => {
+				this.historyList = res;
+				console.log('res', res);
+			})
+			.catch(err => {
+				this.$store.commit('snackbar', { text: err, color: 'error' });
+				// console.error(err);
+			});
 
-		const included = this.$ipcRenderer.eventNames().includes('searchRes');
-		if (!included) {
-			this.$ipcRenderer.on('searchRes', (e, args) => {
+		// const included = this.$ipcRenderer.eventNames().includes('searchRes');
+		if (!this.$ipcRenderer.eventNames().includes('searchRes')) {
+			this.$ipcRenderer.on('searchRes', (e, args: { error: string; list: [] }) => {
 				if (args.error) {
 					this.$store.commit('snackbar', { text: args.error, color: 'error' });
 				}
-				// console.error(args.error);
+
+				console.log(args);
+				console.log(this.historyList);
+				///////////////////
+
+				// 取得交集
+				const intersection = this.$lodash.intersectionBy(args.list, this.historyList, 'lyricUrl');
 
 				///////////////////
-				const intersection = this.$lodash.intersectionBy(args.list, this.historyList, 'lyricUrl');
-				///////////////////
+				// 確認是否存在列表中
 				this.$nextTick(() => {
-					args.list.forEach((obj, idx) => {
-						switch (intersection.length) {
-							case 0:
-								break;
-							case 1:
-								if (obj.lyricUrl == intersection[0]['lyricUrl']) obj.isInList = true;
-								break;
-							default:
-								if (this.$lodash.findIndex(intersection, ['lyricUrl', obj.lyricUrl]) != -1)
-									obj.isInList = true;
+					args.list.forEach(
+						(obj: {
+							title: string;
+							lyricUrl: string;
+							artist: string;
+							lyric: string;
+							id: number;
+							exist: boolean;
+						}) => {
+							// if (this.$lodash.findIndex(intersection, ['lyric']))
+							const exist = intersection.some(item => {
+								return item.lyricUrl == obj.lyricUrl;
+							});
+							Object.assign(obj, { exist: exist });
+
+							// obj.exist = exist;
+
+							// switch (intersection.length) {
+							// 	case 0:
+							// 		break;
+							// 	case 1:
+							// 		const fisrt = intersection[0];
+							// 		if (obj.lyricUrl == intersection[0].lyricUrl) obj.isInList = true;
+							// 		break;
+							// 	default:
+							// 		if (this.$lodash.findIndex(intersection, ['lyricUrl', obj.lyricUrl]) != -1)
+							// 			obj.isInList = true;
+							// }
+
+							setTimeout(() => {
+								this.list.push(Object.freeze(obj));
+							}, obj.id * 50);
 						}
-						setTimeout(() => {
-							this.list.push(Object.freeze(obj));
-						}, idx * 50);
-					});
+					);
 				});
 				this.$store.commit('changeOverlay', false);
 			});
 		}
 		//
 
-		const included2 = this.$ipcRenderer.eventNames().includes('lyricRes');
-		if (!included2) {
+		// const included2 = this.$ipcRenderer.eventNames().includes('lyricRes');
+		if (!this.$ipcRenderer.eventNames().includes('lyricRes')) {
 			this.$ipcRenderer.on('lyricRes', (e, args) => {
 				if (args.error) console.error(args.error);
 
 				this.$nextTick(() => {
-					this.$dbList.count({ uniqueKey: args.lyricKey }, (err, count) => {
-						if (err) console.warn(err);
-						//
-						this.lyricObj = {
-							obj: Object.freeze({
-								key: args.lyricKey,
-								url: args.url,
-								title: args.mainTxt,
-								artist: args.artist,
-								lyric: args.lyricContent
-							}),
-							exist: count > 0
-						};
-					});
+					// check if has be in list
+
+					this.lyricObj = {
+						obj: Object.freeze({
+							key: args.lyricKey,
+							url: args.url,
+							title: args.mainTxt,
+							artist: args.artist,
+							lyric: args.lyricContent
+						}),
+						// exist: count > 0
+						exist: false
+					};
+
+					//
+					// this.$dbList.count({ uniqueKey: args.lyricKey }, (err, count) => {
+					// 	if (err) console.warn(err);
+					// 	//
+					// 	this.lyricObj = {
+					// 		obj: Object.freeze({
+					// 			key: args.lyricKey,
+					// 			url: args.url,
+					// 			title: args.mainTxt,
+					// 			artist: args.artist,
+					// 			lyric: args.lyricContent
+					// 		}),
+					// 		exist: count > 0
+					// 	};
+					// });
 				});
 
 				this.$store.commit('changeOverlay', false);
@@ -405,7 +453,7 @@ export default class Search extends Vue {
 		this.historySave(this.artist, this.title);
 	}
 
-	private historySearch(artist, title) {
+	private historySearch(artist: string, title: string) {
 		this.$store.commit('changeOverlay', true);
 
 		this.bigImage = false;
@@ -417,7 +465,7 @@ export default class Search extends Vue {
 		});
 	}
 
-	private historySave(artist, title) {
+	private historySave(artist: string, title: string) {
 		// this.$dbHistory.update(
 		// 	{ artist, title },
 		// 	{
@@ -430,17 +478,17 @@ export default class Search extends Vue {
 		// 	}
 		// );
 
-		this.$ipcRenderer
-			.invoke('historyUpsert', {
-				query: { artist, title },
-				data: {
-					$set: {
-						artist,
-						title,
-						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-					}
+		const historySave = this.$ipcRenderer.invoke('historySave', {
+			query: { artist, title },
+			data: {
+				$set: {
+					artist,
+					title,
+					datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
 				}
-			})
+			}
+		});
+		historySave
 			.then(res => {
 				console.log(res);
 			})
@@ -449,7 +497,7 @@ export default class Search extends Vue {
 			});
 	}
 
-	private getLyric(url) {
+	private getLyric(url: string) {
 		this.$store.commit('changeOverlay', true);
 		this.$ipcRenderer.send('getLyric', { url });
 	}

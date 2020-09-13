@@ -1,6 +1,13 @@
 node_modules
 /dist
 
+# Electron-builder output
+/dist_electron
+
+
+# env
+*.env
+
 # local env files
 .env.local
 .env.*.local
@@ -26,15 +33,9 @@ yarn-error.log*
 # old files
 *_old.vue
 
-# env
-*.env
-
-# Electron-builder output
-/dist_electron
-
 # deprecated
 *deprecated*
 
 # icon 
 *.png
-*.ico
+# *.ico

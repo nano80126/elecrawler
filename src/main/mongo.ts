@@ -1,6 +1,5 @@
 import { MongoClient } from 'mongodb';
 import { ipcMain } from 'electron';
-import { contains } from 'cheerio';
 // import { argv } from 'process';
 
 let mongoCLient: MongoClient;
@@ -12,7 +11,7 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (
 
 	const db = client.db('lyrics');
 	const history = db.collection('history');
-	// const list = db.collection('list');
+	const list = db.collection('list');
 
 	// list.insert({ a: 123 }, (err, doc) => {
 	// 	console.log(err);
@@ -29,20 +28,36 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (
 	// 	console.log(doc.result);
 	// });
 
-	ipcMain.handle('historyUpsert', async (e, args) => {
-		console.log(args);
-		const ret = await history.updateOne(args.query, args.data, { upsert: true });
-		return ret.result;
-	});
-
-	ipcMain.handle('historyFind', async () => {
+	ipcMain.handle('historyFind', async (e, args) => {
 		return await history
-			.find({})
+			.find(args.query)
 			.sort({ datetime: -1 })
 			.limit(5)
 			.toArray();
 	});
 
+	ipcMain.handle('historySave', async (e, args) => {
+		console.log(args);
+		const ret = await history.updateOne(args.query, args.data, { upsert: true });
+		return ret.result;
+	});
+
+	ipcMain.handle('listFind', async (e, args) => {
+		return await list
+			.find(args.query)
+			.sort({ datetime: 1 })
+			.toArray();
+	});
+
+	ipcMain.handle('listSave', async (e, args) => {
+		console.log(args);
+		const index = await list.createIndex({ uniqueKey: 1 }, { unique: true });
+
+		console.log(index);
+
+		const ret = await list.updateOne(args.query, args.data, { upsert: true });
+		return ret.result;
+	});
 	// ipcMain.handle('listAdd', (e, args) => {
 	// 	list.createIndex({ uniqueKey: 1 }, { unique: true }, err => {
 	// 		if (err) console.log(err);

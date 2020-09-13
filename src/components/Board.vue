@@ -49,7 +49,24 @@ export default class Board extends Vue {
 	private listAdd() {
 		if (!this.exist) {
 			// this.$parent.listAdd();
+			const ret = this.$ipcRenderer.invoke('listSave', {
+				query: { uniqueKey: this.lyric.obj.key },
+				data: {
+					$set: {
+						artist: this.lyric.obj.artist,
+						title: this.lyric.obj.title,
+						lyricUrl: this.lyric.obj.url,
+						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+					}
+				}
+			});
+			ret.then(res => {
+				console.log(res);
+			}).catch(err => {
+				console.log(err);
+			});
 
+			/*
 			this.$dbList.ensureIndex({ fieldName: 'uniqueKey', unique: true }, err => {
 				if (err) console.warn(err);
 			});
@@ -71,6 +88,7 @@ export default class Board extends Vue {
 					// console.log(nb);
 				}
 			);
+			*/
 			this.$emit('update:exist', true);
 		}
 	}

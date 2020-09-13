@@ -340,7 +340,7 @@ export default class APP extends Vue {
 	}
 
 	private dataEmpty() {
-		console.log(123);
+		/*
 		this.$dbList.remove({}, { multi: true }, (err, nb) => {
 			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 			else {
@@ -366,6 +366,7 @@ export default class APP extends Vue {
 
 			console.log(err, nb);
 		});
+		*/
 	}
 
 	private TestFunc() {

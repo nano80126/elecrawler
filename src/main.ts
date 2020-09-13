@@ -4,16 +4,19 @@ import router from './router';
 import store from './store';
 import vuetify from './plugins/vuetify';
 import i18n from './plugins/i18n';
-import { listDB, historyDB, NeDBStatic } from './plugins/nedb';
+// import { listDB, historyDB, NeDBStatic } from './plugins/nedb';
 
 import path from 'path';
-import * as fs from 'fs';
-import { remote, IpcRenderer, ipcRenderer, shell, Shell } from 'electron';
+// import * as fs from 'fs';
+// import { remote, IpcRenderer, Shell } from 'electron';
+const { remote, IpcRenderer, ipcRenderer, shell } = window.require('electron');
+
+import { Shell } from 'electron';
 
 import moment, { Moment, MomentInput } from 'moment';
 import lodash, { LoDashStatic } from 'lodash';
 import axios, { AxiosStatic } from 'axios';
-import sharp, { Sharp, FitEnum } from 'sharp';
+// import sharp, { Sharp, FitEnum } from 'sharp';
 
 // import sharp, { FitEnum, Sharp, SharpOptions } from 'sharp';
 // import {} } from "nedb"
@@ -21,6 +24,7 @@ import sharp, { Sharp, FitEnum } from 'sharp';
 // import { adminDB, errorDB } from './plugins/nedb';
 
 import './style.scss';
+import { IpcRenderer } from 'electron';
 
 Object.defineProperties(Vue.prototype, {
 	$moment: {
@@ -29,36 +33,30 @@ Object.defineProperties(Vue.prototype, {
 	$lodash: {
 		value: lodash
 	},
-
 	$axios: {
 		// value: require('axios')
 		value: axios
 	},
-	$dbHistory: {
-		value: historyDB
-	},
-	$dbList: {
-		value: listDB
-	},
-	// $dbLyric: {
-	// 	value: require('./plugins/nedb').lyricDB
+	// $dbHistory: {
+	// 	value: historyDB
 	// },
+	// $dbList: {
+	// 	value: listDB
+	// },
+
 	$shell: {
 		value: shell
 	},
 	$ipcRenderer: {
 		value: ipcRenderer
 	},
-	$sharp: {
-		value: sharp
-		// value: sharp
-	},
-	$sharpFit: {
-		value: sharp.fit
-	},
-	$fs: {
-		value: fs
-	},
+	// $sharp: {
+	// 	value: sharp
+	// },
+	// $sharpFit: {
+	// 	value: sharp.fit
+	// },
+
 	// $remote: {
 	// 	value: remote
 	// },
@@ -68,12 +66,6 @@ Object.defineProperties(Vue.prototype, {
 				? path.resolve(remote.app.getPath('pictures'), 'lyric_scrawer')
 				: path.resolve(remote.app.getPath('exe'), '../pictures')
 	}
-	// $clipboard: {
-	// 	value: require('electron').clipboard
-	// },
-	// $nativeImage: {
-	// 	value: require('electron').nativeImage
-	// }
 });
 
 declare module 'vue/types/vue' {
@@ -82,23 +74,20 @@ declare module 'vue/types/vue' {
 		$axios: AxiosStatic;
 		$lodash: LoDashStatic;
 
-		// $sharp: Function;
-		$sharp(input: Buffer | string): Sharp;
-		$sharpFit: FitEnum;
-		// $sharp: Function(option?:SharpOptions) | { fit?: FitEnum };
+		// $sharp(input: Buffer | string): Sharp;
+		// $sharpFit: FitEnum;
 		$fs: { readdirSync: Function; unlink: Function; exists: Function; mkdir: Function };
 
-		$dbHistory: NeDBStatic;
-		$dbList: NeDBStatic;
+		// $dbHistory: NeDBStatic;
+		// $dbList: NeDBStatic;
 		$ipcRenderer: IpcRenderer;
-		// $remote: Remote;
 		$shell: Shell;
 		$picPath: string;
 
 		///
-		webWidth?: number;
-		webHeight?: number;
-		_events?: { getLyricByID: [Function] };
+		webWidth: number;
+		webHeight: number;
+		_events: { getLyricByID: [Function] };
 	}
 }
 
@@ -140,6 +129,7 @@ new Vue({
 						if (this.$route.name == 'List') this.$store.commit('changeOverlay', true);
 						// this.$dbList.findOne({ 'ytObj.id': videoID }, async (err, doc) => {
 						// findOne of ytObj arr has one of element match videoID
+						/*
 						this.$dbList.findOne({ ytObj: { $elemMatch: { id: videoID } } }, async (err, doc) => {
 							if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
 							const res = await this.$ipcRenderer.invoke('getLyric', { url: doc.lyricUrl });
@@ -156,7 +146,7 @@ new Vue({
 							this.$emit('getLyricByID', obj); // raise event for changing lyric obj in list.vue
 							this.$store.commit('saveLyric', obj); // save lyric obj for loading display.vue
 							this.$store.commit('changeOverlay', false); // disable overlay
-						});
+						});*/
 					}, 1500);
 			}
 		}
@@ -175,10 +165,12 @@ new Vue({
 		// 	}
 		// });
 
+		/** 
 		this.$dbList.find({}).exec((err, doc) => {
 			console.log('err', err);
 			console.log('doc', doc);
 		});
+		*/
 
 		// make pictures directory
 		this.$ipcRenderer.send('mkPicDir');
@@ -198,6 +190,7 @@ new Vue({
 			// console.log(this.$vuetify.breakpoint);
 		};
 
+		/**
 		// 刪除15天前的搜尋紀錄
 		this.$dbHistory.remove(
 			{
@@ -213,5 +206,6 @@ new Vue({
 				// console.log(num);
 			}
 		);
+		 */
 	}
 }).$mount('#app');
