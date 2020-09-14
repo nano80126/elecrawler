@@ -104,11 +104,13 @@ async function lyricGetter(subUrl: string): Promise<{}> {
 				.html();
 
 			Object.assign(data, {
-				lyricKey: subUrl.match(/(?<=^\/lyric\/)\w+(?=\/$)/)?.[0],
-				url: subUrl,
-				mainTxt,
-				artist,
-				lyricContent
+				obj: {
+					lyricKey: subUrl.match(/(?<=^\/lyric\/)\w+(?=\/$)/)?.[0],
+					url: subUrl,
+					mainTxt,
+					artist,
+					lyricContent
+				}
 			});
 		})
 		.catch(err => {
@@ -124,17 +126,18 @@ ipcMain.on('searchReq', async (e, args) => {
 	e.sender.send('searchRes', ret);
 });
 
-ipcMain.on('getLyric', async (e, args) => {
-	const { url } = args;
+ipcMain.on('getLyric', async (e, args: { url: string; exist: boolean }) => {
+	const { url, exist } = args;
 	const ret = await lyricGetter(url);
-	// console.log(url);
+	Object.assign(ret, { exist });
 
 	e.sender.send('lyricRes', ret);
 });
 
-ipcMain.handle('getLyric', async (e, args) => {
-	const { url } = args;
+ipcMain.handle('getLyric', async (e, args: { url: string; exist: boolean }) => {
+	const { url, exist } = args;
 	const ret = await lyricGetter(url);
+	Object.assign(ret, { exist });
 
 	return ret;
 });

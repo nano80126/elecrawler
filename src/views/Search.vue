@@ -152,7 +152,7 @@
 
 									<v-divider />
 									<v-card-actions>
-										<v-btn text color="info" @click="getLyric(item.lyricUrl)">
+										<v-btn text color="info" @click="getLyric(item.lyricUrl, item.exist)">
 											<v-icon>fas fa-link</v-icon>
 											<span class="ml-2 font-weight-bold">リンク</span>
 										</v-btn>
@@ -391,46 +391,28 @@ export default class Search extends Vue {
 		}
 		//
 
-		// const included2 = this.$ipcRenderer.eventNames().includes('lyricRes');
-		if (!this.$ipcRenderer.eventNames().includes('lyricRes')) {
-			this.$ipcRenderer.on('lyricRes', (e, args) => {
-				if (args.error) console.error(args.error);
+		// old method // old method // old method // old method // old method // old method
+		// if (!this.$ipcRenderer.eventNames().includes('lyricRes')) {
+		// 	this.$ipcRenderer.on('lyricRes', (e, args) => {
+		// 		if (args.error) console.error(args.error);
 
-				this.$nextTick(() => {
-					// check if has be in list
-
-					this.lyricObj = {
-						obj: Object.freeze({
-							key: args.lyricKey,
-							url: args.url,
-							title: args.mainTxt,
-							artist: args.artist,
-							lyric: args.lyricContent
-						}),
-						// exist: count > 0
-						exist: false
-					};
-
-					//
-					// this.$dbList.count({ uniqueKey: args.lyricKey }, (err, count) => {
-					// 	if (err) console.warn(err);
-					// 	//
-					// 	this.lyricObj = {
-					// 		obj: Object.freeze({
-					// 			key: args.lyricKey,
-					// 			url: args.url,
-					// 			title: args.mainTxt,
-					// 			artist: args.artist,
-					// 			lyric: args.lyricContent
-					// 		}),
-					// 		exist: count > 0
-					// 	};
-					// });
-				});
-
-				this.$store.commit('changeOverlay', false);
-			});
-		}
+		// 		const { obj, exist } = args;
+		// 		this.$nextTick(() => {
+		// 			// check if has be in list
+		// 			this.lyricObj = {
+		// 				obj: Object.freeze({
+		// 					key: obj.lyricKey,
+		// 					url: obj.url,
+		// 					title: obj.mainTxt,
+		// 					artist: obj.artist,
+		// 					lyric: obj.lyricContent
+		// 				}),
+		// 				exist: exist
+		// 			};
+		// 		});
+		// 		this.$store.commit('changeOverlay', false);
+		// 	});
+		// }
 	}
 
 	beforeDestroy() {
@@ -497,9 +479,38 @@ export default class Search extends Vue {
 			});
 	}
 
-	private getLyric(url: string) {
+	private getLyric(url: string, exist: boolean) {
 		this.$store.commit('changeOverlay', true);
-		this.$ipcRenderer.send('getLyric', { url });
+		// this.$ipcRenderer.send('getLyric', { url, exist });
+
+		this.$ipcRenderer
+			.invoke('getLyric', { url, exist })
+			.then(res => {
+				// 這邊為 main process產生的error
+				if (res.error) this.$store.commit('snackbar', { text: res.error, color: 'error' });
+
+				const { obj, exist } = res;
+				this.$nextTick(() => {
+					// check if has be in list
+					this.lyricObj = {
+						obj: Object.freeze({
+							key: obj.lyricKey,
+							url: obj.url,
+							title: obj.mainTxt,
+							artist: obj.artist,
+							lyric: obj.lyricContent
+						}),
+						exist: exist
+					};
+				});
+			})
+			.catch(err => {
+				// 這邊為其他 error，主要原因為上面
+				this.$store.commit('snackbar', { text: err, color: 'error' });
+			})
+			.finally(() => {
+				this.$store.commit('changeOverlay', false);
+			});
 	}
 
 	// public listAdd() {

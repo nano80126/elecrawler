@@ -61,8 +61,12 @@ export default class Board extends Vue {
 				}
 			});
 			ret.then(res => {
+				if (res.ok) {
+					this.$emit('update:exist', true);
+				}
 				console.log(res);
 			}).catch(err => {
+				this.$store.commit('snackbar', { text: err, color: 'error' });
 				console.log(err);
 			});
 
@@ -89,7 +93,6 @@ export default class Board extends Vue {
 				}
 			);
 			*/
-			this.$emit('update:exist', true);
 		}
 	}
 }
