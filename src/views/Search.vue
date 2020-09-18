@@ -57,7 +57,7 @@
 
 						<v-btn text outlined height="40" min-width="0" width="15" class="px-0" @click="expandWidth">
 							<v-icon x-small class="mx-0">
-								{{ isTwoColumn || isThreeColumn ? 'fas fa-caret-left' : 'fas fa-caret-right' }}
+								{{ $root.webWidth >= 1440 ? 'fas fa-caret-left' : 'fas fa-caret-right' }}
 							</v-icon>
 						</v-btn>
 					</v-col>
@@ -197,54 +197,60 @@
 
 			<!-- <template v-if="isTwoColumn"> -->
 			<!-- <v-divider vertical /> -->
-			<v-col
-				v-if="isTwoColumn"
-				cols
-				class="pl-3"
-				:style="{ 'max-width': isThreeColumn ? '480px' : null }"
-				style="border-left:1px solid rgba(150, 150, 150, 0.5);"
-			>
-				<!-- {{ this.lyricObj ? this.lyricObj.exist : null }} -->
-				<template v-if="lyricObj">
-					<div class="min-scroll y primary-scroll" :style="{ height: `${$root.webHeight - 44}px` }">
-						<lyricCard :lyric="lyricObj" :exist.sync="lyricObj.exist" />
-					</div>
-				</template>
-				<template v-else>
-					<div class="d-flex align-center" style="height:100%;">
-						<v-card flat shaped class="mr-3" width="100%">
-							<v-card-subtitle class="text-center">
-								歌詞を探しましょう
-							</v-card-subtitle>
-						</v-card>
-					</div>
-				</template>
-				<!-- </transition> -->
-			</v-col>
+
+			<transition name="lyricsFadeIn">
+				<v-col
+					v-if="isTwoColumn"
+					cols
+					class="pl-3"
+					:style="{ 'max-width': isThreeColumn ? '480px' : null }"
+					style="border-left:1px solid rgba(150, 150, 150, 0.5);"
+				>
+					<!-- {{ this.lyricObj ? this.lyricObj.exist : null }} -->
+					<template v-if="lyricObj">
+						<div class="min-scroll y primary-scroll" :style="{ height: `${$root.webHeight - 44}px` }">
+							<lyricCard :lyric="lyricObj" :exist.sync="lyricObj.exist" />
+						</div>
+					</template>
+					<template v-else>
+						<div class="d-flex align-center" style="height:100%;">
+							<v-card flat shaped class="mr-3" width="100%">
+								<v-card-subtitle class="text-center">
+									歌詞を探しましょう
+								</v-card-subtitle>
+							</v-card>
+						</div>
+					</template>
+					<!-- </transition> -->
+				</v-col>
+			</transition>
+
 			<!-- </template> -->
 
 			<!-- <keep-alive> -->
 			<!-- <template v-if="isThreeColumn"> -->
-			<v-col
-				v-if="isThreeColumn"
-				cols
-				class="px-3"
-				:style="{ 'max-width': bigImage ? `${$root.webWidth - 481}px` : `${$root.webWidth - 962}px` }"
-				style="border-left:1px solid rgba(150, 150, 150, 0.5);"
-			>
-				<template v-if="lyricObj && lyricObj.exist">
-					<lyricMedia :bigImage.sync="bigImage" :lyric="lyricObj" />
-				</template>
-				<template v-else>
-					<div class="d-flex align-center" style="height:100%">
-						<v-card flat shaped width="100%">
-							<v-card-subtitle class="text-center">
-								リストに追加しないと操作できず
-							</v-card-subtitle>
-						</v-card>
-					</div>
-				</template>
-			</v-col>
+			<transition name="lyricsFadeIn">
+				<v-col
+					v-if="isThreeColumn"
+					cols
+					class="px-3"
+					:style="{ 'max-width': bigImage ? `${$root.webWidth - 481}px` : `${$root.webWidth - 962}px` }"
+					style="border-left:1px solid rgba(150, 150, 150, 0.5);"
+				>
+					<template v-if="lyricObj && lyricObj.exist">
+						<lyricMedia :bigImage.sync="bigImage" :lyric="lyricObj" />
+					</template>
+					<template v-else>
+						<div class="d-flex align-center" style="height:100%">
+							<v-card flat shaped width="100%">
+								<v-card-subtitle class="text-center">
+									リストに追加しないと操作できず
+								</v-card-subtitle>
+							</v-card>
+						</div>
+					</template>
+				</v-col>
+			</transition>
 			<!-- </template> -->
 			<!-- </keep-alive> -->
 		</v-row>
@@ -331,7 +337,6 @@ export default class Search extends Vue {
 			})
 			.catch(err => {
 				this.$store.commit('snackbar', { text: err, color: 'error' });
-				// console.error(err);
 			});
 
 		// const included = this.$ipcRenderer.eventNames().includes('searchRes');
@@ -538,10 +543,15 @@ export default class Search extends Vue {
 	// }
 
 	private expandWidth() {
-		if (!this.isTwoColumn && !this.isThreeColumn) {
+		if (this.$root.webWidth < 960) {
 			this.$ipcRenderer.send('windowWidth', { width: 960, height: this.windowHeight });
+		} else if (this.$root.webWidth < 1440) {
+			this.$ipcRenderer.send('windowWidth', { width: 1680, height: this.windowHeight });
+		} else {
+			this.$ipcRenderer.send('windowWidth', { width: 480, height: this.windowHeight });
 			this.bigImage = false;
-		} else this.$ipcRenderer.send('windowWidth', { width: 480, height: this.windowHeight });
+		}
+		// console.log(this.$root.webWidth);
 	}
 }
 </script>
@@ -582,7 +592,20 @@ export default class Search extends Vue {
 }
 
 .lyricSlide-enter {
-	opacity: 0.15;
+	opacity: 0.16;
 	transform: translateY(50%);
+}
+
+.lyricsFadeIn-enter-active {
+	transition: opacity 0.5s;
+}
+
+.lyricsFadeIn-leave-active {
+	transition: 0s;
+}
+
+.lyricsFadeIn-enter {
+	opacity: 0.16;
+	// transform: translateX(75%);
 }
 </style>

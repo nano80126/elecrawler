@@ -43,10 +43,16 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (
 	});
 
 	ipcMain.handle('listFind', async (e, args) => {
+		console.log(args);
 		return await list
 			.find(args.query)
 			.sort({ datetime: 1 })
 			.toArray();
+	});
+
+	ipcMain.handle('listFindOne', async (e, args) => {
+		console.log(args);
+		return await list.findOne(args.query);
 	});
 
 	ipcMain.handle('listSave', async (e, args) => {

@@ -8,7 +8,6 @@ module.exports = {
 	publicPath: './',
 
 	productionSourceMap: false,
-
 	// process.env won't work here
 	devServer: {
 		// before: () => {
@@ -26,15 +25,6 @@ module.exports = {
 			.tap(args => {
 				args.compilerOptions.whitespace = 'preserve';
 			});
-		// .end()
-		// .rule('ts')
-		// .use('ts-loader');
-
-		// config.module.rule('ts').use('ts-loader');
-
-		// config.externals({
-		// 	express: 'express'
-		// });
 	},
 
 	configureWebpack: () => {
@@ -45,15 +35,25 @@ module.exports = {
 
 	pluginOptions: {
 		electronBuilder: {
+			// externals: ['sharp'],
 			chainWebpackMainProcess: config => {
 				// Chain webpack config for electron main process only
 				config.externals({
 					// express: 'express',
 					// bufferutil: 'commonjs bufferutil',
 					// 'utf-8-validate': 'commonjs utf-8-validate'
+					sharp: 'commonjs2 sharp'
 				});
 			},
+			chainWebpackRendererProcess: config => {
+				// config.plugin('define').tap(args => {
+				// 	args[0]['TEST123'] = true;
+				// 	return args;
+				// });
+			},
 			mainProcessWatch: ['src/main/*.ts'],
+			// disableMainProcessTypescript: true, // Manually disable typescript plugin for main process. Enable if you want to use regular js for the main process (src/background.js by default).
+			// mainProcessTypeChecking: false, // Manually enable type checking during webpck bundling for background file.
 			builderOptions: {
 				productName: 'lyric spider',
 				copyright: 'Copyright © 2020',

@@ -16,7 +16,8 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 // import crawler
 import './main/crawler';
 import './main/fs';
-import './main/mongo';
+// import './main/mongo';
+import './main/sharp';
 import { mongoCLient } from './main/mongo';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -34,7 +35,7 @@ function createWindow() {
 		backgroundColor: '#212121',
 		// backgroundColor: 'transparent',
 		minWidth: 480,
-		width: 540,
+		width: 480,
 		// maxWidth: 720,
 		minHeight: 720,
 		height: 960,
@@ -214,8 +215,8 @@ ipcMain.on('windowHide', () => {
 });
 
 ipcMain.on('windowWidth', (e, args) => {
-	if (win?.isMaximized()) win.restore();
-	win?.setSize(args.width, win.getSize()[1], true);
+	if (win?.isMaximized()) win?.restore();
+	win?.setSize(args.width, win?.getSize()[1], true);
 });
 
 ipcMain.on('windowClose', () => {

@@ -142,18 +142,6 @@ ipcMain.handle('getLyric', async (e, args: { url: string; exist: boolean }) => {
 	return ret;
 });
 
-ipcMain.handle('invokeAxios', async (e, args) => {
-	const imgUrl = `http://img.youtube.com/vi/${args}/maxresdefault.jpg`;
-	console.log(imgUrl);
-
-	try {
-		const buf = await axios({ url: imgUrl, responseType: 'arraybuffer' });
-		return buf.data;
-	} catch (err) {
-		return { Error: err.isAxiosError, message: err.message };
-	}
-});
-
 // // Print the full HTML
 // console.log(`Site HTML: ${$.html()}\n\n`);
 

@@ -34,7 +34,6 @@ Object.defineProperties(Vue.prototype, {
 		value: lodash
 	},
 	$axios: {
-		// value: require('axios')
 		value: axios
 	},
 	// $dbHistory: {

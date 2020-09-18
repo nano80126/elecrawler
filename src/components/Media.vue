@@ -266,6 +266,8 @@
 			{{ lyric.obj.key }}
 			<br />
 			{{ urlObj }}
+
+			{{ $refs.file ? $refs.file.files.length : '' }}
 		</template>
 
 		<v-menu
@@ -309,15 +311,15 @@ export default class Media extends Vue {
 		};
 	};
 
-	private urlObj: Array<{ url: string | null; id?: string; title?: string }> = [{ url: null }];
+	private urlObj: Array<{ url: string; id?: string; title?: string }> = [{ url: '' }];
 	private urlIndex = 0;
 	//
 	private disableDialog = false;
 	//
-	private imgurl: Buffer = null;
+	private imgurl: Buffer | null = null;
 
 	private badge = false;
-	private badgeTimeout: NodeJS.Timeout;
+	private badgeTimeout: NodeJS.Timeout | null = null;
 
 	private dragging = false;
 	private canPaste = false;
@@ -333,18 +335,19 @@ export default class Media extends Vue {
 	private fitRatio = 0;
 	///
 	get url(): string {
-		return this.urlObj[this.urlIndex].url;
+		return this.urlObj[this.urlIndex].url || '';
 	}
 
 	set url(value) {
-		if (!value) this.urlObj[this.urlIndex].url = null;
+		if (!value) this.urlObj[this.urlIndex].url = '';
 		else this.urlObj[this.urlIndex].url = value;
 	}
 
 	@Watch('urlIndex')
 	OnUrlIndexChanged() {
 		this.badge = true;
-		clearTimeout(this.badgeTimeout);
+
+		if (this.badgeTimeout) clearTimeout(this.badgeTimeout);
 		this.$nextTick(() => {
 			this.badgeTimeout = setTimeout(() => {
 				this.badge = false;
@@ -355,36 +358,47 @@ export default class Media extends Vue {
 	mounted() {
 		// console.log(this);
 		// console.log(this.$debounce);
-		this.$dbList.findOne({ uniqueKey: this.lyric.obj.key }, (err, doc) => {
-			if (err) {
+
+		// this.$dbList.findOne({ uniqueKey: this.lyric.obj.key }, (err, doc) => {
+		// 	if (err) {
+		// 		this.$store.commit('snackbar', { text: err, color: 'error' });
+		// 		return;
+		// 	} else if (doc == null) return;
+
+		// 	if (doc.imagePath) {
+		// 		const image = this.$sharp(doc.imagePath);
+		// 		image.toBuffer((err, data, info) => {
+		// 			if (err) this.$store.commit('commit', { text: err, color: 'error' });
+
+		// 			this.imgurl = data;
+		// 			this.$nextTick(() => {
+		// 				this.$set(this.imgSize, 'width', info.width);
+		// 				this.$set(this.imgSize, 'height', info.height);
+
+		// 				const regionFreeze = this.$refs['region-freeze'] as HTMLElement;
+		// 				if (regionFreeze && doc.rectangle != {}) {
+		// 					this.rectPercent = doc.rectangle;
+		// 					regionFreeze.style.left = `${this.rectPercent.x}%`;
+		// 					regionFreeze.style.top = `${this.rectPercent.y}%`;
+		// 					regionFreeze.style.width = `${this.rectPercent.width}%`;
+		// 					regionFreeze.style.height = `${this.rectPercent.height}%`;
+		// 				}
+		// 			});
+		// 		});
+		// 	}
+		// 	this.urlObj = doc.ytObj || this.urlObj;
+		// 	// console.log(doc);
+		// });
+
+		this.$ipcRenderer
+			.invoke('listFindOne', { query: { uniqueKey: this.lyric.obj.key } })
+			.then(res => {
+				console.log(res);
+			})
+			.catch(err => {
 				this.$store.commit('snackbar', { text: err, color: 'error' });
-				return;
-			} else if (doc == null) return;
-
-			if (doc.imagePath) {
-				const image = this.$sharp(doc.imagePath);
-				image.toBuffer((err, data, info) => {
-					if (err) this.$store.commit('commit', { text: err, color: 'error' });
-
-					this.imgurl = data;
-					this.$nextTick(() => {
-						this.$set(this.imgSize, 'width', info.width);
-						this.$set(this.imgSize, 'height', info.height);
-
-						const regionFreeze = this.$refs['region-freeze'] as HTMLElement;
-						if (regionFreeze && doc.rectangle != {}) {
-							this.rectPercent = doc.rectangle;
-							regionFreeze.style.left = `${this.rectPercent.x}%`;
-							regionFreeze.style.top = `${this.rectPercent.y}%`;
-							regionFreeze.style.width = `${this.rectPercent.width}%`;
-							regionFreeze.style.height = `${this.rectPercent.height}%`;
-						}
-					});
-				});
-			}
-			this.urlObj = doc.ytObj || this.urlObj;
-			// console.log(doc);
-		});
+				// console.log(err);
+			});
 	}
 
 	private openWindow(keyWord: string): void {
@@ -430,7 +444,7 @@ export default class Media extends Vue {
 	}
 
 	private addUrl(): void {
-		this.urlObj.push({ url: null });
+		this.urlObj.push({ url: '' });
 		this.urlIndex = this.urlObj.length - 1;
 	}
 
@@ -440,41 +454,67 @@ export default class Media extends Vue {
 
 		const videoID = this.urlObj[0].url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
 		if (videoID && videoID[0].length == 11) {
-			const buf = await this.$ipcRenderer.invoke('invokeAxios', videoID);
+			this.$ipcRenderer
+				.invoke('videoCover', { ID: videoID })
+				.then(res => {
+					if (res.Error) {
+						this.$store.commit('snackbar', { text: res.message, color: 'error' });
+						return;
+					}
+					this.imgurl = Buffer.from(res.data);
 
-			if (buf.Error) {
-				this.$store.commit('snackbar', { text: buf.message, color: 'error' });
-				return;
-			}
-
-			let image = this.$sharp(Buffer.from(buf));
-			// const { width } = await image.metadata();
-
-			image.metadata().then(meta => {
-				const { width } = meta;
-				if (width > 1440) image = image.resize(1440);
-
-				image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
-					if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-					this.imgurl = data;
+					const { width, height } = res.info;
 					this.$nextTick(() => {
-						this.$set(this.imgSize, 'width', info.width);
-						this.$set(this.imgSize, 'height', info.height);
+						this.$set(this.imgSize, 'width', width);
+						this.$set(this.imgSize, 'height', height);
 					});
-					console.warn('info', info);
+				})
+				.catch(err => {
+					this.$store.commit('snackbar', { text: err, color: 'error' });
 				});
-			});
+
+			// if (buf.Error) {
+			// 	this.$store.commit('snackbar', { text: buf.message, color: 'error' });
+			// 	return;
+			// }
+
+			// this.$ipcRenderer
+			// 	.invoke('toBuffer', { buffer: buf })
+			// 	.then(res => {
+			// 		// this.imgurl = res;
+			// 		console.log(res);
+			// 	})
+			// 	.catch(err => {
+			// 		console.log(err);
+			// 	});
+
+			// let image = this.$sharp(Buffer.from(buf));
+
+			// image.metadata().then(meta => {
+			// 	const { width } = meta;
+			// 	if (width > 1440) image = image.resize(1440);
+
+			// 	image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
+			// 		if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+			// 		this.imgurl = data;
+			// 		this.$nextTick(() => {
+			// 			this.$set(this.imgSize, 'width', info.width);
+			// 			this.$set(this.imgSize, 'height', info.height);
+			// 		});
+			// 		console.warn('info', info);
+			// 	});
+			// });
 		} else {
 			this.$store.commit('snackbar', { text: '無効なURL', color: 'warning' });
 		}
 	}
 
-	private onPaste(e): void {
+	private onPaste(e: ClipboardEvent): void {
 		e.preventDefault();
 		e.stopPropagation();
 
-		const items = e.clipboardData.files;
-		if (items.length == 0 || !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
+		const items = e.clipboardData?.files;
+		if (items == undefined || !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
 			console.error('no image or not image');
 			return;
 		}
@@ -482,67 +522,99 @@ export default class Media extends Vue {
 		const file = items[0] as File;
 		const reader = new FileReader();
 
-		reader.addEventListener('load', e => {
+		reader.addEventListener('load', (e: ProgressEvent<FileReader>) => {
 			// const base64 = e.target.result.replace(/^data:image\/\w+;base64,/, '');
 			// const buf = Buffer.from(base64, 'base64');
-			const buf = e.target.result;
+			const buf = e.target?.result;
 
-			let image = this.$sharp(Buffer.from(buf)).toFormat('jpeg');
+			this.$ipcRenderer
+				.invoke('toBuffer', { buffer: buf })
+				.then(res => {
+					this.imgurl = Buffer.from(res.data);
 
-			console.log(image);
-
-			image.metadata().then(meta => {
-				const { width } = meta;
-				if (width > 1440) image = image.resize(1440);
-
-				// const { width } = await image.metadata();
-				image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
-					if (err) this.$store.commit('commit', { text: err, color: 'error' });
-
-					this.imgurl = data;
+					const { width, height } = res.info;
 					this.$nextTick(() => {
-						this.$set(this.imgSize, 'width', info.width);
-						this.$set(this.imgSize, 'height', info.height);
+						this.$set(this.imgSize, 'width', width);
+						this.$set(this.imgSize, 'height', height);
 					});
-					console.warn('info', info);
+				})
+				.catch(err => {
+					this.$store.commit('snackbar', { text: err, color: 'error' });
+					console.log(err);
 				});
-			});
+
+			// let image = this.$sharp(Buffer.from(buf)).toFormat('jpeg');
+
+			// console.log(image);
+
+			// image.metadata().then(meta => {
+			// 	const { width } = meta;
+			// 	if (width > 1440) image = image.resize(1440);
+
+			// 	// const { width } = await image.metadata();
+			// 	image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
+			// 		if (err) this.$store.commit('commit', { text: err, color: 'error' });
+
+			// 		this.imgurl = data;
+			// 		this.$nextTick(() => {
+			// 			this.$set(this.imgSize, 'width', info.width);
+			// 			this.$set(this.imgSize, 'height', info.height);
+			// 		});
+			// 		console.warn('info', info);
+			// 	});
+			// });
 		});
 		reader.readAsArrayBuffer(file);
-		e.target.blur();
+		(e.target as HTMLElement).blur();
 	}
 
-	private onChange(e) {
+	private onChange(e: Event) {
 		e.preventDefault();
 		e.stopPropagation();
-
-		const items = (e.target.files || e.dataTransfer.files) as File[];
-		if (items.length == 0 || !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
-			// console.error('no image or not image');
+		// const items = ((e.target as HTMLInputElement).files || e.dataTransfer.files) as File[];
+		const items = (e.target as HTMLInputElement).files;
+		// if (items?.length == 0 || (items && !/^image\/(bmp|jpeg|png)/.test(items[0].type))) {
+		if (items && !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
 			this.$store.commit('snackbar', { text: '無効なイメージ', color: 'warning' });
 			return;
 		}
 
-		const filePath = items[0].path;
-		let image = this.$sharp(filePath);
+		const filePath = items && items[0].path;
 
-		image.metadata().then(meta => {
-			const { width } = meta;
-			if (width > 1440) image = image.resize(1440);
+		this.$ipcRenderer
+			.invoke('toBuffer', { path: filePath })
+			.then(res => {
+				this.imgurl = Buffer.from(res.data);
 
-			image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
-				if (err) console.warn(err);
-				// console.log(data);
-				this.imgurl = data;
-
+				const { width, height } = res.info;
 				this.$nextTick(() => {
-					this.$set(this.imgSize, 'width', info.width);
-					this.$set(this.imgSize, 'height', info.height);
+					this.$set(this.imgSize, 'width', width);
+					this.$set(this.imgSize, 'height', height);
 				});
+			})
+			.catch(err => {
+				this.$store.commit('snackbar', { text: err, color: 'error' });
+				console.log(err);
 			});
-		});
+		// let image = this.$sharp(filePath);
 
-		(this.$refs.file as HTMLInputElement).value = null; // set file content to null
+		// image.metadata().then(meta => {
+		// 	const { width } = meta;
+		// 	if (width > 1440) image = image.resize(1440);
+
+		// 	image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
+		// 		if (err) console.warn(err);
+		// 		// console.log(data);
+		// 		this.imgurl = data;
+
+		// 		this.$nextTick(() => {
+		// 			this.$set(this.imgSize, 'width', info.width);
+		// 			this.$set(this.imgSize, 'height', info.height);
+		// 		});
+		// 	});
+		// });
+
+		(e.target as HTMLInputElement).value = ''; // set file content to null
 	}
 
 	private dialogImage() {

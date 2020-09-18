@@ -56,3 +56,7 @@ This is a lyric crawler build by electron.
 * [ ] Can't get duration of videio After CueVideoByID
 * [x] Can't change lyric object in shuffle mode when route has changed
 * [ ] VideoID is null after change router so that user can't control video
+
+### Sharp 
+
+* [ ] Can't use sharp in main process
