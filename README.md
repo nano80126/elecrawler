@@ -14,6 +14,11 @@ This is a lyric crawler build by electron.
 - English
 - Chinese
 
+
+#### 
+
+サムネイル：縮圖
+
 ### Waiting
 
 * [ ] Design an icon

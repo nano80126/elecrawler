@@ -295,7 +295,6 @@
 
 <script lang="ts">
 import debounce from 'lodash/debounce';
-
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
 @Component
@@ -356,9 +355,7 @@ export default class Media extends Vue {
 	}
 
 	mounted() {
-		// console.log(this);
-		// console.log(this.$debounce);
-
+		//#region
 		// this.$dbList.findOne({ uniqueKey: this.lyric.obj.key }, (err, doc) => {
 		// 	if (err) {
 		// 		this.$store.commit('snackbar', { text: err, color: 'error' });
@@ -389,14 +386,43 @@ export default class Media extends Vue {
 		// 	this.urlObj = doc.ytObj || this.urlObj;
 		// 	// console.log(doc);
 		// });
-
+		//#endregion
 		this.$ipcRenderer
 			.invoke('listFindOne', { query: { uniqueKey: this.lyric.obj.key } })
-			.then(res => {
-				console.log(res);
+			.then(doc => {
+				if (doc.imagePath) {
+					this.$ipcRenderer
+						.invoke('toBufferSimple', { path: doc.imagePath })
+						.then(res => {
+							if (res.Error) {
+								this.$store.commit('snackbar', { text: res.message, color: 'error' });
+								return;
+							}
+							this.imgurl = Buffer.from(res.data);
+
+							this.$nextTick(() => {
+								this.$set(this.imgSize, 'width', res.info.width);
+								this.$set(this.imgSize, 'height', res.info.height);
+
+								const regionFreeze = this.$refs['region-freeze'] as HTMLElement;
+								if (regionFreeze && doc.rectangle != {}) {
+									this.rectPercent = doc.rectangle;
+									regionFreeze.style.left = `${this.rectPercent.x}%`;
+									regionFreeze.style.top = `${this.rectPercent.y}%`;
+									regionFreeze.style.width = `${this.rectPercent.width}%`;
+									regionFreeze.style.height = `${this.rectPercent.height}%`;
+								}
+							});
+						})
+						.catch(err => {
+							this.$store.commit('snackbar', { text: err, color: 'error' });
+						});
+				}
+				// 先判斷 ytObj存在
+				if (doc.ytObj) this.urlObj = doc.ytObj;
 			})
-			.catch(err => {
-				this.$store.commit('snackbar', { text: err, color: 'error' });
+			.catch(error => {
+				this.$store.commit('snackbar', { text: error, color: 'error' });
 				// console.log(err);
 			});
 	}
@@ -472,38 +498,6 @@ export default class Media extends Vue {
 				.catch(err => {
 					this.$store.commit('snackbar', { text: err, color: 'error' });
 				});
-
-			// if (buf.Error) {
-			// 	this.$store.commit('snackbar', { text: buf.message, color: 'error' });
-			// 	return;
-			// }
-
-			// this.$ipcRenderer
-			// 	.invoke('toBuffer', { buffer: buf })
-			// 	.then(res => {
-			// 		// this.imgurl = res;
-			// 		console.log(res);
-			// 	})
-			// 	.catch(err => {
-			// 		console.log(err);
-			// 	});
-
-			// let image = this.$sharp(Buffer.from(buf));
-
-			// image.metadata().then(meta => {
-			// 	const { width } = meta;
-			// 	if (width > 1440) image = image.resize(1440);
-
-			// 	image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
-			// 		if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-			// 		this.imgurl = data;
-			// 		this.$nextTick(() => {
-			// 			this.$set(this.imgSize, 'width', info.width);
-			// 			this.$set(this.imgSize, 'height', info.height);
-			// 		});
-			// 		console.warn('info', info);
-			// 	});
-			// });
 		} else {
 			this.$store.commit('snackbar', { text: '無効なURL', color: 'warning' });
 		}
@@ -523,8 +517,6 @@ export default class Media extends Vue {
 		const reader = new FileReader();
 
 		reader.addEventListener('load', (e: ProgressEvent<FileReader>) => {
-			// const base64 = e.target.result.replace(/^data:image\/\w+;base64,/, '');
-			// const buf = Buffer.from(base64, 'base64');
 			const buf = e.target?.result;
 
 			this.$ipcRenderer
@@ -542,27 +534,6 @@ export default class Media extends Vue {
 					this.$store.commit('snackbar', { text: err, color: 'error' });
 					console.log(err);
 				});
-
-			// let image = this.$sharp(Buffer.from(buf)).toFormat('jpeg');
-
-			// console.log(image);
-
-			// image.metadata().then(meta => {
-			// 	const { width } = meta;
-			// 	if (width > 1440) image = image.resize(1440);
-
-			// 	// const { width } = await image.metadata();
-			// 	image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
-			// 		if (err) this.$store.commit('commit', { text: err, color: 'error' });
-
-			// 		this.imgurl = data;
-			// 		this.$nextTick(() => {
-			// 			this.$set(this.imgSize, 'width', info.width);
-			// 			this.$set(this.imgSize, 'height', info.height);
-			// 		});
-			// 		console.warn('info', info);
-			// 	});
-			// });
 		});
 		reader.readAsArrayBuffer(file);
 		(e.target as HTMLElement).blur();
@@ -596,23 +567,6 @@ export default class Media extends Vue {
 				this.$store.commit('snackbar', { text: err, color: 'error' });
 				console.log(err);
 			});
-		// let image = this.$sharp(filePath);
-
-		// image.metadata().then(meta => {
-		// 	const { width } = meta;
-		// 	if (width > 1440) image = image.resize(1440);
-
-		// 	image.toBuffer((err: Error, data: Buffer, info: { width: number; height: number }) => {
-		// 		if (err) console.warn(err);
-		// 		// console.log(data);
-		// 		this.imgurl = data;
-
-		// 		this.$nextTick(() => {
-		// 			this.$set(this.imgSize, 'width', info.width);
-		// 			this.$set(this.imgSize, 'height', info.height);
-		// 		});
-		// 	});
-		// });
 
 		(e.target as HTMLInputElement).value = ''; // set file content to null
 	}
@@ -622,39 +576,19 @@ export default class Media extends Vue {
 
 		this.$ipcRenderer
 			.invoke('dialogImage')
-			.then((res: { canceled: boolean; filePaths: string[] }) => {
+			.then(res => {
 				console.log(res);
-				if (!res.canceled) {
-					this.removeImage();
+				this.imgurl = Buffer.from(res.data);
 
-					const filePath = res.filePaths[0];
-					const image = this.$sharp(filePath);
-
-					// const { width } = image.metadata().then(res=> {
-					console.log(1, image);
-
-					image.metadata().then(meta => {
-						console.log(2, meta);
-						// const { width } = meta;
-						// if (width > 1440) image = image.resize({ width: 1440 });
-
-						image.toBuffer((err, data, info) => {
-							if (err) console.warn(err);
-							console.log(3, data);
-							this.imgurl = data;
-
-							this.$nextTick(() => {
-								this.$set(this.imgSize, 'width', info.width);
-								this.$set(this.imgSize, 'height', info.height);
-							});
-						});
-					});
-				}
+				const { width, height } = res.info;
+				this.$nextTick(() => {
+					this.$set(this.imgSize, 'width', width);
+					this.$set(this.imgSize, 'height', height);
+				});
 			})
-			.catch((err: string) => {
-				if (err) {
-					this.$store.commit('snackbar', { text: err, color: 'error' });
-				}
+			.catch(err => {
+				this.$store.commit('snackbar', { text: err, color: 'error' });
+				console.log(err);
 			})
 			.finally(() => {
 				this.disableDialog = false;
@@ -663,39 +597,29 @@ export default class Media extends Vue {
 
 	private keepMedia(): void {
 		if (this.imgurl) {
-			const image = this.$sharp(this.imgurl);
-			const promises = [];
+			// const image = this.$sharp(this.imgurl);
+			// const promises = [];
 
 			const x = Math.round((this.imgSize.width * this.rectPercent.x) / 100);
 			const y = Math.round((this.imgSize.height * this.rectPercent.y) / 100);
 			const w = Math.round((this.imgSize.width * this.rectPercent.width) / 100);
 			const h = Math.round((this.imgSize.height * this.rectPercent.height) / 100);
 
-			promises.push(
-				image
-					.clone()
-					.toFormat('jpeg')
-					.toFile(`${this.$picPath}\\${this.lyric.obj.key}.jpg`)
-			);
-
-			//
-			if (w > 0 && h > 0) {
-				promises.push(
-					image
-						.clone()
-						.extract({ left: x, top: y, width: w, height: h })
-						.resize(128, 128, { fit: this.$sharpFit.outside, withoutEnlargement: true })
-						.toFormat('jpeg')
-						.toFile(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`)
-				);
-			}
-
-			Promise.all(promises)
+			this.$ipcRenderer
+				.invoke('saveImage', {
+					buffer: this.imgurl,
+					key: this.lyric.obj.key,
+					size: { left: x, top: y, width: w, height: h }
+				})
 				.then(res => {
-					console.warn('Done!', res);
+					console.log(res);
+					if (res.Error) {
+						this.$store.commit('snackbar', { text: res.message, color: 'error' });
+						return;
+					}
 
 					const obj = this.lyric.obj;
-
+					const picPath = this.$store.state.picPath;
 					// this.urlObj = this.$lodash.compact(this.urlObj);
 					this.urlIndex = 0; // Set index to 0 or maybe return url not in urlObj
 					this.urlObj = this.urlObj.filter(e => e.url != null && e.url.length > 0);
@@ -707,40 +631,135 @@ export default class Media extends Vue {
 					// });
 					// const v = this.url[0].match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
 					// add image / avatart to list
-					this.$dbList.update(
-						{ uniqueKey: obj.key },
-						{
-							$set: {
-								// uniqueKey: this.lyricObj.key,
-								ytObj: this.urlObj,
-								// ytID: v && v[0].length == 11 ? v[0] : null,
-								// ytID: urlIdArr,
-								imagePath: `${this.$picPath}\\${obj.key}.jpg`,
-								imageSize: Object.freeze(this.imgSize),
-								rectangle: Object.freeze(this.rectPercent),
-								avatarPath: w > 0 && h > 0 ? `${this.$picPath}\\${obj.key}_avatar.jpg` : null,
-								datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+					this.$ipcRenderer
+						.invoke('listSave', {
+							query: { uniqueKey: obj.key },
+							data: {
+								$set: {
+									ytObj: this.urlObj,
+									imagePath: res[0] ? `${picPath}\\${obj.key}.jpg` : null,
+									imageSize: this.imgSize,
+									rectangle: this.rectPercent,
+									iconPath: res[1] ? `${picPath}\\${obj.key}.icon.jpg` : null,
+									datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+								}
 							}
-						},
-						{ upsert: false },
-						err => {
-							if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-							else this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
-						}
-					);
+						})
+						.then(res => {
+							console.log(res);
+							if (res.ok > 0) {
+								this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
+							}
+						})
+						.catch(err2 => {
+							this.$store.commit('snackbar', { text: err2, color: 'error' });
+							console.error('err2', err2);
+						});
+
+					// this.$dbList.update(
+					// 	{ uniqueKey: obj.key },
+					// 	{
+					// 		$set: {
+					// 			// uniqueKey: this.lyricObj.key,
+					// 			ytObj: this.urlObj,
+					// 			// ytID: v && v[0].length == 11 ? v[0] : null,
+					// 			// ytID: urlIdArr,
+					// 			imagePath: `${this.$picPath}\\${obj.key}.jpg`,
+					// 			imageSize: Object.freeze(this.imgSize),
+					// 			rectangle: Object.freeze(this.rectPercent),
+					// 			avatarPath: w > 0 && h > 0 ? `${this.$picPath}\\${obj.key}_avatar.jpg` : null,
+					// 			datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+					// 		}
+					// 	},
+					// 	{ upsert: false },
+					// 	err => {
+					// 		if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+					// 		else this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
+					// 	}
+					// );
 				})
 				.catch(err => {
-					if (err) {
-						this.$store.commit('snackbar', { text: err, color: 'error' });
+					this.$store.commit('snackbar', { text: err, color: 'error' });
+					console.error('err1', err);
 
-						this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}.jpg`, err => {
-							if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
-						});
-						this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`, err => {
-							if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
-						});
-					}
+					const obj = this.lyric.obj;
+					this.$ipcRenderer.send('removeFile', {
+						files: [`${obj.key}.jpg`, `${obj.key}.icon.jpg`]
+					});
 				});
+
+			//#region
+			// promises.push(
+			// 	image
+			// 		.clone()
+			// 		.toFormat('jpeg')
+			// 		.toFile(`${this.$picPath}\\${this.lyric.obj.key}.jpg`)
+			// );
+
+			// //
+			// if (w > 0 && h > 0) {
+			// 	promises.push(
+			// 		image
+			// 			.clone()
+			// 			.extract({ left: x, top: y, width: w, height: h })
+			// 			.resize(128, 128, { fit: this.$sharpFit.outside, withoutEnlargement: true })
+			// 			.toFormat('jpeg')
+			// 			.toFile(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`)
+			// 	);
+			// }
+
+			// Promise.all(promises)
+			// 	.then(res => {
+			// 		console.warn('Done!', res);
+
+			// 		const obj = this.lyric.obj;
+
+			// 		// this.urlObj = this.$lodash.compact(this.urlObj);
+			// 		this.urlIndex = 0; // Set index to 0 or maybe return url not in urlObj
+			// 		this.urlObj = this.urlObj.filter(e => e.url != null && e.url.length > 0);
+
+			// 		// const urlIdArr = [];
+			// 		// this.urlObj.forEach(u => {
+			// 		// 	const id = u.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+			// 		// 	if (id && id[0].length == 11) urlIdArr.push(id[0]);
+			// 		// });
+			// 		// const v = this.url[0].match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+			// 		// add image / avatart to list
+			// 		this.$dbList.update(
+			// 			{ uniqueKey: obj.key },
+			// 			{
+			// 				$set: {
+			// 					// uniqueKey: this.lyricObj.key,
+			// 					ytObj: this.urlObj,
+			// 					// ytID: v && v[0].length == 11 ? v[0] : null,
+			// 					// ytID: urlIdArr,
+			// 					imagePath: `${this.$picPath}\\${obj.key}.jpg`,
+			// 					imageSize: Object.freeze(this.imgSize),
+			// 					rectangle: Object.freeze(this.rectPercent),
+			// 					avatarPath: w > 0 && h > 0 ? `${this.$picPath}\\${obj.key}_avatar.jpg` : null,
+			// 					datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+			// 				}
+			// 			},
+			// 			{ upsert: false },
+			// 			err => {
+			// 				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+			// 				else this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
+			// 			}
+			// 		);
+			// 	})
+			// 	.catch(err => {
+			// 		if (err) {
+			// 			this.$store.commit('snackbar', { text: err, color: 'error' });
+
+			// 			this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}.jpg`, err => {
+			// 				if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
+			// 			});
+			// 			this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`, err => {
+			// 				if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
+			// 			});
+			// 		}
+			// 	});
+			//#endregion
 		} else {
 			const obj = this.lyric.obj;
 
@@ -753,44 +772,71 @@ export default class Media extends Vue {
 			// });
 			// const v = this.url ? this.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/) : null;
 
-			this.$dbList.update(
-				{ uniqueKey: obj.key },
-				{
-					$set: {
-						ytObj: this.urlObj,
-						// ytID: urlIdArr,
-						imagePath: null,
-						imageSize: {},
-						rectangle: {},
-						avatarPath: null,
-						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+			this.$ipcRenderer
+				.invoke('listSave', {
+					query: { uniqueKey: obj.key },
+					data: {
+						$set: {
+							ytObj: this.urlObj,
+							imagePath: null,
+							imageSize: {},
+							rectangle: {},
+							iconPath: null,
+							datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+						}
 					}
-				},
-				{ upsert: true },
-				(err, nb) => {
-					if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-
-					// 確認有更新後刪除
-					if (nb > 0) {
+				})
+				.then(res => {
+					console.log(res);
+					if (res.ok > 0) {
+						this.$ipcRenderer.send('removeFile', { files: [`${obj.key}.jpg`, `${obj.key}.icon.jpg`] });
 						this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
-
-						const path = [
-							`${this.$picPath}\\${this.lyric.obj.key}.jpg`,
-							`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`
-						];
-
-						path.forEach(p => {
-							this.$fs.exists(p, exist => {
-								if (exist) {
-									this.$fs.unlink(p, err => {
-										if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
-									});
-								}
-							});
-						});
 					}
-				}
-			);
+				})
+				.catch(err => {
+					this.$store.commit('snackbar', { text: err, color: 'error' });
+				});
+
+			//#region
+			// this.$dbList.update(
+			// 	{ uniqueKey: obj.key },
+			// 	{
+			// 		$set: {
+			// 			ytObj: this.urlObj,
+			// 			// ytID: urlIdArr,
+			// 			imagePath: null,
+			// 			imageSize: {},
+			// 			rectangle: {},
+			// 			avatarPath: null,
+			// 			datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+			// 		}
+			// 	},
+			// 	{ upsert: true },
+			// 	(err, nb) => {
+			// 		if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+
+			// 		// 確認有更新後刪除
+			// 		if (nb > 0) {
+			// 			this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
+
+			// 			const path = [
+			// 				`${this.$picPath}\\${this.lyric.obj.key}.jpg`,
+			// 				`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`
+			// 			];
+
+			// 			path.forEach(p => {
+			// 				this.$fs.exists(p, exist => {
+			// 					if (exist) {
+			// 						this.$fs.unlink(p, err => {
+			// 							if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
+			// 						});
+			// 					}
+			// 				});
+			// 			});
+			// 		}
+			// 	}
+			// );
+			//#endregion
 		}
 	}
 
@@ -930,10 +976,10 @@ export default class Media extends Vue {
 	// }
 
 	private rejectRect() {
-		Object.keys(this.rectAbs).forEach(k => (this.rectAbs[k] = 0));
-		Object.keys(this.rectPercent).forEach(k => (this.rectPercent[k] = 0));
-		//
-		// this.catchRect = false;
+		// Object.keys(this.rectAbs).forEach(k => (this.rectAbs[k] = 0));
+		// Object.keys(this.rectPercent).forEach(k => (this.rectPercent[k] = 0));
+		Object.assign(this.rectAbs, { x: 0, y: 0, width: 0, height: 0 });
+		Object.assign(this.rectPercent, { x: 0, y: 0, width: 0, height: 0 });
 	}
 
 	private acceptRect() {

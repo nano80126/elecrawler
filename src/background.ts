@@ -228,9 +228,9 @@ ipcMain.handle('isMaxmized', () => {
 });
 // // // // // // // // // // // // // // // // // // //
 
-ipcMain.handle('dialogImage', () => {
-	return dialog.showOpenDialog({ filters: [{ name: 'Images', extensions: ['jpg', 'png', 'bmp'] }] });
-});
+// ipcMain.handle('dialogImage', () => {
+// 	return dialog.showOpenDialog({ filters: [{ name: 'Images', extensions: ['jpg', 'png', 'bmp'] }] });
+// });
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

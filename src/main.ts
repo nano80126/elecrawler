@@ -172,7 +172,9 @@ new Vue({
 		*/
 
 		// make pictures directory
-		this.$ipcRenderer.send('mkPicDir');
+		this.$ipcRenderer.invoke('mkPicDir').then(res => {
+			this.$store.commit('savePicPath', res.path);
+		});
 	},
 
 	mounted() {

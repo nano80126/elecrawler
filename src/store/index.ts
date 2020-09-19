@@ -24,7 +24,9 @@ export default new Vuex.Store({
 		playerShuffle: false,
 		playState: -1,
 		playerVolume: 75,
-		playList: []
+		playList: [],
+		//
+		picPath: ''
 	},
 	getters: {
 		barsHidden(state): number {
@@ -51,6 +53,10 @@ export default new Vuex.Store({
 				timeout: bar.timeout || 3000,
 				text: bar.text || ''
 			});
+		},
+
+		savePicPath(state, value) {
+			state.picPath = value;
 		},
 
 		saveLyric(state, obj) {

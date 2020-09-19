@@ -340,6 +340,8 @@ export default class APP extends Vue {
 	}
 
 	private dataEmpty() {
+		// 清空 list
+		// 清空 path directory
 		/*
 		this.$dbList.remove({}, { multi: true }, (err, nb) => {
 			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });

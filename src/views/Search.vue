@@ -234,7 +234,7 @@
 					v-if="isThreeColumn"
 					cols
 					class="px-3"
-					:style="{ 'max-width': bigImage ? `${$root.webWidth - 481}px` : `${$root.webWidth - 962}px` }"
+					:style="{ 'max-width': bigImage ? `${$root.webWidth - 480}px` : `${$root.webWidth - 960}px` }"
 					style="border-left:1px solid rgba(150, 150, 150, 0.5);"
 				>
 					<template v-if="lyricObj && lyricObj.exist">

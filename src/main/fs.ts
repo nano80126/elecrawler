@@ -1,24 +1,26 @@
-import fs, { exists } from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { app, ipcMain } from 'electron';
 
 const picPath =
 	process.env.NODE_ENV == 'development'
-		? path.resolve(app.getPath('pictures'), 'lyric_scrawer')
-		: path.resolve(app.getPath('exe'), '../picturess');
+		? path.resolve(app.getPath('pictures'), 'EleCrawler')
+		: path.resolve(app.getPath('exe'), '../pictures');
 
 console.log(picPath);
 
 // create picture directory
-ipcMain.on('mkPicDir', () => {
+ipcMain.handle('mkPicDir', () => {
 	const exist = fs.existsSync(picPath);
 	if (!exist) {
 		fs.mkdir(picPath, err => {
 			if (err) console.log(err);
 		});
 	}
+	return { path: picPath };
 });
 
+// 清空資料夾，但不刪除資料夾本身
 ipcMain.on('emptyDir', (e, args: { dirPath: string }) => {
 	const { dirPath } = args;
 	console.log(args);
@@ -31,15 +33,17 @@ ipcMain.on('emptyDir', (e, args: { dirPath: string }) => {
 	});
 });
 
-// remove files from file array
-ipcMain.on('removeFile', (e, args: { files: string[] }) => {
+// 刪除檔案(array)
+ipcMain.handle('removeFile', (e, args: { files: string[] }) => {
 	const { files } = args;
 
-	console.log(args);
-
 	files.forEach((file: string) => {
-		if (fs.existsSync(file)) {
-			fs.unlinkSync(file);
+		const f = path.resolve(picPath, file);
+		console.log(f);
+		if (fs.existsSync(f)) {
+			fs.unlinkSync(f);
 		}
 	});
 });
+
+export { picPath };
