@@ -273,7 +273,13 @@ export default class Search extends Vue {
 	private lyricObj: { obj: {}; exist: boolean } | null = null;
 	//
 	private list: Array<{}> = [];
-	private historyList: Array<{}> = [];
+	private historyList: Array<{
+		uniqueKey: string;
+		title: string;
+		artist: string;
+		lyricUrl: string;
+		datetime: string;
+	}> = [];
 	//
 	private artist = '';
 	private title = '';
@@ -346,12 +352,8 @@ export default class Search extends Vue {
 					this.$store.commit('snackbar', { text: args.error, color: 'error' });
 				}
 
-				console.log(args);
-				console.log(this.historyList);
-				///////////////////
-
 				// 取得交集
-				const intersection = this.$lodash.intersectionBy(args.list, this.historyList, 'lyricUrl');
+				// const intersection = this.$lodash.intersectionBy(args.list, this.historyList, 'lyricUrl');
 
 				///////////////////
 				// 確認是否存在列表中
@@ -366,13 +368,10 @@ export default class Search extends Vue {
 							exist: boolean;
 						}) => {
 							// if (this.$lodash.findIndex(intersection, ['lyric']))
-							const exist = intersection.some(item => {
-								return item.lyricUrl == obj.lyricUrl;
-							});
-							Object.assign(obj, { exist: exist });
+							const index = this.historyList.findIndex(item => item.lyricUrl == obj.lyricUrl);
+							Object.assign(obj, { exist: index > -1 });
 
 							// obj.exist = exist;
-
 							// switch (intersection.length) {
 							// 	case 0:
 							// 		break;

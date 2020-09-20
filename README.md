@@ -14,7 +14,6 @@ This is a lyric crawler build by electron.
 - English
 - Chinese
 
-
 #### 
 
 サムネイル：縮圖
@@ -48,20 +47,17 @@ This is a lyric crawler build by electron.
 * [x] Add multiple url use mouse wheel
 * [x] Get youtube data use youtube data v3 api
 * [x] Simple lyric and background with no embeded youtube
-* [ ] Open dialog in main process
+* [x] Open dialog in main process
 * [ ] Use debounce in typescript
-* [ ] Fix nedb in electron 9
+* [x] ~~Fix nedb in electron 9~~
+* [ ]
 
 ### Known bug 
 
-* [ ] Changing avatar will not work until application refresh
-* [ ] Volume bugs (different until adjust)
-* [ ] List can't loading until reload
-* [x] Play broken if click twice when just initializing
-* [ ] Can't get duration of videio After CueVideoByID
-* [x] Can't change lyric object in shuffle mode when route has changed
-* [ ] VideoID is null after change router so that user can't control video
+### Vuex
+
+* [ ] Migrate vuex to typescript
 
 ### Sharp 
 
-* [ ] Can't use sharp in main process
+* [x] Can't use sharp in main process
