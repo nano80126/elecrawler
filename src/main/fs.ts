@@ -21,20 +21,20 @@ ipcMain.handle('mkPicDir', () => {
 });
 
 // 清空資料夾，但不刪除資料夾本身
-ipcMain.on('emptyDir', (e, args: { dirPath: string }) => {
-	const { dirPath } = args;
-	console.log(args);
-
-	const files = fs.readdirSync(dirPath);
+ipcMain.handle('emptyDir', () => {
+	// const { dirPath } = args;
+	const files = fs.readdirSync(picPath);
 
 	console.log(files);
 	files.forEach((file: string) => {
-		fs.unlinkSync(file);
+		const f = path.resolve(picPath, file);
+		fs.unlinkSync(f);
 	});
+	return { n: files.length };
 });
 
 // 刪除檔案(array)
-ipcMain.handle('removeFile', (e, args: { files: string[] }) => {
+ipcMain.on('removeFile', (e, args: { files: string[] }) => {
 	const { files } = args;
 
 	files.forEach((file: string) => {

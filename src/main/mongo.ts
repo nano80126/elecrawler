@@ -46,7 +46,7 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (
 		console.log(args);
 		return await list
 			.find(args.query)
-			.sort({ datetime: 1 })
+			.sort(args.sort)
 			.toArray();
 	});
 
@@ -62,6 +62,20 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (
 		console.log(index);
 
 		const ret = await list.updateOne(args.query, args.data, { upsert: true });
+		return ret.result;
+	});
+
+	ipcMain.handle('listRemove', async (e, args) => {
+		console.log(args);
+
+		const ret = await list.deleteMany(args.query);
+		return ret.result;
+	});
+
+	ipcMain.handle('listRemoveOne', async (e, args) => {
+		console.log(args);
+
+		const ret = await list.deleteOne(args.query);
 		return ret.result;
 	});
 	// ipcMain.handle('listAdd', (e, args) => {

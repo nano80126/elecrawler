@@ -9,12 +9,12 @@ This is a lyric crawler build by electron.
     * Extracting cover image from **Youtube**
     * Picking image from local drive 
 
-### Language
+### Languages
 - Japanese
 - English
 - Chinese
 
-#### 
+#### Translattion
 
 サムネイル：縮圖
 

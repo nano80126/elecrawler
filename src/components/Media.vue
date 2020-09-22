@@ -392,7 +392,7 @@ export default class Media extends Vue {
 			.then(doc => {
 				if (doc.imagePath) {
 					this.$ipcRenderer
-						.invoke('toBufferSimple', { path: doc.imagePath })
+						.invoke('loadBuffer', { path: doc.imagePath })
 						.then(res => {
 							if (res.Error) {
 								this.$store.commit('snackbar', { text: res.message, color: 'error' });
@@ -622,7 +622,9 @@ export default class Media extends Vue {
 					const picPath = this.$store.state.picPath;
 					// this.urlObj = this.$lodash.compact(this.urlObj);
 					this.urlIndex = 0; // Set index to 0 or maybe return url not in urlObj
-					this.urlObj = this.urlObj.filter(e => e.url != null && e.url.length > 0);
+					this.urlObj = this.urlObj.filter(e => e.url && e.url.length > 0);
+
+					console.log(this.urlObj);
 
 					// const urlIdArr = [];
 					// this.urlObj.forEach(u => {
@@ -764,7 +766,7 @@ export default class Media extends Vue {
 			const obj = this.lyric.obj;
 
 			// this.urlObj = this.$lodash.compact(this.url);
-			this.urlObj = this.urlObj.filter(e => e.url != null);
+			this.urlObj = this.urlObj.filter(e => e.url && e.url.length > 0);
 			// const urlIdArr = [];
 			// this.url.forEach(u => {
 			// 	const id = u.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);

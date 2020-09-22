@@ -42,10 +42,23 @@ ipcMain.handle('dialogImage', async () => {
 	}
 });
 
-ipcMain.handle('toBufferSimple', async (e, args) => {
+ipcMain.handle('loadBuffer', async (e, args) => {
 	const { path } = args;
+
 	try {
-		return sharp(path).toBuffer({ resolveWithObject: true });
+		if (!Array.isArray(path)) {
+			return sharp(path).toBuffer({ resolveWithObject: true });
+		} else {
+			const promiseArr = path.map(p => {
+				console.log(p);
+				if (p) {
+					return sharp(p).toBuffer({ resolveWithObject: true });
+				} else {
+					return undefined;
+				}
+			});
+			return Promise.all(promiseArr);
+		}
 	} catch (error) {
 		return { Error: true, message: error.message };
 	}

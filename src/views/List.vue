@@ -57,10 +57,14 @@
 					>
 						<template v-slot="{ item }">
 							<!-- <v-subheader inset v-if="index == 0">sub header</v-subheader> -->
+							<!-- :src="`data:image/jpeg;base64,${imgurl.toString('base64')}`" -->
 
 							<v-list-item :key="item.uniqueKey" class="mr-3">
 								<v-list-item-avatar>
-									<v-img v-if="item.avatar != undefined" :src="item.avatar" />
+									<v-img
+										v-if="item.icon != undefined"
+										:src="`data:image/jpeg;base64,${item.icon.toString('base64')}`"
+									/>
 									<v-icon v-else style="transform: rotate(135deg);">fas fa-tag</v-icon>
 									<!-- {{ toBase64(item.avatarPath).length }} -->
 								</v-list-item-avatar>
@@ -105,7 +109,7 @@
 											</v-list-item>
 											<v-divider />
 
-											<template v-if="item.ytObj">
+											<template v-if="item.ytObj && item.ytObj.length">
 												<v-list-item
 													v-for="(obj, idx) in item.ytObj"
 													:key="item.ytObj[idx].id"
@@ -123,7 +127,7 @@
 											</template>
 											<v-divider />
 
-											<v-list-item @click="removeFromList(item.uniqueKey, $event)">
+											<v-list-item @click="singleRemove(item.uniqueKey, $event)">
 												<v-icon small>fas fa-times</v-icon>
 												<span class="ml-3">削除</span>
 											</v-list-item>
@@ -208,7 +212,7 @@ export default class List extends Vue {
 	private menuX = 0;
 	private menuY = 0;
 
-	get isTwoColumn() {
+	get isTwoColumn(): boolean {
 		return this.$root.webWidth >= 960;
 	}
 
@@ -220,45 +224,76 @@ export default class List extends Vue {
 
 	// life cycle
 	created() {
-		if (!this.$root._events.getLyricByID) this.$root.$on('getLyricByID', obj => (this.lyricObj = obj));
-		this.$store.commit('changeOverlay', true);
+		// if (!this.$root._events.getLyricByID) this.$root.$on('getLyricByID', obj => (this.lyricObj = obj));
+		// this.$store.commit('changeOverlay', true);
 	}
 
 	mounted() {
-		this.$dbList
-			.find({})
-			.sort({ artist: 1, title: 1, datetime: -1 })
-			.exec((err, doc) => {
-				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-
-				console.warn('List', doc);
-
-				const filter = this.$lodash.filter(doc, 'ytObj').map(e => e.ytObj); // remove no youtube obj
-				const flatten = this.$lodash.flatten(filter).map(e => e.id); // flatten all youtube id
+		this.$ipcRenderer
+			.invoke('listFind', { query: {}, sort: { artist: 1, title: 1, datetime: -1 } })
+			.then(doc => {
+				const filter = this.$lodash.filter(doc, 'ytObj').map(e => e.ytObj);
+				const flatten = this.$lodash.flatten(filter).map(e => e.id);
 				this.$store.commit('setPlayList', Object.freeze(flatten));
 
-				const prom = [];
-				doc.forEach(async ele => {
-					if (ele.avatarPath) {
-						const buf = this.$sharp(ele.avatarPath)
-							.toBuffer()
-							.then(data => {
-								ele.avatar = `data:image/jpeg;base64,${data.toString('base64')}`;
-							})
-							.catch(err => {
-								this.$store.commit('snackbar', { text: err, color: 'error' });
-							});
-						prom.push(buf);
-					}
-				});
+				const iconArray = doc.map((item: { iconPath?: string }) => item.iconPath || undefined);
 
-				Promise.all(prom).then(() => {
-					this.list = doc;
-					this.$store.commit('changeOverlay', false);
-				});
+				this.$ipcRenderer
+					.invoke('loadBuffer', { path: iconArray })
+					.then(res => {
+						console.log(res);
+						doc.forEach((e: { icon: Uint8Array }, i: number) => {
+							if (res[i]) Object.assign(e, { icon: Buffer.from(res[i].data) });
+						});
+						this.list = doc;
+					})
+					.catch(err => {
+						console.log(err);
+					});
+
+				console.log(doc);
+				this.lyricObj = this.$store.state.lyricObj;
+				console.log(this.lyricObj);
+			})
+			.catch(err => {
+				console.log(err);
+				this.$store.commit('snackbar', { text: err, color: 'error' });
 			});
 
-		this.lyricObj = this.$store.state.lyricObj;
+		// this.$dbList
+		// 	.find({})
+		// 	.sort({ artist: 1, title: 1, datetime: -1 })
+		// 	.exec((err, doc) => {
+		// 		if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+
+		// 		console.warn('List', doc);
+
+		// 		const filter = this.$lodash.filter(doc, 'ytObj').map(e => e.ytObj); // remove no youtube obj
+		// 		const flatten = this.$lodash.flatten(filter).map(e => e.id); // flatten all youtube id
+		// 		this.$store.commit('setPlayList', Object.freeze(flatten));
+
+		// 		const prom = [];
+		// 		doc.forEach(async ele => {
+		// 			if (ele.avatarPath) {
+		// 				const buf = this.$sharp(ele.avatarPath)
+		// 					.toBuffer()
+		// 					.then(data => {
+		// 						ele.avatar = `data:image/jpeg;base64,${data.toString('base64')}`;
+		// 					})
+		// 					.catch(err => {
+		// 						this.$store.commit('snackbar', { text: err, color: 'error' });
+		// 					});
+		// 				prom.push(buf);
+		// 			}
+		// 		});
+
+		// 		Promise.all(prom).then(() => {
+		// 			this.list = doc;
+		// 			this.$store.commit('changeOverlay', false);
+		// 		});
+		// 	});
+
+		// this.lyricObj = this.$store.state.lyricObj;
 	}
 
 	beforeDestroy() {
@@ -267,10 +302,13 @@ export default class List extends Vue {
 
 	// methods
 	private expandWidth() {
-		if (!this.isTwoColumn) this.$ipcRenderer.send('windowWidth', { width: 1600 });
+		if (!this.isTwoColumn) this.$ipcRenderer.send('windowWidth', { width: 1680 });
 	}
 
 	private async getLyric(item: { lyricUrl: string; imagePath: string; imageSize: {} }, ytID: string) {
+		console.log(item);
+		console.log(ytID);
+
 		this.$store.commit('changeOverlay', true);
 		this.expandWidth();
 
@@ -283,15 +321,15 @@ export default class List extends Vue {
 				this.$store.commit('snackbar', { text: res.error, color: 'error' });
 			} else {
 				this.$nextTick(() => {
-					this.lyricObj = Object.freeze({
+					this.lyricObj = {
 						key: res.lyricKey,
 						url: res.url,
 						title: res.mainTxt,
 						artist: res.artist,
 						lyric: res.lyricContent,
-						image: item.imagePath || null,
+						image: item.imagePath || undefined,
 						imageSize: item.imageSize || {}
-					});
+					};
 					this.videoID = ytID;
 				});
 			}
@@ -299,33 +337,50 @@ export default class List extends Vue {
 		});
 	}
 
-	private removeFromList(key: string) {
-		// 刪除資料庫
-		this.$dbList.remove({ uniqueKey: key }, {}, err => {
-			if (err) {
-				this.$store.commit('snackbar', { text: err, color: 'error' });
-				return;
-			}
-
-			// 刪除圖片
-			const files = [`${this.$picPath}\\${key}.jpg`, `${this.$picPath}\\${key}_avatar.jpg`];
-			// files.forEach(file => {
-			// 	this.$fs.exists(file, exist => {
-			// 		if (exist) {
-			// 			this.$fs.unlink(file, err => {
-			// 				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-			// 			});
-			// 		}
-			// 	});
-			// });
-			this.$ipcRenderer.invoke('removeFile', { files }).then(res => {
+	private singleRemove(key: string) {
+		this.$ipcRenderer
+			.invoke('listRemoveOne', { query: { uniqueKey: key } })
+			.then(res => {
 				console.log(res);
+				if (res.ok > 0) {
+					this.$ipcRenderer.send('removeFile', {
+						files: [`${key}.jpg`, `${key}.icon.jpg`]
+					});
+
+					const index = this.$lodash.findIndex(this.list, ['uniqueKey', key]);
+					this.list.splice(index, 1);
+				}
+			})
+			.catch(err => {
+				console.error(err);
 			});
 
-			// 刪除列表
-			const index = this.$lodash.findIndex(this.list, ['uniqueKey', key]);
-			this.list.splice(index, 1);
-		});
+		// 刪除資料庫
+		// this.$dbList.remove({ uniqueKey: key }, {}, err => {
+		// 	if (err) {
+		// 		this.$store.commit('snackbar', { text: err, color: 'error' });
+		// 		return;
+		// 	}
+
+		// 	// 刪除圖片
+		// 	const files = [`${this.$picPath}\\${key}.jpg`, `${this.$picPath}\\${key}_avatar.jpg`];
+		// 	// files.forEach(file => {
+		// 	// 	this.$fs.exists(file, exist => {
+		// 	// 		if (exist) {
+		// 	// 			this.$fs.unlink(file, err => {
+		// 	// 				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+		// 	// 			});
+		// 	// 		}
+		// 	// 	});
+		// 	// });
+		// 	this.$ipcRenderer.invoke('removeFile', { files }).then(res => {
+		// 		console.log(res);
+		// 	});
+
+		// 	// 刪除列表
+		// 	const index = this.$lodash.findIndex(this.list, ['uniqueKey', key]);
+		// 	this.list.splice(index, 1);
+		// });
 	}
 }
 </script>

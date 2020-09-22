@@ -336,7 +336,7 @@ export default class Search extends Vue {
 		// 	this.historyList = doc;
 		// });
 		this.$ipcRenderer
-			.invoke('listFind', { query: {} })
+			.invoke('listFind', { query: {}, sort: { datetime: 1 } })
 			.then(res => {
 				this.historyList = res;
 				console.log('res', res);

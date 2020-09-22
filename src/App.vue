@@ -211,7 +211,7 @@
 				<v-progress-circular indeterminate color="purple" />
 			</v-overlay>
 
-			<v-dialog v-model="dialog" max-width="200">
+			<v-dialog v-model="dialog" max-width="200" persistent>
 				<v-card>
 					<v-card-title class="text-center">
 						<span class="mx-auto subtitle-2 font-weight-bold">
@@ -342,6 +342,22 @@ export default class APP extends Vue {
 	private dataEmpty() {
 		// 清空 list
 		// 清空 path directory
+
+		this.$ipcRenderer
+			.invoke('listRemove', { query: {} })
+			.then(res => {
+				console.log(res);
+				if (res.ok > 0) {
+					this.$ipcRenderer.invoke('emptyDir').then(res => {
+						console.log(res);
+					});
+				}
+			})
+			.catch(err => {
+				console.log(err);
+				this.$store.commit('snackbar', { text: err, color: 'error' });
+			})
+			.finally(() => (this.dialog = false));
 		/*
 		this.$dbList.remove({}, { multi: true }, (err, nb) => {
 			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
