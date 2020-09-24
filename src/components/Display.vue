@@ -119,7 +119,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
 @Component
 export default class Display extends Vue {
-	@Prop() lyric: {
+	@Prop({ required: false, type: Object }) lyric?: {
 		key: string;
 		url: string;
 		title: string;
@@ -171,7 +171,9 @@ export default class Display extends Vue {
 	}
 
 	mounted() {
-		if (this.lyric && this.lyric.image) {
+		console.log(this.lyric);
+
+		if (this.lyric?.image) {
 			this.backimgLoad();
 		}
 
@@ -188,11 +190,22 @@ export default class Display extends Vue {
 		this.$store.commit('saveText', { main: this.mainColor, sub: this.subColor, align: this.textAlign });
 	}
 
-	backimgLoad() {
-		this.$sharp(this.lyric.image).toBuffer((err: Error, data: Buffer) => {
-			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-			this.image = data;
-		});
+	private backimgLoad() {
+		this.$ipcRenderer
+			.invoke('loadBuffer', { path: this.lyric?.image })
+			.then(res => {
+				console.log(res);
+				this.image = Buffer.from(res.data);
+			})
+			.catch(err => {
+				console.error(err);
+			});
+
+		// this.$sharp(this.lyric.image).toBuffer((err: Error, data: Buffer) => {
+		// 	if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
+		// 	this.image = data;
+		// });
+
 		// .then(data => {
 		// 	this.image = data;
 		// })

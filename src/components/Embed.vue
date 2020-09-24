@@ -161,7 +161,7 @@ export default class Embed extends Vue {
 	}
 
 	@Watch('$store.getters.playState')
-	onPlayStateChange(state) {
+	onPlayStateChange(state: number) {
 		// console.log(state);
 		this.playState = state;
 
@@ -208,7 +208,7 @@ export default class Embed extends Vue {
 	}
 
 	mounted() {
-		if (!this.$store.state.player) {
+		if (!this.$store.state.player && this.videoID) {
 			this.IframeAPIReady(this.videoID);
 		} else {
 			this.CheckPlayer();
@@ -220,10 +220,10 @@ export default class Embed extends Vue {
 	}
 
 	// methods
-	private IframeAPIReady(id) {
+	private IframeAPIReady(id: string) {
 		if (!id) return;
 
-		const youtube = window['YT'];
+		const youtube = window.YT;
 
 		this.$store.commit(
 			'creatPlayer',
@@ -236,16 +236,18 @@ export default class Embed extends Vue {
 					autoplay: 0,
 					controls: 0,
 					loop: 0,
-					// playlist: id,
 					// eslint-disable-next-line prettier/prettier
-						"cc_lang_policy": 0,
+					"cc_lang_policy": 0,
 				},
 				events: {
-					onReady: e => {
-						e.target.setPlaybackQuality('small');
-						e.target.setVolume(this.volume);
+					onReady: (e: Event) => {
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						(e.target as any).setPlaybackQuality('small');
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						(e.target as any).setVolume(this.volume);
 						this.$store.state.playState = 5;
-						// e.target.setLoop(false);
+
+						// e.target.setLoop(fals);
 						// e.target.mute().playVideo();
 						// this.progressMax = e.target.getDuration();
 					}
@@ -322,7 +324,7 @@ export default class Embed extends Vue {
 		this.shuffle = !this.shuffle;
 	}
 
-	private progressChange(e) {
+	private progressChange(e: number) {
 		this.$store.commit('videoProgress', (this.progressMax * e) / 100);
 		// this.$root.$player.seekTo((this.progressMax * e) / 100);
 	}

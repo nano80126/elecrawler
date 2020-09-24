@@ -48,7 +48,7 @@ Object.defineProperties(Vue.prototype, {
 	},
 	$ipcRenderer: {
 		value: ipcRenderer
-	},
+	}
 	// $sharp: {
 	// 	value: sharp
 	// },
@@ -59,13 +59,20 @@ Object.defineProperties(Vue.prototype, {
 	// $remote: {
 	// 	value: remote
 	// },
-	$picPath: {
-		value:
-			process.env.NODE_ENV == 'development'
-				? path.resolve(remote.app.getPath('pictures'), 'lyric_scrawer')
-				: path.resolve(remote.app.getPath('exe'), '../pictures')
-	}
+	// $picPath: {
+	// 	value:
+	// 		process.env.NODE_ENV == 'development'
+	// 			? path.resolve(remote.app.getPath('pictures'), 'lyric_scrawer')
+	// 			: path.resolve(remote.app.getPath('exe'), '../pictures')
+	// }
 });
+
+declare global {
+	interface Window {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		YT: any;
+	}
+}
 
 declare module 'vue/types/vue' {
 	interface Vue {
@@ -81,11 +88,11 @@ declare module 'vue/types/vue' {
 		// $dbList: NeDBStatic;
 		$ipcRenderer: IpcRenderer;
 		$shell: Shell;
-		$picPath: string;
+		// $picPath: string;
 
 		///
-		webWidth: number;
-		webHeight: number;
+		// webWidth: number;
+		// webHeight: number;
 		_events: { getLyricByID: [Function] };
 	}
 }
@@ -128,6 +135,40 @@ new Vue({
 						if (this.$route.name == 'List') this.$store.commit('changeOverlay', true);
 						// this.$dbList.findOne({ 'ytObj.id': videoID }, async (err, doc) => {
 						// findOne of ytObj arr has one of element match videoID
+
+						this.$ipcRenderer
+							.invoke('listFindOne', {
+								query: {
+									ytObj: { $elemMatch: { id: videoID } }
+								}
+							})
+							.then(async doc => {
+								console.log(doc);
+								const res = await this.$ipcRenderer.invoke('getLyric', { url: doc.lyricUrl });
+
+								console.log(res);
+
+								this.$nextTick(() => {
+									const { obj } = res;
+
+									const lyObj = Object.freeze({
+										key: obj.lyricKey,
+										url: obj.url,
+										title: obj.mainTxt,
+										artist: obj.artist,
+										lyric: obj.lyricContent,
+										image: doc.imagePath || null,
+										imageSize: doc.imageSize || {}
+									});
+									this.$emit('getLyricByID', lyObj);
+									this.$store.commit('saveLyric', lyObj);
+									this.$store.commit('changeOverlay', false);
+								});
+							})
+							.catch(err => {
+								this.$store.commit('snackbar', { text: err, color: 'error' });
+							});
+
 						/*
 						this.$dbList.findOne({ ytObj: { $elemMatch: { id: videoID } } }, async (err, doc) => {
 							if (err) this.$store.commit('snackbar', { text: err, color: 'error' });

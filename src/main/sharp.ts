@@ -50,7 +50,6 @@ ipcMain.handle('loadBuffer', async (e, args) => {
 			return sharp(path).toBuffer({ resolveWithObject: true });
 		} else {
 			const promiseArr = path.map(p => {
-				console.log(p);
 				if (p) {
 					return sharp(p).toBuffer({ resolveWithObject: true });
 				} else {

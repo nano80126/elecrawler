@@ -50,13 +50,13 @@ This is a lyric crawler build by electron.
 * [x] Open dialog in main process
 * [ ] Use debounce in typescript
 * [x] ~~Fix nedb in electron 9~~
-* [ ]
+* [ ] Remove () after crawl
 
 ### Known bug 
 
 ### Vuex
 
-* [ ] Migrate vuex to typescript
+* [ ] Migrate vuex to typescript (vuex-module-decorators)
 
 ### Sharp 
 

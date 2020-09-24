@@ -213,7 +213,8 @@ export default class List extends Vue {
 	private menuY = 0;
 
 	get isTwoColumn(): boolean {
-		return this.$root.webWidth >= 960;
+		return this.$root.$data.webWidth >= 960;
+		// return this.$root.webWidth >= 960;
 	}
 
 	get filterList() {
@@ -224,6 +225,25 @@ export default class List extends Vue {
 
 	// life cycle
 	created() {
+		if (!this.$root._events.getLyricByID) {
+			this.$root.$on(
+				'getLyricByID',
+				(obj: {
+					key: string;
+					url: string;
+					title: string;
+					artist: string;
+					lyric: string;
+					image?: string;
+					imageSize: {};
+				}) => {
+					console.log(obj);
+					this.lyricObj = obj;
+				}
+			);
+		}
+
+		console.log(this.$root);
 		// if (!this.$root._events.getLyricByID) this.$root.$on('getLyricByID', obj => (this.lyricObj = obj));
 		// this.$store.commit('changeOverlay', true);
 	}
@@ -321,16 +341,18 @@ export default class List extends Vue {
 				this.$store.commit('snackbar', { text: res.error, color: 'error' });
 			} else {
 				this.$nextTick(() => {
+					const { obj } = res;
 					this.lyricObj = {
-						key: res.lyricKey,
-						url: res.url,
-						title: res.mainTxt,
-						artist: res.artist,
-						lyric: res.lyricContent,
+						key: obj.lyricKey,
+						url: obj.url,
+						title: obj.mainTxt,
+						artist: obj.artist,
+						lyric: obj.lyricContent,
 						image: item.imagePath || undefined,
 						imageSize: item.imageSize || {}
 					};
 					this.videoID = ytID;
+					console.log(this.lyricObj);
 				});
 			}
 			this.$store.commit('changeOverlay', false);

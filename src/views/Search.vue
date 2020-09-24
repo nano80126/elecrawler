@@ -293,19 +293,19 @@ export default class Search extends Vue {
 	}
 
 	get windowWidth(): number {
-		return this.$root.webWidth;
+		return this.$root.$data.webWidth;
 	}
 
 	get windowHeight(): number {
-		return this.$root.webHeight;
+		return this.$root.$data.webHeight;
 	}
 
 	get isTwoColumn(): boolean {
-		return this.$root.webWidth >= 960 && !this.bigImage;
+		return this.$root.$data.webWidth >= 960 && !this.bigImage;
 	}
 
 	get isThreeColumn(): boolean {
-		return this.$root.webWidth >= 1440 && this.lyricObj != null;
+		return this.$root.$data.webWidth >= 1440 && this.lyricObj != null;
 	}
 
 	created() {
@@ -542,9 +542,9 @@ export default class Search extends Vue {
 	// }
 
 	private expandWidth() {
-		if (this.$root.webWidth < 960) {
+		if (this.$root.$data.webWidth < 960) {
 			this.$ipcRenderer.send('windowWidth', { width: 960, height: this.windowHeight });
-		} else if (this.$root.webWidth < 1440) {
+		} else if (this.$root.$data.webWidth < 1440) {
 			this.$ipcRenderer.send('windowWidth', { width: 1680, height: this.windowHeight });
 		} else {
 			this.$ipcRenderer.send('windowWidth', { width: 480, height: this.windowHeight });

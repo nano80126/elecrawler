@@ -110,8 +110,9 @@
 							<v-icon small>fas fa-photo-video</v-icon>
 						</v-btn>
 					</template>
-					<span>YouTubeカバー画像をゲット</span>
-					<span>プレビュー画像</span>
+					<!-- <span>YouTubeカバー画像をゲット</span> -->
+					<span>サムネイルをゲット</span>
+					<!-- <span>プレビュー画像</span> -->
 				</v-tooltip>
 
 				<v-tooltip bottom open-delay="300">

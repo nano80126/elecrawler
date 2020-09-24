@@ -135,6 +135,7 @@ ipcMain.on('getLyric', async (e, args: { url: string; exist: boolean }) => {
 });
 
 ipcMain.handle('getLyric', async (e, args: { url: string; exist: boolean }) => {
+	console.log(args);
 	const { url, exist } = args;
 	const ret = await lyricGetter(url);
 	Object.assign(ret, { exist });

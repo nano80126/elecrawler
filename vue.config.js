@@ -42,6 +42,7 @@ module.exports = {
 					// express: 'express',
 					// bufferutil: 'commonjs bufferutil',
 					// 'utf-8-validate': 'commonjs utf-8-validate'
+					mongodb: 'commonjs mongodb',
 					sharp: 'commonjs2 sharp'
 				});
 			},

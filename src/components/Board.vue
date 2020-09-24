@@ -31,7 +31,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 
 @Component
 export default class Board extends Vue {
-	@Prop() lyric!: {
+	@Prop({ required: true, type: Object }) lyric!: {
 		obj: {
 			key: string;
 			artist: string;
@@ -40,7 +40,7 @@ export default class Board extends Vue {
 		};
 		exist: boolean;
 	};
-	@Prop({ type: Boolean }) exist!: boolean;
+	@Prop({ required: true, type: Boolean }) exist!: boolean;
 
 	mounted() {
 		console.warn(this.lyric);
