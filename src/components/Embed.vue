@@ -133,11 +133,11 @@ export default class Embed extends Vue {
 	}
 
 	get player() {
-		return this.$store.state.player;
+		return this.$store.state.player.player;
 	}
 
 	get loop(): boolean {
-		return this.$store.state.playerLoop;
+		return this.$store.state.player.playerLoop;
 	}
 
 	set loop(value) {
@@ -145,7 +145,7 @@ export default class Embed extends Vue {
 	}
 
 	get shuffle(): boolean {
-		return this.$store.state.playerShuffle;
+		return this.$store.state.player.playerShuffle;
 	}
 
 	set shuffle(value) {
@@ -178,7 +178,7 @@ export default class Embed extends Vue {
 				this.$store.commit(
 					'pushIntervalArr',
 					setInterval(() => {
-						this.progressCurr = this.$store.state.player.getCurrentTime();
+						this.progressCurr = this.$store.state.player.player.getCurrentTime();
 					}, 250)
 				);
 				this.progressMax = this.player.getDuration();
@@ -208,7 +208,7 @@ export default class Embed extends Vue {
 	}
 
 	mounted() {
-		if (!this.$store.state.player && this.videoID) {
+		if (!this.$store.state.player.player && this.videoID) {
 			this.IframeAPIReady(this.videoID);
 		} else {
 			this.CheckPlayer();
@@ -224,6 +224,7 @@ export default class Embed extends Vue {
 		if (!id) return;
 
 		const youtube = window.YT;
+		// new youtube.Player(,)
 
 		this.$store.commit(
 			'creatPlayer',
@@ -240,16 +241,16 @@ export default class Embed extends Vue {
 					"cc_lang_policy": 0,
 				},
 				events: {
-					onReady: (e: Event) => {
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						(e.target as any).setPlaybackQuality('small');
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						(e.target as any).setVolume(this.volume);
-						this.$store.state.playState = 5;
+					onReady: (e: YT.OnStateChangeEvent) => {
+						e.target.setPlaybackQuality('small');
+						e.target.setVolume(this.volume);
+						this.$store.state.player.playerState = 5;
 
 						// e.target.setLoop(fals);
 						// e.target.mute().playVideo();
 						// this.progressMax = e.target.getDuration();
+
+						console.log(this.$store);
 					}
 				}
 			})
@@ -257,7 +258,8 @@ export default class Embed extends Vue {
 	}
 
 	private CheckPlayer() {
-		const player = this.$store.state.player;
+		const player = this.$store.state.player.player;
+		console.log(player);
 		this.playState = player.getPlayerState();
 		this.volume = this.volumeBack = player.getVolume();
 		this.progressCurr = player.getCurrentTime();
@@ -271,7 +273,7 @@ export default class Embed extends Vue {
 				this.$store.commit(
 					'pushIntervalArr',
 					setInterval(() => {
-						this.progressCurr = this.$store.state.player.getCurrentTime();
+						this.progressCurr = this.$store.state.player.player.getCurrentTime();
 					}, 250)
 				);
 				break;

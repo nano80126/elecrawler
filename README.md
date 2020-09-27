@@ -57,6 +57,12 @@ This is a lyric crawler build by electron.
 ### Vuex
 
 * [ ] Migrate vuex to typescript (vuex-module-decorators)
+* [ ] Use moudles player, common, lyric
+* [ ] Fix vuex after using decorators
+
+```
+this.$store.state.player => this.$store.state.player.player
+```
 
 ### Sharp 
 

@@ -82,7 +82,7 @@
 									v-show="$route.name != 'List'"
 								>
 									<v-badge
-										:color="playerState[$store.state.playState]"
+										:color="playerState[$store.getters.playState]"
 										dot
 										overlap
 										style="width:100%;"
@@ -207,7 +207,7 @@
 				</template>
 			</transition-group>
 
-			<v-overlay v-model="$store.state.overlay" opacity="0.3">
+			<v-overlay v-model="$store.state.common.overlay" opacity="0.3">
 				<v-progress-circular indeterminate color="purple" />
 			</v-overlay>
 
@@ -252,13 +252,22 @@
 </template>
 
 <script lang="ts">
-import player from '@/components/Embed.vue';
+import Embed from '@/components/Embed.vue';
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
+// import { getModule } from 'vuex-module-decorators';
+
+// import common from './store/common';
+// import lyrics from './store/lyrics';
+// import player from './store/player';
+
+// const $common = getModule(common);
+// const $lyrics = getModule(lyrics);
+// const $player = getModule(player);
 
 @Component({
 	components: {
-		EmbedPlayer: player
+		EmbedPlayer: Embed
 	}
 })
 export default class APP extends Vue {
@@ -288,7 +297,7 @@ export default class APP extends Vue {
 	private language = 2;
 
 	get contentHeight() {
-		return `${this.$root.webHeight - 38}px`;
+		return `${this.$root.$data.webHeight - 38}px`;
 	}
 
 	get barsHidden(): number {
@@ -315,6 +324,8 @@ export default class APP extends Vue {
 	mounted() {
 		this.SHOW = true;
 		this.bottomSheet = false;
+
+		console.log(this.$store.state);
 	}
 
 	// methods

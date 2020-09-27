@@ -23,6 +23,15 @@ import axios, { AxiosStatic } from 'axios';
 
 // import { adminDB, errorDB } from './plugins/nedb';
 
+import { getModule } from 'vuex-module-decorators';
+import common from './store/common';
+import lyrics from './store/lyrics';
+import player from './store/player';
+
+const $common = getModule(common);
+const $lyrics = getModule(lyrics);
+const $player = getModule(player);
+
 import './style.scss';
 import { IpcRenderer } from 'electron';
 
@@ -35,6 +44,15 @@ Object.defineProperties(Vue.prototype, {
 	},
 	$axios: {
 		value: axios
+	},
+	$common: {
+		value: getModule(common)
+	},
+	$lyrics: {
+		value: getModule(lyrics)
+	},
+	$player: {
+		value: getModule(player)
 	},
 	// $dbHistory: {
 	// 	value: historyDB
@@ -69,8 +87,7 @@ Object.defineProperties(Vue.prototype, {
 
 declare global {
 	interface Window {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		YT: any;
+		YT: YT.Player;
 	}
 }
 
@@ -215,6 +232,10 @@ new Vue({
 		// make pictures directory
 		this.$ipcRenderer.invoke('mkPicDir').then(res => {
 			this.$store.commit('savePicPath', res.path);
+			// this.$store..common.commit('savePicPath', res.path);
+			// $common.savePicPath(res.path);
+			// this.$store.commit("")
+			// $common.savePicPath(res.path);
 		});
 	},
 

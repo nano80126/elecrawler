@@ -182,6 +182,10 @@ import display from '@/components/Display.vue';
 import player from '@/components/Embed.vue';
 
 import { Component, Vue } from 'vue-property-decorator';
+// import { getModule } from 'vuex-module-decorators';
+
+// import mymod from '@/store/mymodule';
+// const $mymod = getModule(mymod);
 
 @Component({
 	components: {
@@ -246,6 +250,9 @@ export default class List extends Vue {
 		console.log(this.$root);
 		// if (!this.$root._events.getLyricByID) this.$root.$on('getLyricByID', obj => (this.lyricObj = obj));
 		// this.$store.commit('changeOverlay', true);
+
+		// console.log($mymod);
+		// console.log(this.$store.state.myMod);
 	}
 
 	mounted() {
@@ -272,7 +279,7 @@ export default class List extends Vue {
 					});
 
 				console.log(doc);
-				this.lyricObj = this.$store.state.lyricObj;
+				this.lyricObj = this.$store.state.lyrics.lyricObj;
 				console.log(this.lyricObj);
 			})
 			.catch(err => {
