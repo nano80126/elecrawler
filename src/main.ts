@@ -2,6 +2,7 @@ import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
 import store from './store';
+import { AppModule } from '@/store/modules/app';
 import vuetify from './plugins/vuetify';
 import i18n from './plugins/i18n';
 // import { listDB, historyDB, NeDBStatic } from './plugins/nedb';
@@ -23,14 +24,15 @@ import axios, { AxiosStatic } from 'axios';
 
 // import { adminDB, errorDB } from './plugins/nedb';
 
-import { getModule } from 'vuex-module-decorators';
-import common from './store/common';
-import lyrics from './store/lyrics';
-import player from './store/player';
+// import { getModule } from 'vuex-module-decorators';
 
-const $common = getModule(common);
-const $lyrics = getModule(lyrics);
-const $player = getModule(player);
+// import common from './store/modules/common';
+// import lyrics from './store/modules/lyrics';
+// import player from './store/modules/player';
+
+// const $common = getModule(common);
+// const $lyrics = getModule(lyrics);
+// const $player = getModule(player);
 
 import './style.scss';
 import { IpcRenderer } from 'electron';
@@ -45,15 +47,15 @@ Object.defineProperties(Vue.prototype, {
 	$axios: {
 		value: axios
 	},
-	$common: {
-		value: getModule(common)
-	},
-	$lyrics: {
-		value: getModule(lyrics)
-	},
-	$player: {
-		value: getModule(player)
-	},
+	// $common: {
+	// 	value: getModule(common)
+	// },
+	// $lyrics: {
+	// 	value: getModule(lyrics)
+	// },
+	// $player: {
+	// 	value: getModule(player)
+	// },
 	// $dbHistory: {
 	// 	value: historyDB
 	// },
@@ -230,12 +232,13 @@ new Vue({
 		*/
 
 		// make pictures directory
-		this.$ipcRenderer.invoke('mkPicDir').then(res => {
-			this.$store.commit('savePicPath', res.path);
+		this.$ipcRenderer.invoke('mkPicDir').then((res: { path: string }) => {
+			// this.$store.commit('savePicPath', res.path);
 			// this.$store..common.commit('savePicPath', res.path);
 			// $common.savePicPath(res.path);
 			// this.$store.commit("")
 			// $common.savePicPath(res.path);
+			AppModule.savePicPath(res.path);
 		});
 	},
 
@@ -247,12 +250,10 @@ new Vue({
 			this.webWidth = window.innerWidth;
 			this.webHeight = window.innerHeight;
 
-			// this.windowIsMax = this.$remote.BrowserWindow.getFocusedWindow().isMaximized();
 			this.windowIsMax = await this.$ipcRenderer.invoke('isMaxmized');
-
-			// console.log(this.$vuetify.breakpoint);
 		};
 
+		console.log(this.$store);
 		/**
 		// 刪除15天前的搜尋紀錄
 		this.$dbHistory.remove(

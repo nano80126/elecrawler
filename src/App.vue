@@ -33,7 +33,7 @@
 				</v-btn>
 			</v-app-bar>
 
-			<v-navigation-drawer app dark permanent mini-variant mini-variant-width="64" class="success darken-4">
+			<v-navigation-drawer app dark permanent mini-variant mini-variant-width="64" class="lime darken-2">
 				<div class="window-drag left" />
 				<!--  -->
 				<v-list flat class="no-drag">

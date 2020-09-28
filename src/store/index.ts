@@ -6,20 +6,22 @@ import Vuex from 'vuex';
 
 // import mymod from './mymodule';
 
-// import common from './common';
-// import lyrics from './lyrics';
-// import player from './player';
-
 Vue.use(Vuex);
 
-export default new Vuex.Store({
-	state: {},
-	getters: {},
-	mutations: {},
-	actions: {},
-	modules: {
-		// Common: common,
-		// lyrics,
-		// player
-	}
+import { AppState } from './modules/app';
+import { LyricsState } from './modules/lyrics';
+import { PlayerState } from './modules/player';
+
+export interface RootState {
+	commom: AppState;
+	lyrics: LyricsState;
+	player: PlayerState;
+}
+
+export default new Vuex.Store<RootState>({
+	// state: {},
+	// getters: {},
+	// mutations: {},
+	// actions: {},
+	// modules: {}
 });

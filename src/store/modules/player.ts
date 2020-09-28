@@ -1,15 +1,24 @@
-import { Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import store from './index';
-import lyrics from './lyrics'; // for destroy lyrics obj
+import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import store from '../index';
+import { LyModule } from './lyrics'; // for destroy lyrics obj
+
+export interface PlayerState {
+	intervalArray: NodeJS.Timeout[];
+	player: YT.Player | null;
+	playerLoop: boolean;
+	playerShuffle: boolean;
+	playerState: number;
+	playerVolume: number;
+}
 
 @Module({ dynamic: true, store, name: 'player' })
-export default class Lyrics extends VuexModule {
-	intervalArray: NodeJS.Timeout[] = [];
-	player: YT.Player | null = null;
-	playerLoop = false;
-	playerShuffle = false;
-	playerState = -1;
-	playerVolume = 75;
+export default class Player extends VuexModule implements PlayerState {
+	public intervalArray: NodeJS.Timeout[] = [];
+	public player: YT.Player | null = null;
+	public playerLoop = false;
+	public playerShuffle = false;
+	public playerState = -1;
+	public playerVolume = 75;
 	///
 
 	get playState(): number {
@@ -46,7 +55,9 @@ export default class Lyrics extends VuexModule {
 			this.playerState = -1;
 		}
 		// if (this.lyricObj) this.lyricObj = null;
-		lyrics.state.lyricObj = null;
+		// lyrics.state.lyricObj = null;
+		LyModule.lyricObj = null;
+		// LyModule.clearLyric();
 	}
 
 	@Mutation
@@ -111,3 +122,5 @@ export default class Lyrics extends VuexModule {
 		this.playerShuffle = bool;
 	}
 }
+
+export const PlayerModule = getModule(Player);

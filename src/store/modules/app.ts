@@ -1,17 +1,25 @@
-import { Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import store from './index';
+import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import store from '../index';
+
+export interface AppState {
+	overlay: boolean;
+	snackbars: { show: boolean; color: string; text: string; timeout: number }[];
+	isElectron: boolean;
+	picPath: string;
+	playList: string[];
+}
 
 @Module({ dynamic: true, store, name: 'common' })
-export default class Common extends VuexModule {
-	overlay = false;
+class Common extends VuexModule implements AppState {
+	public overlay = false;
 	//
-	snackbars: { show: boolean; color: string; text: string; timeout: number }[] = [];
+	public snackbars: { show: boolean; color: string; text: string; timeout: number }[] = [];
 	//
-	isElectron = process.env.IS_ELECTRON ? true : false;
+	public isElectron = process.env.IS_ELECTRON ? true : false;
 	//
-	picPath = '';
+	public picPath = '';
 	//
-	playList: string[] = [];
+	public playList: string[] = [];
 
 	/// getters
 	get barsHidden(): number {
@@ -47,3 +55,5 @@ export default class Common extends VuexModule {
 		this.playList = list;
 	}
 }
+
+export const AppModule = getModule(Common);
