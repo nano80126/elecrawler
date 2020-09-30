@@ -180,6 +180,7 @@
 <script lang="ts">
 import display from '@/components/Display.vue';
 import player from '@/components/Embed.vue';
+import { LyModule } from '@/store/modules/lyrics';
 
 import { Component, Vue } from 'vue-property-decorator';
 // import { getModule } from 'vuex-module-decorators';
@@ -211,14 +212,11 @@ export default class List extends Vue {
 	} | null = null;
 	private videoID: string | null = null;
 
-	// showMenu = false;
-	// attach:
 	private menuX = 0;
 	private menuY = 0;
 
 	get isTwoColumn(): boolean {
 		return this.$root.$data.webWidth >= 960;
-		// return this.$root.webWidth >= 960;
 	}
 
 	get filterList() {
@@ -246,13 +244,6 @@ export default class List extends Vue {
 				}
 			);
 		}
-
-		console.log(this.$root);
-		// if (!this.$root._events.getLyricByID) this.$root.$on('getLyricByID', obj => (this.lyricObj = obj));
-		// this.$store.commit('changeOverlay', true);
-
-		// console.log($mymod);
-		// console.log(this.$store.state.myMod);
 	}
 
 	mounted() {
@@ -279,46 +270,14 @@ export default class List extends Vue {
 					});
 
 				console.log(doc);
-				this.lyricObj = this.$store.state.lyrics.lyricObj;
+				// this.lyricObj = this.$store.state.lyrics.lyricObj;
+				this.lyricObj = LyModule.lyricObj;
 				console.log(this.lyricObj);
 			})
 			.catch(err => {
 				console.log(err);
 				this.$store.commit('snackbar', { text: err, color: 'error' });
 			});
-
-		// this.$dbList
-		// 	.find({})
-		// 	.sort({ artist: 1, title: 1, datetime: -1 })
-		// 	.exec((err, doc) => {
-		// 		if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-
-		// 		console.warn('List', doc);
-
-		// 		const filter = this.$lodash.filter(doc, 'ytObj').map(e => e.ytObj); // remove no youtube obj
-		// 		const flatten = this.$lodash.flatten(filter).map(e => e.id); // flatten all youtube id
-		// 		this.$store.commit('setPlayList', Object.freeze(flatten));
-
-		// 		const prom = [];
-		// 		doc.forEach(async ele => {
-		// 			if (ele.avatarPath) {
-		// 				const buf = this.$sharp(ele.avatarPath)
-		// 					.toBuffer()
-		// 					.then(data => {
-		// 						ele.avatar = `data:image/jpeg;base64,${data.toString('base64')}`;
-		// 					})
-		// 					.catch(err => {
-		// 						this.$store.commit('snackbar', { text: err, color: 'error' });
-		// 					});
-		// 				prom.push(buf);
-		// 			}
-		// 		});
-
-		// 		Promise.all(prom).then(() => {
-		// 			this.list = doc;
-		// 			this.$store.commit('changeOverlay', false);
-		// 		});
-		// 	});
 
 		// this.lyricObj = this.$store.state.lyricObj;
 	}

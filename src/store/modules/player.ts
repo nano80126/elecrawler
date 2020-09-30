@@ -1,14 +1,25 @@
 import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from '../index';
+import { AppModule } from './app';
 import { LyModule } from './lyrics'; // for destroy lyrics obj
 
 export interface PlayerState {
 	intervalArray: NodeJS.Timeout[];
 	player: YT.Player | null;
+	// player: YTPlayer | null;
 	playerLoop: boolean;
 	playerShuffle: boolean;
 	playerState: number;
 	playerVolume: number;
+}
+
+export interface YTPlayer extends YT.Player {
+	getVideoData(): {
+		author: string;
+		title: string;
+		video_id: string;
+		video_quality: string;
+	};
 }
 
 @Module({ dynamic: true, store, name: 'player' })
@@ -48,6 +59,11 @@ export default class Player extends VuexModule implements PlayerState {
 	}
 
 	@Mutation
+	changeState(state: number) {
+		this.playerState = state;
+	}
+
+	@Mutation
 	destroyPlayer() {
 		if (this.player) {
 			this.player.destroy();
@@ -56,8 +72,7 @@ export default class Player extends VuexModule implements PlayerState {
 		}
 		// if (this.lyricObj) this.lyricObj = null;
 		// lyrics.state.lyricObj = null;
-		LyModule.lyricObj = null;
-		// LyModule.clearLyric();
+		LyModule.clearLyric();
 	}
 
 	@Mutation
@@ -65,6 +80,7 @@ export default class Player extends VuexModule implements PlayerState {
 		if (this.player) {
 			this.player.cueVideoById({ videoId: id, suggestedQuality: 'small' });
 			this.player.setVolume(this.playerVolume);
+			AppModule.setVideoID(id);
 		}
 	}
 
@@ -73,6 +89,7 @@ export default class Player extends VuexModule implements PlayerState {
 		if (this.player) {
 			this.player.loadVideoById({ videoId: id, suggestedQuality: 'small' });
 			this.player.setVolume(this.playerVolume);
+			AppModule.setVideoID(id);
 		}
 	}
 
@@ -108,8 +125,6 @@ export default class Player extends VuexModule implements PlayerState {
 	videoSetVolume(value: number) {
 		this.playerVolume = value;
 		this.player?.setVolume(value);
-		if (value == 0) this.player?.mute();
-		else this.player?.unMute();
 	}
 
 	@Mutation

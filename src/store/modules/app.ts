@@ -7,9 +7,10 @@ export interface AppState {
 	isElectron: boolean;
 	picPath: string;
 	playList: string[];
+	videoID: string;
 }
 
-@Module({ dynamic: true, store, name: 'common' })
+@Module({ dynamic: true, store, name: 'app' })
 class Common extends VuexModule implements AppState {
 	public overlay = false;
 	//
@@ -20,6 +21,7 @@ class Common extends VuexModule implements AppState {
 	public picPath = '';
 	//
 	public playList: string[] = [];
+	public videoID = '';
 
 	/// getters
 	get barsHidden(): number {
@@ -53,6 +55,11 @@ class Common extends VuexModule implements AppState {
 	@Mutation
 	setPlayList(list: string[]) {
 		this.playList = list;
+	}
+
+	@Mutation
+	setVideoID(id: string) {
+		this.videoID = id;
 	}
 }
 

@@ -117,6 +117,8 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
+import { LyModule } from '@/store/modules/lyrics';
+
 @Component
 export default class Display extends Vue {
 	@Prop({ required: false, type: Object }) lyric?: {
@@ -177,7 +179,7 @@ export default class Display extends Vue {
 			this.backimgLoad();
 		}
 
-		const text = this.$store.state.lyricText;
+		const text = LyModule.lyricText;
 		if (text) {
 			this.mainColor = text.main;
 			this.subColor = text.sub;
@@ -186,8 +188,10 @@ export default class Display extends Vue {
 	}
 
 	beforeDestroy() {
-		if (this.lyric) this.$store.commit('saveLyric', this.lyric);
-		this.$store.commit('saveText', { main: this.mainColor, sub: this.subColor, align: this.textAlign });
+		//  this.$store.commit('saveLyric', this.lyric);
+		if (this.lyric) LyModule.saveLyric(this.lyric);
+		// this.$store.commit('saveText', { main: this.mainColor, sub: this.subColor, align: this.textAlign });
+		LyModule.saveText({ main: this.mainColor, sub: this.subColor, align: this.textAlign });
 	}
 
 	private backimgLoad() {

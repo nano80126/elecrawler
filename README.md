@@ -51,6 +51,8 @@ This is a lyric crawler build by electron.
 * [ ] Use debounce in typescript
 * [x] ~~Fix nedb in electron 9~~
 * [ ] Remove () after crawl
+* [ ] Save video id which playing now
+* [ ] replace all commit
 
 ### Known bug 
 

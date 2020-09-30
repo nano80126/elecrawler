@@ -113,6 +113,8 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+import { PlayerModule } from '@/store/modules/player';
+import { AppModule } from '@/store/modules/app';
 
 @Component
 export default class Embed extends Vue {
@@ -133,23 +135,28 @@ export default class Embed extends Vue {
 	}
 
 	get player() {
-		return this.$store.state.player.player;
+		// return this.$store.state.player.player;
+		return PlayerModule.player;
 	}
 
 	get loop(): boolean {
-		return this.$store.state.player.playerLoop;
+		// return this.$store.state.player.playerLoop;
+		return PlayerModule.playerLoop;
 	}
 
 	set loop(value) {
-		this.$store.commit('videoLoop', value);
+		// this.$store.commit('videoLoop', value);
+		PlayerModule.videoLoop(value);
 	}
 
 	get shuffle(): boolean {
-		return this.$store.state.player.playerShuffle;
+		// return this.$store.state.player.playerShuffle;
+		return PlayerModule.playerShuffle;
 	}
 
 	set shuffle(value) {
-		this.$store.commit('videoShuffle', value);
+		// this.$store.commit('videoShuffle', value);
+		PlayerModule.videoShuffle(value);
 	}
 
 	get progress() {
@@ -178,13 +185,13 @@ export default class Embed extends Vue {
 				this.$store.commit(
 					'pushIntervalArr',
 					setInterval(() => {
-						this.progressCurr = this.$store.state.player.player.getCurrentTime();
+						this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
 					}, 250)
 				);
-				this.progressMax = this.player.getDuration();
+				this.progressMax = this.player?.getDuration() || this.progressMax;
 				break;
 			case 5:
-				this.progressMax = this.player.getDuration();
+				this.progressMax = this.player?.getDuration() || this.progressMax;
 				break;
 		}
 	}
@@ -196,19 +203,20 @@ export default class Embed extends Vue {
 
 	@Watch('videoID')
 	onVideoIDChange(value?: string) {
-		// console.log(value);
 		if (value?.length == 11) {
-			if (!this.$store.state.player) {
+			if (!PlayerModule.player) {
 				this.IframeAPIReady(value);
 			} else {
 				this.progressCurr = 0;
-				this.$store.commit('cuePlayerById', value);
+				// this.$store.commit('cuePlayerById', value);
+				PlayerModule.cuePlayerByID(value);
 			}
 		}
 	}
 
 	mounted() {
-		if (!this.$store.state.player.player && this.videoID) {
+		// if (!this.$store.state.player.player && this.videoID) {
+		if (!PlayerModule.player && this.videoID) {
 			this.IframeAPIReady(this.videoID);
 		} else {
 			this.CheckPlayer();
@@ -216,7 +224,8 @@ export default class Embed extends Vue {
 	}
 
 	beforeDestroy() {
-		this.$store.commit('clearIntervalArr');
+		// this.$store.commit('clearIntervalArr');
+		PlayerModule.clearIntervalArr();
 	}
 
 	// methods
@@ -237,20 +246,17 @@ export default class Embed extends Vue {
 					autoplay: 0,
 					controls: 0,
 					loop: 0,
-					// eslint-disable-next-line prettier/prettier
-					"cc_lang_policy": 0,
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					cc_load_policy: 0
 				},
 				events: {
-					onReady: (e: YT.OnStateChangeEvent) => {
+					onReady: e => {
 						e.target.setPlaybackQuality('small');
 						e.target.setVolume(this.volume);
-						this.$store.state.player.playerState = 5;
-
-						// e.target.setLoop(fals);
-						// e.target.mute().playVideo();
-						// this.progressMax = e.target.getDuration();
-
-						console.log(this.$store);
+						// this.$store.state.player.playerState = 5;
+						// PlayerModule.playerState = 5;
+						PlayerModule.changeState(5); // 5: 可播放
+						AppModule.setVideoID(id); // 更新video id
 					}
 				}
 			})
@@ -258,25 +264,33 @@ export default class Embed extends Vue {
 	}
 
 	private CheckPlayer() {
-		const player = this.$store.state.player.player;
-		console.log(player);
-		this.playState = player.getPlayerState();
-		this.volume = this.volumeBack = player.getVolume();
-		this.progressCurr = player.getCurrentTime();
-		this.progressMax = player.getDuration();
+		// const player = this.$store.state.player.player;
+		const player = PlayerModule.player;
+		if (player) {
+			this.playState = player.getPlayerState();
+			this.volume = this.volumeBack = player.getVolume();
+			this.progressCurr = player.getCurrentTime();
+			this.progressMax = player.getDuration();
 
-		switch (this.playState) {
-			case 0:
-				this.progressCurr = this.progressMax;
-				break;
-			case 1:
-				this.$store.commit(
-					'pushIntervalArr',
-					setInterval(() => {
-						this.progressCurr = this.$store.state.player.player.getCurrentTime();
-					}, 250)
-				);
-				break;
+			switch (this.playState) {
+				case 0:
+					this.progressCurr = this.progressMax;
+					break;
+				case 1:
+					// this.$store.commit(
+					// 	'pushIntervalArr',
+					// 	setInterval(() => {
+					// 		// this.progressCurr = this.$store.state.player.player.getCurrentTime();
+					// 		this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
+					// 	}, 250)
+					// );
+					PlayerModule.pushIntervalArr(
+						setInterval(() => {
+							this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
+						}, 250)
+					);
+					break;
+			}
 		}
 	}
 
@@ -289,7 +303,8 @@ export default class Embed extends Vue {
 			this.volume = 0;
 		} else this.volume = this.volumeBack;
 
-		this.$store.commit('videoSetVolume', this.volume);
+		// this.$store.commit('videoSetVolume', this.volume);
+		PlayerModule.videoSetVolume(this.volume);
 	}
 
 	// change volumn
@@ -301,19 +316,23 @@ export default class Embed extends Vue {
 	}
 
 	private videoStart() {
-		this.$store.commit('playVideo');
+		// this.$store.commit('playVideo');
+		PlayerModule.playVideo();
 	}
 
 	private videoPause() {
-		this.$store.commit('pauseVideo');
+		// this.$store.commit('pauseVideo');
+		PlayerModule.pauseVideo();
 	}
 
 	private backward10() {
-		this.$store.commit('backward10');
+		// this.$store.commit('backward10');
+		PlayerModule.backward10();
 	}
 
 	private forward10() {
-		this.$store.commit('forward10');
+		// this.$store.commit('forward10');
+		PlayerModule.forward10();
 	}
 
 	private toggleLoop() {
@@ -327,7 +346,8 @@ export default class Embed extends Vue {
 	}
 
 	private progressChange(e: number) {
-		this.$store.commit('videoProgress', (this.progressMax * e) / 100);
+		// this.$store.commit('videoProgress', (this.progressMax * e) / 100);
+		PlayerModule.videoProgress((this.progressMax * e) / 100);
 		// this.$root.$player.seekTo((this.progressMax * e) / 100);
 	}
 }

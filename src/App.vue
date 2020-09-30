@@ -33,7 +33,7 @@
 				</v-btn>
 			</v-app-bar>
 
-			<v-navigation-drawer app dark permanent mini-variant mini-variant-width="64" class="lime darken-2">
+			<v-navigation-drawer app dark permanent mini-variant mini-variant-width="64" class="teal">
 				<div class="window-drag left" />
 				<!--  -->
 				<v-list flat class="no-drag">
@@ -186,7 +186,7 @@
 
 			<!--  snackbar  -->
 			<transition-group name="slideRight">
-				<template v-for="(n, idx) in $store.state.snackbars">
+				<template v-for="(n, idx) in snackbars">
 					<v-snackbar
 						app
 						:key="`snack${idx}`"
@@ -207,7 +207,7 @@
 				</template>
 			</transition-group>
 
-			<v-overlay v-model="$store.state.common.overlay" opacity="0.3">
+			<v-overlay v-model="overlay" opacity="0.3">
 				<v-progress-circular indeterminate color="purple" />
 			</v-overlay>
 
@@ -255,15 +255,7 @@
 import Embed from '@/components/Embed.vue';
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
-// import { getModule } from 'vuex-module-decorators';
-
-// import common from './store/common';
-// import lyrics from './store/lyrics';
-// import player from './store/player';
-
-// const $common = getModule(common);
-// const $lyrics = getModule(lyrics);
-// const $player = getModule(player);
+import { AppModule } from '@/store/modules/app';
 
 @Component({
 	components: {
@@ -300,13 +292,22 @@ export default class APP extends Vue {
 		return `${this.$root.$data.webHeight - 38}px`;
 	}
 
+	get overlay() {
+		return AppModule.overlay;
+	}
+
+	get snackbars() {
+		return AppModule.snackbars;
+	}
+
 	get barsHidden(): number {
 		return this.$store.getters.barsHidden;
 	}
 
 	@Watch('$store.getters.barsVisible')
 	onBarsVisibleChange(value: number) {
-		if (value == 0) this.$store.state.snackbars = [];
+		// if (value == 0) this.$store.state.snackbars = [];
+		if (value == 0) AppModule.snackbars = [];
 	}
 	@Watch('language')
 	onLanguageChange(value: string) {

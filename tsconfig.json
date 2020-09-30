@@ -42,6 +42,7 @@
 	],
 	"exclude": [
 		"node_modules",
+		"src/**/*_old.ts"
 		// "src/background.ts",
 		// "src/crawler.ts",
 	]

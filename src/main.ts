@@ -3,14 +3,15 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import { AppModule } from '@/store/modules/app';
+import { PlayerModule } from '@/store/modules/player';
 import vuetify from './plugins/vuetify';
 import i18n from './plugins/i18n';
 // import { listDB, historyDB, NeDBStatic } from './plugins/nedb';
 
-import path from 'path';
+// import path from 'path';
 // import * as fs from 'fs';
 // import { remote, IpcRenderer, Shell } from 'electron';
-const { remote, IpcRenderer, ipcRenderer, shell } = window.require('electron');
+const { /*remote,*/ IpcRenderer, ipcRenderer, shell } = window.require('electron');
 
 import { Shell } from 'electron';
 
@@ -47,15 +48,6 @@ Object.defineProperties(Vue.prototype, {
 	$axios: {
 		value: axios
 	},
-	// $common: {
-	// 	value: getModule(common)
-	// },
-	// $lyrics: {
-	// 	value: getModule(lyrics)
-	// },
-	// $player: {
-	// 	value: getModule(player)
-	// },
 	// $dbHistory: {
 	// 	value: historyDB
 	// },
@@ -138,16 +130,27 @@ new Vue({
 	watch: {
 		'$store.getters.playState'(state) {
 			if (state == 0) {
-				const loop = this.$store.state.playerLoop;
-				const shuffle = this.$store.state.playerShuffle;
+				// const loop = this.$store.state.playerLoop;
+				const loop = PlayerModule.playerLoop;
+				// const shuffle = this.$store.state.playerShuffle;
+				const shuffle = PlayerModule.playerShuffle;
 				if (loop) setTimeout(() => this.$store.commit('playVideo'), 1500);
 				else if (shuffle)
 					setTimeout(() => {
-						const old = this.$store.state.player.getVideoData();
-						const arr = this.$lodash.without(this.$store.state.playList, old.video_id);
+						// const old = this.$store.state.player.getVideoData();
+						// const old = (PlayerModule.player as YTPlayer).getVideoData();
+						// const arr = this.$lodash.without(this.$store.state.playList, old.video_id);
+						// const arr = this.$lodash.without(AppModule.playList, old.video_id);
+						const arr = this.$lodash.without(AppModule.playList, AppModule.videoID);
 						const videoID = arr[this.$lodash.random(0, arr.length - 1)];
 
-						this.$store.commit('loadPlayerById', videoID);
+						// console.log(PlayerModule.player);
+						// console.log(old, videoID);
+						console.log(arr, AppModule.playList);
+
+						// this.$store.commit('loadPlayerById', videoID);
+						PlayerModule.loadPlayerByID(videoID);
+
 						// code above for loading video // code below for get lyric object
 
 						// if route is List enable

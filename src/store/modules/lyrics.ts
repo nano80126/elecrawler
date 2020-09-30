@@ -14,7 +14,7 @@ interface LyricsObject {
 interface LyricsTxtConf {
 	main: string;
 	sub: string;
-	aligin: string;
+	align: string;
 }
 
 export interface LyricsState {

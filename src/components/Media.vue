@@ -295,6 +295,7 @@
 </template>
 
 <script lang="ts">
+import { AppModule } from '@/store/modules/app';
 import debounce from 'lodash/debounce';
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
@@ -620,7 +621,8 @@ export default class Media extends Vue {
 					}
 
 					const obj = this.lyric.obj;
-					const picPath = this.$store.state.picPath;
+					// const picPath = this.$store.state.picPath;
+					const picPath = AppModule.picPath;
 					// this.urlObj = this.$lodash.compact(this.urlObj);
 					this.urlIndex = 0; // Set index to 0 or maybe return url not in urlObj
 					this.urlObj = this.urlObj.filter(e => e.url && e.url.length > 0);
