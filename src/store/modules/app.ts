@@ -33,6 +33,11 @@ class Common extends VuexModule implements AppState {
 	}
 
 	@Mutation
+	emptySnackbars() {
+		this.snackbars = [];
+	}
+
+	@Mutation
 	changeOverlay(bool: boolean) {
 		this.overlay = bool;
 	}

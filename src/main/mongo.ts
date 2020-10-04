@@ -6,7 +6,6 @@ let mongoCLient: MongoClient;
 
 MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (err, client) => {
 	if (err) throw err;
-	console.log('running');
 	mongoCLient = client;
 
 	const db = client.db('lyrics');

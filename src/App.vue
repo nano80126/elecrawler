@@ -307,7 +307,8 @@ export default class APP extends Vue {
 	@Watch('$store.getters.barsVisible')
 	onBarsVisibleChange(value: number) {
 		// if (value == 0) this.$store.state.snackbars = [];
-		if (value == 0) AppModule.snackbars = [];
+		// if (value == 0) AppModule.snackbars = [];
+		if (value == 0) AppModule.emptySnackbars();
 	}
 	@Watch('language')
 	onLanguageChange(value: string) {

@@ -20,7 +20,7 @@ module.exports = {
 	},
 
 	rules: {
-		'no-console': process.env.NODE_ENV === 'production' ? ['error', { allow: ['warn', 'error'] }] : 'off',
+		'no-console': process.env.NODE_ENV === 'production' ? ['off', { allow: ['warn', 'error', 'info'] }] : 'off',
 		'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
 		// 'no-var': 'error'
 		// 'prefer-const': 'error',

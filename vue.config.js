@@ -25,6 +25,7 @@ module.exports = {
 			.tap(args => {
 				args.compilerOptions.whitespace = 'preserve';
 			});
+		// config.entry('background').add('./src/background.ts');
 	},
 
 	configureWebpack: () => {
@@ -52,12 +53,15 @@ module.exports = {
 				// 	return args;
 				// });
 			},
+			mainProcessFile: 'src/background.ts',
+			//
 			mainProcessWatch: ['src/main/*.ts'],
 			// disableMainProcessTypescript: true, // Manually disable typescript plugin for main process. Enable if you want to use regular js for the main process (src/background.js by default).
 			// mainProcessTypeChecking: false, // Manually enable type checking during webpck bundling for background file.
 			builderOptions: {
 				productName: 'lyric spider',
 				copyright: 'Copyright © 2020',
+
 				win: {
 					icon: 'build/crawler.png',
 					target: [

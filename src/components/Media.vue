@@ -249,7 +249,7 @@
 			</v-col>
 		</v-row>
 
-		<template v-if="true">
+		<template v-if="false">
 			<div>
 				abs: {{ rectAbs }}
 				<br />
