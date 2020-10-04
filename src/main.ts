@@ -11,9 +11,10 @@ import i18n from './plugins/i18n';
 // import path from 'path';
 // import * as fs from 'fs';
 // import { remote, IpcRenderer, Shell } from 'electron';
-const { /*remote,*/ IpcRenderer, ipcRenderer, shell } = window.require('electron');
+import { IpcRenderer, Shell } from 'electron';
+const { /*remote,*/ /*IpcRenderer,*/ ipcRenderer, shell } = window.require('electron');
 
-import { Shell } from 'electron';
+// import { Shell } from 'electron';
 
 import moment, { Moment, MomentInput } from 'moment';
 import lodash, { LoDashStatic } from 'lodash';
@@ -36,7 +37,6 @@ import axios, { AxiosStatic } from 'axios';
 // const $player = getModule(player);
 
 import './style.scss';
-import { IpcRenderer } from 'electron';
 
 Object.defineProperties(Vue.prototype, {
 	$moment: {
