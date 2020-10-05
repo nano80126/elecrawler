@@ -15,16 +15,17 @@
 		"postuninstall": "electron-builder install-app-deps",
 		"report": "vue-cli-service build --report"
 	},
-	"main": "background.ts",
+	"main": "background.js",
 	"dependencies": {
 		"axios": "^0.19.2",
 		"cheerio": "^1.0.0-rc.3",
 		"core-js": "^3.6.5",
+		"es-abstract": "^1.17.7",
 		"lodash": "^4.17.19",
 		"moment": "^2.24.0",
 		"mongodb": "^3.6.0",
 		"nedb": "^1.8.0",
-		"sharp": "^0.26.0",
+		"sharp": "^0.26.1",
 		"vue": "^2.6.11",
 		"vue-i18n": "^8.17.3",
 		"vue-router": "^3.1.5",
@@ -50,7 +51,7 @@
 		"@vue/cli-service": "^4.5.6",
 		"@vue/eslint-config-prettier": "^6.0.0",
 		"@vue/eslint-config-typescript": "^5.0.2",
-		"electron": "^9.2.1",
+		"electron": "^9.3.1",
 		"electron-devtools-installer": "^3.1.0",
 		"eslint": "^6.7.2",
 		"eslint-plugin-prettier": "^3.1.1",
@@ -67,6 +68,7 @@
 		"vue-property-decorator": "^8.5.1",
 		"vue-template-compiler": "^2.6.11",
 		"vuetify-loader": "^1.5.0",
-		"vuex-module-decorators": "^1.0.1"
+		"vuex-module-decorators": "^1.0.1",
+		"webpack-node-externals": "^2.5.2"
 	}
 }

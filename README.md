@@ -50,9 +50,11 @@ This is a lyric crawler build by electron.
 * [x] Open dialog in main process
 * [ ] Use debounce in typescript
 * [x] ~~Fix nedb in electron 9~~
-* [ ] Remove () after crawl
+* [ ] Remove () after crawl ## ## ## ##
 * [ ] Save video id which playing now
 * [ ] replace all commit
+* [ ] Fix bug that unable build
+* [ ] Update sharp.js
 
 ### Known bug 
 
@@ -62,10 +64,10 @@ This is a lyric crawler build by electron.
 * [ ] Use moudles player, common, lyric
 * [ ] Fix vuex after using decorators
 
-```
-this.$store.state.player => this.$store.state.player.player
-```
-
 ### Sharp 
 
 * [x] Can't use sharp in main process
+
+### bundle / build
+
+* [ ] Mongodb bundle warning in production environment

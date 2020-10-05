@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		// "target": "esnext",
 		"target": "es5",
-		"module": "commonjs",
+		"module": "esnext",
 		"strict": true,
 		"jsx": "preserve",
 		"importHelpers": true,
@@ -42,6 +42,7 @@
 	],
 	"exclude": [
 		"node_modules",
+		"public",
 		"src/**/*_old.ts"
 		// "src/background.ts",
 		// "src/crawler.ts",
