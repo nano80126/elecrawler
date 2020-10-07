@@ -180,7 +180,9 @@
 <script lang="ts">
 import display from '@/components/Display.vue';
 import player from '@/components/Embed.vue';
+import { AppModule } from '@/store/modules/app';
 import { LyModule } from '@/store/modules/lyrics';
+import { PlayerModule } from '@/store/modules/player';
 
 import { Component, Vue } from 'vue-property-decorator';
 // import { getModule } from 'vuex-module-decorators';
@@ -251,8 +253,9 @@ export default class List extends Vue {
 			.invoke('listFind', { query: {}, sort: { artist: 1, title: 1, datetime: -1 } })
 			.then(doc => {
 				const filter = this.$lodash.filter(doc, 'ytObj').map(e => e.ytObj);
-				const flatten = this.$lodash.flatten(filter).map(e => e.id);
-				this.$store.commit('setPlayList', Object.freeze(flatten));
+				const flatten = this.$lodash.flatten(filter).map(e => e.id) as string[];
+				// this.$store.commit('setPlayList', );
+				AppModule.setPlayList(flatten);
 
 				const iconArray = doc.map((item: { iconPath?: string }) => item.iconPath || undefined);
 
@@ -276,7 +279,8 @@ export default class List extends Vue {
 			})
 			.catch(err => {
 				console.log(err);
-				this.$store.commit('snackbar', { text: err, color: 'error' });
+				// this.$store.commit('snackbar', );
+				AppModule.snackbar({ text: err, color: 'error' });
 			});
 
 		// this.lyricObj = this.$store.state.lyricObj;
@@ -295,16 +299,17 @@ export default class List extends Vue {
 		console.log(item);
 		console.log(ytID);
 
-		this.$store.commit('changeOverlay', true);
+		// this.$store.commit('changeOverlay', true);
+		AppModule.changeOverlay(true);
 		this.expandWidth();
 
-		if (!ytID) this.$store.commit('destroyPlayer');
+		if (!ytID) PlayerModule.destroyPlayer();
 
 		const res = await this.$ipcRenderer.invoke('getLyric', { url: item.lyricUrl });
 
 		this.$nextTick(() => {
 			if (res.error) {
-				this.$store.commit('snackbar', { text: res.error, color: 'error' });
+				AppModule.snackbar({ text: res.error, color: 'error' });
 			} else {
 				this.$nextTick(() => {
 					const { obj } = res;
@@ -321,7 +326,7 @@ export default class List extends Vue {
 					console.log(this.lyricObj);
 				});
 			}
-			this.$store.commit('changeOverlay', false);
+			AppModule.changeOverlay(false);
 		});
 	}
 

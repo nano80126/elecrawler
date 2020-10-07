@@ -135,27 +135,22 @@ export default class Embed extends Vue {
 	}
 
 	get player() {
-		// return this.$store.state.player.player;
 		return PlayerModule.player;
 	}
 
 	get loop(): boolean {
-		// return this.$store.state.player.playerLoop;
 		return PlayerModule.playerLoop;
 	}
 
 	set loop(value) {
-		// this.$store.commit('videoLoop', value);
 		PlayerModule.videoLoop(value);
 	}
 
 	get shuffle(): boolean {
-		// return this.$store.state.player.playerShuffle;
 		return PlayerModule.playerShuffle;
 	}
 
 	set shuffle(value) {
-		// this.$store.commit('videoShuffle', value);
 		PlayerModule.videoShuffle(value);
 	}
 
@@ -172,7 +167,7 @@ export default class Embed extends Vue {
 		// console.log(state);
 		this.playState = state;
 
-		this.$store.commit('clearIntervalArr');
+		PlayerModule.clearIntervalArr();
 		switch (state) {
 			case -1:
 				this.progress = 0;
@@ -182,12 +177,17 @@ export default class Embed extends Vue {
 				this.progressCurr = this.progressMax;
 				break;
 			case 1:
-				this.$store.commit(
-					'pushIntervalArr',
+				PlayerModule.pushIntervalArr(
 					setInterval(() => {
 						this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
 					}, 250)
 				);
+				// this.$store.commit(
+				// 	'pushIntervalArr',
+				// 	setInterval(() => {
+				// 		this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
+				// 	}, 250)
+				// );
 				this.progressMax = this.player?.getDuration() || this.progressMax;
 				break;
 			case 5:
@@ -208,7 +208,6 @@ export default class Embed extends Vue {
 				this.IframeAPIReady(value);
 			} else {
 				this.progressCurr = 0;
-				// this.$store.commit('cuePlayerById', value);
 				PlayerModule.cuePlayerByID(value);
 			}
 		}
@@ -224,7 +223,6 @@ export default class Embed extends Vue {
 	}
 
 	beforeDestroy() {
-		// this.$store.commit('clearIntervalArr');
 		PlayerModule.clearIntervalArr();
 	}
 
@@ -235,32 +233,57 @@ export default class Embed extends Vue {
 		const youtube = window.YT;
 		// new youtube.Player(,)
 
-		this.$store.commit(
-			'creatPlayer',
-			new youtube.Player('youtube-audio', {
-				height: 20,
-				// width: 500,
-				videoId: id,
-				playerVars: {
-					enablejsapi: 1,
-					autoplay: 0,
-					controls: 0,
-					loop: 0,
-					// eslint-disable-next-line @typescript-eslint/camelcase
-					cc_load_policy: 0
-				},
-				events: {
-					onReady: e => {
-						e.target.setPlaybackQuality('small');
-						e.target.setVolume(this.volume);
-						// this.$store.state.player.playerState = 5;
-						// PlayerModule.playerState = 5;
-						PlayerModule.changeState(5); // 5: 可播放
-						AppModule.setVideoID(id); // 更新video id
-					}
+		const py = new youtube.Player('youtube-audio', {
+			// height: 20,
+			// width: 500,
+			videoId: id,
+			playerVars: {
+				enablejsapi: 1,
+				autoplay: 0,
+				controls: 0,
+				loop: 0,
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				cc_load_policy: 0
+			},
+			events: {
+				onReady: e => {
+					e.target.setPlaybackQuality('small');
+					e.target.setVolume(this.volume);
+					// this.$store.state.player.playerState = 5;
+					// PlayerModule.playerState = 5;
+					PlayerModule.changeState(5); // 5: 可播放
+					AppModule.setVideoID(id); // 更新video id
 				}
-			})
-		);
+			}
+		});
+		PlayerModule.creatPlayer(py);
+
+		// this.$store.commit(
+		// 	'creatPlayer',
+		// 	new youtube.Player('youtube-audio', {
+		// 		height: 20,
+		// 		// width: 500,
+		// 		videoId: id,
+		// 		playerVars: {
+		// 			enablejsapi: 1,
+		// 			autoplay: 0,
+		// 			controls: 0,
+		// 			loop: 0,
+		// 			// eslint-disable-next-line @typescript-eslint/camelcase
+		// 			cc_load_policy: 0
+		// 		},
+		// 		events: {
+		// 			onReady: e => {
+		// 				e.target.setPlaybackQuality('small');
+		// 				e.target.setVolume(this.volume);
+		// 				// this.$store.state.player.playerState = 5;
+		// 				// PlayerModule.playerState = 5;
+		// 				PlayerModule.changeState(5); // 5: 可播放
+		// 				AppModule.setVideoID(id); // 更新video id
+		// 			}
+		// 		}
+		// 	})
+		// );
 	}
 
 	private CheckPlayer() {
@@ -303,7 +326,6 @@ export default class Embed extends Vue {
 			this.volume = 0;
 		} else this.volume = this.volumeBack;
 
-		// this.$store.commit('videoSetVolume', this.volume);
 		PlayerModule.videoSetVolume(this.volume);
 	}
 
@@ -316,22 +338,18 @@ export default class Embed extends Vue {
 	}
 
 	private videoStart() {
-		// this.$store.commit('playVideo');
 		PlayerModule.playVideo();
 	}
 
 	private videoPause() {
-		// this.$store.commit('pauseVideo');
 		PlayerModule.pauseVideo();
 	}
 
 	private backward10() {
-		// this.$store.commit('backward10');
 		PlayerModule.backward10();
 	}
 
 	private forward10() {
-		// this.$store.commit('forward10');
 		PlayerModule.forward10();
 	}
 
@@ -346,7 +364,6 @@ export default class Embed extends Vue {
 	}
 
 	private progressChange(e: number) {
-		// this.$store.commit('videoProgress', (this.progressMax * e) / 100);
 		PlayerModule.videoProgress((this.progressMax * e) / 100);
 		// this.$root.$player.seekTo((this.progressMax * e) / 100);
 	}

@@ -1,5 +1,5 @@
 import { Module, Mutation, VuexModule, getModule } from 'vuex-module-decorators';
-import store from '../index';
+import store from '@/store/index';
 
 interface LyricsObject {
 	key: string;

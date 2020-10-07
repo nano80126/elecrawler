@@ -14,7 +14,7 @@ This is a lyric crawler build by electron.
 - English
 - Chinese
 
-#### Translattion
+### Translattion
 
 サムネイル：縮圖
 
@@ -48,21 +48,30 @@ This is a lyric crawler build by electron.
 * [x] Get youtube data use youtube data v3 api
 * [x] Simple lyric and background with no embeded youtube
 * [x] Open dialog in main process
-* [ ] Use debounce in typescript
+* [x] Use debounce in typescript
 * [x] ~~Fix nedb in electron 9~~
-* [ ] Remove () after crawl ## ## ## ##
-* [ ] Save video id which playing now
+* [x] Remove () after crawl ## ## ## ##
+* [x] Save video id which playing now
 * [ ] replace all commit
-* [ ] Fix bug that unable build
-* [ ] Update sharp.js
+* [x] Fix bug that unable build
+* [x] Update sharp.js
+* [ ] Add global hotkey
+* [ ] Remove some console.log not important
+* [ ] i18n
 
 ### Known bug 
 
+* [ ] Mongodb bundle warning in production environment
+
 ### Vuex
 
-* [ ] Migrate vuex to typescript (vuex-module-decorators)
-* [ ] Use moudles player, common, lyric
-* [ ] Fix vuex after using decorators
+* [*] Migrate vuex to typescript (vuex-module-decorators)
+* [*] Use moudles player, common, lyric
+* [*] Fix vuex after using decorators
+
+### sqlite
+
+* [ ] Install sqlite 3 or 4 ?
 
 ### Sharp 
 
@@ -70,4 +79,4 @@ This is a lyric crawler build by electron.
 
 ### bundle / build
 
-* [ ] Mongodb bundle warning in production environment
+

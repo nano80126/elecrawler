@@ -91,7 +91,8 @@ async function lyricGetter(subUrl: string): Promise<{}> {
 			const mainTxt = title
 				.children('span.movieTtl_mainTxt')
 				.text()
-				.replace(/^「|」$/g, '');
+				.replace(/^「|」$/g, '')
+				.replace(/\s?\(.*\)$/, '');
 			const artist = title
 				.children('a.boxArea_artists_move_top')
 				.text()

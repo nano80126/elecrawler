@@ -6,7 +6,6 @@ import { AppModule } from '@/store/modules/app';
 import { PlayerModule } from '@/store/modules/player';
 import vuetify from './plugins/vuetify';
 import i18n from './plugins/i18n';
-// import { listDB, historyDB, NeDBStatic } from './plugins/nedb';
 
 // import path from 'path';
 // import * as fs from 'fs';
@@ -22,9 +21,6 @@ import axios, { AxiosStatic } from 'axios';
 // import sharp, { Sharp, FitEnum } from 'sharp';
 
 // import sharp, { FitEnum, Sharp, SharpOptions } from 'sharp';
-// import {} } from "nedb"
-
-// import { adminDB, errorDB } from './plugins/nedb';
 
 // import { getModule } from 'vuex-module-decorators';
 
@@ -37,6 +33,7 @@ import axios, { AxiosStatic } from 'axios';
 // const $player = getModule(player);
 
 import './style.scss';
+import { LyModule } from './store/modules/lyrics';
 
 Object.defineProperties(Vue.prototype, {
 	$moment: {
@@ -95,8 +92,6 @@ declare module 'vue/types/vue' {
 		// $sharpFit: FitEnum;
 		$fs: { readdirSync: Function; unlink: Function; exists: Function; mkdir: Function };
 
-		// $dbHistory: NeDBStatic;
-		// $dbList: NeDBStatic;
 		$ipcRenderer: IpcRenderer;
 		$shell: Shell;
 		// $picPath: string;
@@ -134,7 +129,7 @@ new Vue({
 				const loop = PlayerModule.playerLoop;
 				// const shuffle = this.$store.state.playerShuffle;
 				const shuffle = PlayerModule.playerShuffle;
-				if (loop) setTimeout(() => this.$store.commit('playVideo'), 1500);
+				if (loop) setTimeout(() => PlayerModule.playVideo(), 1500);
 				else if (shuffle)
 					setTimeout(() => {
 						// const old = this.$store.state.player.getVideoData();
@@ -154,7 +149,10 @@ new Vue({
 						// code above for loading video // code below for get lyric object
 
 						// if route is List enable
-						if (this.$route.name == 'List') this.$store.commit('changeOverlay', true);
+						if (this.$route.name == 'List') {
+							// this.$store.commit('changeOverlay', true);
+							AppModule.changeOverlay(true);
+						}
 						// this.$dbList.findOne({ 'ytObj.id': videoID }, async (err, doc) => {
 						// findOne of ytObj arr has one of element match videoID
 
@@ -183,12 +181,13 @@ new Vue({
 										imageSize: doc.imageSize || {}
 									});
 									this.$emit('getLyricByID', lyObj);
-									this.$store.commit('saveLyric', lyObj);
-									this.$store.commit('changeOverlay', false);
+									LyModule.saveLyric(lyObj);
+									AppModule.changeOverlay(false);
 								});
 							})
 							.catch(err => {
-								this.$store.commit('snackbar', { text: err, color: 'error' });
+								AppModule.snackbar({ text: err, color: 'error' });
+								// this.$store.commit('snackbar', );
 							});
 
 						/*
@@ -206,7 +205,7 @@ new Vue({
 								imageSize: doc.imageSize || {}
 							});
 							this.$emit('getLyricByID', obj); // raise event for changing lyric obj in list.vue
-							this.$store.commit('saveLyric', obj); // save lyric obj for loading display.vue
+							this.$store.commit('saveLyric', obj); // save lyric obj for loading Display.vue
 							this.$store.commit('changeOverlay', false); // disable overlay
 						});*/
 					}, 1500);

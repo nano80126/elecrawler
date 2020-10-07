@@ -1,5 +1,5 @@
 import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import store from '../index';
+import store from '@/store/index';
 
 export interface AppState {
 	overlay: boolean;
@@ -43,7 +43,7 @@ class Common extends VuexModule implements AppState {
 	}
 
 	@Mutation
-	snackbar(bar: { show: boolean; color?: string; timeout?: number; text?: string }) {
+	snackbar(bar: { color?: string; timeout?: number; text?: string }) {
 		this.snackbars.push({
 			show: true,
 			color: bar.color || 'error',

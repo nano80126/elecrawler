@@ -1,5 +1,5 @@
 import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import store from '../index';
+import store from '@/store/index';
 import { AppModule } from './app';
 import { LyModule } from './lyrics'; // for destroy lyrics obj
 

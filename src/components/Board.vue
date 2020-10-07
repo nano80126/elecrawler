@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts">
+import { AppModule } from '@/store/modules/app';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 
 @Component
@@ -66,8 +67,8 @@ export default class Board extends Vue {
 				}
 				console.log(res);
 			}).catch(err => {
-				this.$store.commit('snackbar', { text: err, color: 'error' });
-				console.log(err);
+				// this.$store.commit('snackbar', );
+				AppModule.snackbar({ text: err, color: 'error' });
 			});
 
 			/*

@@ -36,21 +36,23 @@ module.exports = {
 		electronBuilder: {
 			chainWebpackMainProcess: config => {
 				// Chain webpack config for electron main process only
-				config.target = 'node';
+				// config.target = 'node';
+
+				const exts = {
+					sharp: 'commonjs2 sharp'
+				};
+
+				Object.assign(
+					exts,
+					process.env.NODE_ENV == 'development' ? { mongodb: 'commonjs2 mongodb' } : undefined
+				);
+
 				config.externals([
+					exts,
 					{
 						// bufferutil: 'commonjs bufferutil',
 						// 'utf-8-validate': 'commonjs utf-8-validate'
-						// mongodb: 'commonjs mongodb',
-						sharp: 'commonjs2 sharp'
 					}
-					// nodeExternals({ allowlist: ['vue-cli-plugin-electron-builder/lib'] })
-					// nodeExternals({
-					// 	modulesFromFile: {
-					// 		include: ['vue-cli-plugin-electron-builder/lib'],
-					// 		exclude: ['commonjs mongodb', 'commonjs2 sharp']
-					// 	}
-					// })
 				]);
 			},
 			chainWebpackRendererProcess: config => {

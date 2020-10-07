@@ -262,7 +262,7 @@ import { AppModule } from '@/store/modules/app';
 		EmbedPlayer: Embed
 	}
 })
-export default class APP extends Vue {
+export default class App extends Vue {
 	// $root!: {
 	// 	webHeight: number;
 	// };
@@ -368,7 +368,8 @@ export default class APP extends Vue {
 			})
 			.catch(err => {
 				console.log(err);
-				this.$store.commit('snackbar', { text: err, color: 'error' });
+				// this.$store.commit('snackbar', );
+				AppModule.snackbar({ text: err, color: 'error' });
 			})
 			.finally(() => (this.dialog = false));
 		/*

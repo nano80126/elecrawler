@@ -354,6 +354,7 @@ export default class Search extends Vue {
 
 				// 取得交集
 				// const intersection = this.$lodash.intersectionBy(args.list, this.historyList, 'lyricUrl');
+				console.log(args.list);
 
 				///////////////////
 				// 確認是否存在列表中
