@@ -118,6 +118,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
 import { LyModule } from '@/store/modules/lyrics';
+import { AppModule, Colors } from '@/store/modules/app';
 
 @Component
 export default class Display extends Vue {
@@ -198,11 +199,10 @@ export default class Display extends Vue {
 		this.$ipcRenderer
 			.invoke('loadBuffer', { path: this.lyric?.image })
 			.then(res => {
-				console.log(res);
 				this.image = Buffer.from(res.data);
 			})
 			.catch(err => {
-				console.error(err);
+				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
 
 		// this.$sharp(this.lyric.image).toBuffer((err: Error, data: Buffer) => {

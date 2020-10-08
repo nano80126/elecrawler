@@ -3,18 +3,26 @@ import store from '@/store/index';
 
 export interface AppState {
 	overlay: boolean;
-	snackbars: { show: boolean; color: string; text: string; timeout: number }[];
+	snackbars: { show: boolean; color: Colors | string; text: string; timeout: number }[];
 	isElectron: boolean;
 	picPath: string;
 	playList: string[];
 	videoID: string;
 }
 
+export enum Colors {
+	Info = 'info',
+	Primary = 'primary',
+	Success = 'success',
+	Warning = 'warning',
+	Error = 'error'
+}
+
 @Module({ dynamic: true, store, name: 'app' })
 class Common extends VuexModule implements AppState {
 	public overlay = false;
 	//
-	public snackbars: { show: boolean; color: string; text: string; timeout: number }[] = [];
+	public snackbars: { show: boolean; color: Colors | string; text: string; timeout: number }[] = [];
 	//
 	public isElectron = process.env.IS_ELECTRON ? true : false;
 	//
@@ -43,10 +51,10 @@ class Common extends VuexModule implements AppState {
 	}
 
 	@Mutation
-	snackbar(bar: { color?: string; timeout?: number; text?: string }) {
+	snackbar(bar: { color?: Colors | string; timeout?: number; text?: string }) {
 		this.snackbars.push({
 			show: true,
-			color: bar.color || 'error',
+			color: bar.color || Colors.Error,
 			timeout: bar.timeout || 3000,
 			text: bar.text || ''
 		});

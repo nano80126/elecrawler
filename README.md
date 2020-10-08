@@ -58,6 +58,8 @@ This is a lyric crawler build by electron.
 * [ ] Add global hotkey
 * [ ] Remove some console.log not important
 * [ ] i18n
+* [ ] let lyrci title and artist could be edit (open new window)
+* [ ] Open picture directory
 
 ### Known bug 
 

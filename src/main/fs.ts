@@ -7,8 +7,6 @@ const picPath =
 		? path.resolve(app.getPath('pictures'), 'EleCrawler')
 		: path.resolve(app.getPath('exe'), '../pictures');
 
-console.log(picPath);
-
 // create picture directory
 ipcMain.handle('mkPicDir', () => {
 	const exist = fs.existsSync(picPath);

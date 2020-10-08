@@ -68,12 +68,6 @@ Object.defineProperties(Vue.prototype, {
 	// $remote: {
 	// 	value: remote
 	// },
-	// $picPath: {
-	// 	value:
-	// 		process.env.NODE_ENV == 'development'
-	// 			? path.resolve(remote.app.getPath('pictures'), 'lyric_scrawer')
-	// 			: path.resolve(remote.app.getPath('exe'), '../pictures')
-	// }
 });
 
 declare global {
@@ -139,13 +133,8 @@ new Vue({
 						const arr = this.$lodash.without(AppModule.playList, AppModule.videoID);
 						const videoID = arr[this.$lodash.random(0, arr.length - 1)];
 
-						// console.log(PlayerModule.player);
-						// console.log(old, videoID);
-						console.log(arr, AppModule.playList);
-
 						// this.$store.commit('loadPlayerById', videoID);
 						PlayerModule.loadPlayerByID(videoID);
-
 						// code above for loading video // code below for get lyric object
 
 						// if route is List enable
@@ -189,25 +178,6 @@ new Vue({
 								AppModule.snackbar({ text: err, color: 'error' });
 								// this.$store.commit('snackbar', );
 							});
-
-						/*
-						this.$dbList.findOne({ ytObj: { $elemMatch: { id: videoID } } }, async (err, doc) => {
-							if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-							const res = await this.$ipcRenderer.invoke('getLyric', { url: doc.lyricUrl });
-
-							const obj = Object.freeze({
-								key: res.lyricKey,
-								url: res.url,
-								title: res.mainTxt,
-								artist: res.artist,
-								lyric: res.lyricContent,
-								image: doc.imagePath || null,
-								imageSize: doc.imageSize || {}
-							});
-							this.$emit('getLyricByID', obj); // raise event for changing lyric obj in list.vue
-							this.$store.commit('saveLyric', obj); // save lyric obj for loading Display.vue
-							this.$store.commit('changeOverlay', false); // disable overlay
-						});*/
 					}, 1500);
 			}
 		}
@@ -217,45 +187,22 @@ new Vue({
 		// set theme dark
 		this.$vuetify.theme.dark = true;
 
-		// create pictures file if not exists
-		// this.$fs.exists(this.$picPath, (exist: boolean) => {
-		// 	if (!exist) {
-		// 		this.$fs.mkdir(this.$picPath, (err: string) => {
-		// 			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-		// 		});
-		// 	}
-		// });
-
-		/** 
-		this.$dbList.find({}).exec((err, doc) => {
-			console.log('err', err);
-			console.log('doc', doc);
-		});
-		*/
-
 		// make pictures directory
 		this.$ipcRenderer.invoke('mkPicDir').then((res: { path: string }) => {
-			// this.$store.commit('savePicPath', res.path);
-			// this.$store..common.commit('savePicPath', res.path);
-			// $common.savePicPath(res.path);
-			// this.$store.commit("")
-			// $common.savePicPath(res.path);
+			console.info(`%c${res.path}`, 'color: #4CAF50;');
 			AppModule.savePicPath(res.path);
 		});
 	},
 
 	mounted() {
-		if (process.env.NODE_ENV == 'development') console.warn('env', process.env);
+		// if (process.env.NODE_ENV == 'development') console.warn('env', process.env);
 		// ////
-
 		window.onresize = async () => {
 			this.webWidth = window.innerWidth;
 			this.webHeight = window.innerHeight;
-
 			this.windowIsMax = await this.$ipcRenderer.invoke('isMaxmized');
 		};
 
-		console.log(this.$store);
 		/**
 		// 刪除15天前的搜尋紀錄
 		this.$dbHistory.remove(

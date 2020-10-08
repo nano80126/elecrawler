@@ -7,6 +7,8 @@
 				<div class="" style="width:90px;">
 					<v-slider ref="slider1" class="no-drag" value="100" hide-details />
 				</div>
+
+				<span class="ml-3">{{ $t('message') }}</span>
 				<v-spacer />
 				<!--  -->
 				<v-btn min-width="24" width="36" text class="no-drag" small @click="windowMin">
@@ -318,6 +320,7 @@ export default class App extends Vue {
 
 	// life cycle
 	created() {
+		console.log(this);
 		this.$router.beforeEach((to, from, next) => {
 			next();
 		});

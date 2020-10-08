@@ -260,6 +260,7 @@
 <script lang="ts">
 import board from '@/components/Board.vue';
 import media from '@/components/Media.vue';
+import { AppModule, Colors } from '@/store/modules/app';
 
 import { Component, Vue } from 'vue-property-decorator';
 
@@ -286,7 +287,7 @@ export default class Search extends Vue {
 	//
 	private bigImage = false;
 	//
-	private keywords: Array<string> = [];
+	private keywords: Array<{ artist: string; title: string; datetime: string }> = [];
 
 	get canSearch(): boolean {
 		return this.title?.length > 0 || this.artist?.length > 0;
@@ -309,52 +310,37 @@ export default class Search extends Vue {
 	}
 
 	created() {
-		// this.$dbHistory
-		// 	.find({})
-		// 	.sort({ datetime: -1 })
-		// 	.limit(5)
-		// 	.exec((err: Error, doc: string[]) => {
-		// 		if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-		// 		this.keywords = doc;
-		// 	});
-
 		this.$ipcRenderer
 			.invoke('historyFind', { query: {} })
 			.then(res => {
-				this.keywords = res;
 				console.log(res);
+				this.keywords = res;
 			})
 			.catch(err => {
-				console.log(err);
+				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
 	}
 
 	mounted() {
 		// load list saved
-		// this.$dbList.find({}, (err: string, doc: Array<{}>) => {
-		// 	if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-		// 	this.historyList = doc;
-		// });
 		this.$ipcRenderer
 			.invoke('listFind', { query: {}, sort: { datetime: 1 } })
 			.then(res => {
 				this.historyList = res;
-				console.log('res', res);
 			})
 			.catch(err => {
-				this.$store.commit('snackbar', { text: err, color: 'error' });
+				this.$store.commit('snackbar', { text: err, color: Colors.Error });
 			});
 
 		// const included = this.$ipcRenderer.eventNames().includes('searchRes');
 		if (!this.$ipcRenderer.eventNames().includes('searchRes')) {
 			this.$ipcRenderer.on('searchRes', (e, args: { error: string; list: [] }) => {
 				if (args.error) {
-					this.$store.commit('snackbar', { text: args.error, color: 'error' });
+					this.$store.commit('snackbar', { text: args.error, color: Colors.Error });
 				}
 
 				// 取得交集
 				// const intersection = this.$lodash.intersectionBy(args.list, this.historyList, 'lyricUrl');
-				console.log(args.list);
 
 				///////////////////
 				// 確認是否存在列表中
@@ -371,19 +357,6 @@ export default class Search extends Vue {
 							// if (this.$lodash.findIndex(intersection, ['lyric']))
 							const index = this.historyList.findIndex(item => item.lyricUrl == obj.lyricUrl);
 							Object.assign(obj, { exist: index > -1 });
-
-							// obj.exist = exist;
-							// switch (intersection.length) {
-							// 	case 0:
-							// 		break;
-							// 	case 1:
-							// 		const fisrt = intersection[0];
-							// 		if (obj.lyricUrl == intersection[0].lyricUrl) obj.isInList = true;
-							// 		break;
-							// 	default:
-							// 		if (this.$lodash.findIndex(intersection, ['lyricUrl', obj.lyricUrl]) != -1)
-							// 			obj.isInList = true;
-							// }
 
 							setTimeout(() => {
 								this.list.push(Object.freeze(obj));
@@ -453,18 +426,6 @@ export default class Search extends Vue {
 	}
 
 	private historySave(artist: string, title: string) {
-		// this.$dbHistory.update(
-		// 	{ artist, title },
-		// 	{
-		// 		$set: { artist, title, datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss') }
-		// 	},
-		// 	{ upsert: true },
-		// 	(err, nb) => {
-		// 		if (err) console.warn(err);
-		// 		console.warn('Affected number', nb);
-		// 	}
-		// );
-
 		const historySave = this.$ipcRenderer.invoke('historySave', {
 			query: { artist, title },
 			data: {
@@ -476,11 +437,15 @@ export default class Search extends Vue {
 			}
 		});
 		historySave
-			.then(res => {
-				console.log(res);
+			.then(() => {
+				this.keywords.unshift({
+					artist,
+					title,
+					datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+				});
 			})
 			.catch(err => {
-				console.error(err);
+				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
 	}
 
@@ -492,7 +457,7 @@ export default class Search extends Vue {
 			.invoke('getLyric', { url, exist })
 			.then(res => {
 				// 這邊為 main process產生的error
-				if (res.error) this.$store.commit('snackbar', { text: res.error, color: 'error' });
+				if (res.error) this.$store.commit('snackbar', { text: res.error, color: Colors.Error });
 
 				const { obj, exist } = res;
 				this.$nextTick(() => {
@@ -511,17 +476,12 @@ export default class Search extends Vue {
 			})
 			.catch(err => {
 				// 這邊為其他 error，主要原因為上面
-				this.$store.commit('snackbar', { text: err, color: 'error' });
+				this.$store.commit('snackbar', { text: err, color: Colors.Error });
 			})
 			.finally(() => {
 				this.$store.commit('changeOverlay', false);
 			});
 	}
-
-	// public listAdd() {
-	// 	this.$dbList.ensureIndex({ fieldName: 'uniqueKey', unique: true }, err => {
-	// 		if (err) console.warn(err);
-	// 	});
 
 	// 	this.$dbList.update(
 	// 		{ uniqueKey: this.lyricObj.obj.key },

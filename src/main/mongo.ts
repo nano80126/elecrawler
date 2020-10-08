@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb';
 import { ipcMain } from 'electron';
+import moment from 'moment';
 // import { argv } from 'process';
 
 let mongoCLient: MongoClient;
@@ -17,15 +18,14 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (
 	// 	console.log(doc);
 	// });
 
-	// list.find({}).toArray((err, doc) => {
-	// 	console.log(err);
-	// 	console.log(doc);
-	// });
-
-	// history.deleteMany({}, (err, doc) => {
-	// 	// console.log(err);
-	// 	console.log(doc.result);
-	// });
+	// 刪除
+	history.deleteMany({
+		datetime: {
+			$lt: moment()
+				.add(-15, 'days')
+				.format('YYYY-MM-DD HH:mm:ss')
+		}
+	});
 
 	ipcMain.handle('historyFind', async (e, args) => {
 		return await history
@@ -36,13 +36,11 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (
 	});
 
 	ipcMain.handle('historySave', async (e, args) => {
-		console.log(args);
 		const ret = await history.updateOne(args.query, args.data, { upsert: true });
 		return ret.result;
 	});
 
 	ipcMain.handle('listFind', async (e, args) => {
-		console.log(args);
 		return await list
 			.find(args.query)
 			.sort(args.sort)
@@ -50,30 +48,22 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (
 	});
 
 	ipcMain.handle('listFindOne', async (e, args) => {
-		console.log(args);
 		return await list.findOne(args.query);
 	});
 
 	ipcMain.handle('listSave', async (e, args) => {
-		console.log(args);
-		const index = await list.createIndex({ uniqueKey: 1 }, { unique: true });
-
-		console.log(index);
+		await list.createIndex({ uniqueKey: 1 }, { unique: true });
 
 		const ret = await list.updateOne(args.query, args.data, { upsert: true });
 		return ret.result;
 	});
 
 	ipcMain.handle('listRemove', async (e, args) => {
-		console.log(args);
-
 		const ret = await list.deleteMany(args.query);
 		return ret.result;
 	});
 
 	ipcMain.handle('listRemoveOne', async (e, args) => {
-		console.log(args);
-
 		const ret = await list.deleteOne(args.query);
 		return ret.result;
 	});
@@ -85,13 +75,6 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (
 	// 	list.update(args.query, args.data, { upsert: true }, err => {
 	// 		console.log(err);
 	// 	});
-
-	// 	return 'done';
-	// });
-
-	// list.update({}, {upd})
-
-	// client.close();
 
 	ipcMain.on('mongoDisc', () => {
 		client.close();
