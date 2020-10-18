@@ -9,6 +9,7 @@
 				</div>
 
 				<span class="ml-3">{{ $t('message') }}</span>
+
 				<v-spacer />
 				<!--  -->
 				<v-btn min-width="24" width="36" text class="no-drag" small @click="windowMin">
@@ -47,7 +48,10 @@
 								</v-list-item-content>
 							</v-list-item>
 						</template>
-						<span>検索</span>
+						<span>
+							<!-- 検索 -->
+							{{ $t('search') }}
+						</span>
 					</v-tooltip>
 					<!--  -->
 					<v-tooltip right transition="scroll-x-transition" open-delay="300">
@@ -58,7 +62,10 @@
 								</v-list-item-content>
 							</v-list-item>
 						</template>
-						<span>リスト</span>
+						<span>
+							<!-- リスト -->
+							{{ $t('list') }}
+						</span>
 					</v-tooltip>
 
 					<!-- <v-tooltip right transition="scroll-x-transition" open-delay="300">
@@ -95,7 +102,10 @@
 									</v-badge>
 								</v-list-item>
 							</template>
-							<span>プレーヤー</span>
+							<span>
+								<!-- プレーヤー -->
+								{{ $t('player') }}
+							</span>
 						</v-tooltip>
 						<!-- </v-list> -->
 
@@ -110,7 +120,10 @@
 											</v-list-item-content>
 										</v-list-item>
 									</template>
-									<span>設定</span>
+									<span>
+										<!-- 設定 -->
+										{{ $t('settings') }}
+									</span>
 								</v-tooltip>
 							</template>
 							<v-list dense class="no-drag">
@@ -125,7 +138,10 @@
 									<template v-slot:activator="{ on, attrs }">
 										<v-list-item v-bind="attrs" v-on="on" @click.stop :ripple="false">
 											<v-list-item-content>
-												<v-list-item-title>言語</v-list-item-title>
+												<v-list-item-title>
+													<!-- 言語 -->
+													{{ $t('language') }}
+												</v-list-item-title>
 											</v-list-item-content>
 
 											<v-list-item-icon class="mr-n4">
@@ -134,7 +150,7 @@
 										</v-list-item>
 									</template>
 									<v-list>
-										<v-list-item-group v-model="language" color="grey" mandatory>
+										<v-list-item-group v-model="language" color="grey">
 											<v-list-item
 												v-for="(name, idx) in languages"
 												:key="`lang${idx}`"
@@ -143,21 +159,34 @@
 												{{ name }}
 											</v-list-item>
 										</v-list-item-group>
-										<!-- <v-list-item>
-											{{ language }}
-										</v-list-item> -->
 									</v-list>
 								</v-menu>
 
+								<v-divider class="grey darken-2" />
+								<v-list-item @click="openPicDir">
+									<v-list-item-content>
+										<v-list-item-title>
+											<!-- 画像ディレクトリ -->
+											{{ $t('imageDir') }}
+										</v-list-item-title>
+									</v-list-item-content>
+								</v-list-item>
+
 								<v-list-item @click="dialog = true">
 									<v-list-item-content>
-										<v-list-item-title>データをクリア</v-list-item-title>
+										<v-list-item-title>
+											<!-- データをクリア -->
+											{{ $t('clearData') }}
+										</v-list-item-title>
 									</v-list-item-content>
 								</v-list-item>
 
 								<v-list-item @click="appClose">
 									<v-list-item-content>
-										<v-list-item-title>終了</v-list-item-title>
+										<v-list-item-title>
+											<!-- 終了 -->
+											{{ $t('exit') }}
+										</v-list-item-title>
 									</v-list-item-content>
 								</v-list-item>
 							</v-list>
@@ -288,7 +317,7 @@ export default class App extends Vue {
 		en: 'English',
 		jp: '日本語'
 	});
-	private language = 2;
+	private language = this.$i18n.locale;
 
 	get contentHeight() {
 		return `${this.$root.$data.webHeight - 38}px`;
@@ -312,15 +341,17 @@ export default class App extends Vue {
 		// if (value == 0) AppModule.snackbars = [];
 		if (value == 0) AppModule.emptySnackbars();
 	}
+
 	@Watch('language')
 	onLanguageChange(value: string) {
+		console.log(value);
+
 		this.$i18n.locale = value;
 		this.menu = false;
 	}
 
 	// life cycle
 	created() {
-		console.log(this);
 		this.$router.beforeEach((to, from, next) => {
 			next();
 		});
@@ -329,8 +360,6 @@ export default class App extends Vue {
 	mounted() {
 		this.SHOW = true;
 		this.bottomSheet = false;
-
-		console.log(this.$store.state);
 	}
 
 	// methods
@@ -353,6 +382,10 @@ export default class App extends Vue {
 	private appClose() {
 		// window close // if all window closed, then app will close too
 		this.$ipcRenderer.send('windowClose');
+	}
+
+	private openPicDir() {
+		this.$shell.openPath(AppModule.picPath);
 	}
 
 	private dataEmpty() {

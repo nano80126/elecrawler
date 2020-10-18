@@ -1,6 +1,6 @@
 <template>
-	<div>
-		<v-card class="mr-3" outlined>
+	<div class="mr-3">
+		<v-card outlined>
 			<v-card-title>
 				<span class="limited-width" v-text="lyric.obj.title" />
 				<v-spacer />
@@ -10,7 +10,7 @@
 							<v-icon>fas fa-plus</v-icon>
 						</v-btn>
 					</template>
-					<span>{{ lyric.exist ? '追加済み' : 'リストに追加' }}</span>
+					<span>{{ lyric.exist ? $t('inList') : $t('addList') }}</span>
 				</v-tooltip>
 			</v-card-title>
 			<v-card-subtitle>
@@ -20,7 +20,7 @@
 
 			<v-card-text
 				class="teal--text text--lighten-1 font-weight-bold lyric-body"
-				v-html="lyric.obj.lyric || '<span>歌詞が存在しない。</span>'"
+				v-html="lyric.obj.lyric || `<span>${$t('noLyricsExist')}</span>`"
 			/>
 		</v-card>
 	</div>
@@ -32,6 +32,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 
 @Component
 export default class Board extends Vue {
+	/**歌詞物件 */
 	@Prop({ required: true, type: Object }) lyric!: {
 		obj: {
 			key: string;
@@ -41,12 +42,14 @@ export default class Board extends Vue {
 		};
 		exist: boolean;
 	};
+	/**是否已存在清單 */
 	@Prop({ required: true, type: Boolean }) exist!: boolean;
 
 	mounted() {
-		console.warn(this.lyric);
+		console.info(`%c${this.lyric.obj.title} / ${this.lyric.obj.artist}`, 'color: #03A9F4;');
 	}
 
+	/**加入清單 */
 	private listAdd() {
 		if (!this.exist) {
 			// this.$parent.listAdd();
@@ -65,35 +68,9 @@ export default class Board extends Vue {
 				if (res.ok) {
 					this.$emit('update:exist', true);
 				}
-				console.log(res);
 			}).catch(err => {
-				// this.$store.commit('snackbar', );
 				AppModule.snackbar({ text: err, color: 'error' });
 			});
-
-			/*
-			this.$dbList.ensureIndex({ fieldName: 'uniqueKey', unique: true }, err => {
-				if (err) console.warn(err);
-			});
-
-			this.$dbList.update(
-				{ uniqueKey: this.lyric.obj.key },
-				{
-					$set: {
-						// uniqueKey: this.lyricObj.key,
-						artist: this.lyric.obj.artist,
-						title: this.lyric.obj.title,
-						lyricUrl: this.lyric.obj.url,
-						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-					}
-				},
-				{ upsert: true },
-				err => {
-					if (err) console.warn(err);
-					// console.log(nb);
-				}
-			);
-			*/
 		}
 	}
 }

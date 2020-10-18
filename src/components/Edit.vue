@@ -1,0 +1,81 @@
+<template>
+	<div>
+		<!-- no padding top/bottom -->
+		<v-list dense two-line class="rounded-lg py-0">
+			<draggable v-model="draggableArray" handle=".handle">
+				<!-- <template > -->
+				<v-list-item v-for="(item, idx) in draggableArray" :key="item.id">
+					<v-list-item-icon class="handle my-6 mr-3">
+						<v-icon style="cursor: pointer;">fas fa-bars</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content
+						:style="`border-bottom: ${idx < urlObjArray.length - 1 ? '1px solid gray' : ''}`"
+					>
+						<v-list-item-title class="d-flex align-center justify-center">
+							<span class="ml-3">{{ `${idx + 1}.` }}</span>
+							<span class="subtitle-2 mr-3 ml-auto" style="user-select: text; max-width: 90%;">{{
+								item.title
+							}}</span>
+						</v-list-item-title>
+						<v-list-item-subtitle class="d-flex align-center justify-center no-gutters">
+							<v-toolbar dense flat height="36" class="transparent">
+								<v-text-field
+									v-model="item.singer"
+									class="col-auto ml-auto"
+									dense
+									rounded
+									filled
+									:placeholder="$t('singer')"
+									hide-details
+									color="orange"
+									prepend-icon="fas fa-microphone-alt"
+									style="max-width: 250px"
+								/>
+								<v-tooltip top color="brown darken-2">
+									<template v-slot:activator="{ on, attrs }">
+										<div v-on="on" v-bind="attrs" class="ml-3">
+											<v-checkbox
+												v-model="item.cover"
+												color="success"
+												class="m-0"
+												hide-details
+												dense
+											/>
+										</div>
+									</template>
+									<span>{{ $t('cover') }}</span>
+								</v-tooltip>
+							</v-toolbar>
+						</v-list-item-subtitle>
+					</v-list-item-content>
+				</v-list-item>
+			</draggable>
+		</v-list>
+	</div>
+</template>
+
+<script lang="ts">
+import { Component, Vue, Prop } from 'vue-property-decorator';
+import draggable from 'vuedraggable';
+
+@Component({
+	components: {
+		draggable
+	}
+})
+export default class Edit extends Vue {
+	/**YouTube Obj Array，自訂title用 */
+	@Prop() urlObjArray!: Array<{ url: string; id?: string; title?: string }>;
+
+	/**回傳可拖動之陣列 */
+	get draggableArray() {
+		return this.urlObjArray;
+	}
+
+	/**設定拖動後陣列 */
+	set draggableArray(val) {
+		console.log(val);
+		this.$emit('update:urlObjArray', val);
+	}
+}
+</script>

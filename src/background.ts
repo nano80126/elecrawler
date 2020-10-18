@@ -24,6 +24,7 @@ import { mongoCLient } from './main/mongo';
 // be closed automatically when the JavaScript object is garbage collected.
 // let win: BrowserWindow | null = null;
 let win: BrowserWindow | null = null;
+let child: BrowserWindow | null = null;
 let tray: Tray | null = null;
 
 // Scheme must be registered before the app is ready
@@ -57,38 +58,42 @@ function createWindow() {
 		}
 	});
 
-	// console.log(Menu.getApplicationMenu());
+	win.webContents.on('new-window', (event, url, frameName) => {
+		console.log(url);
+		console.log(frameName);
 
-	// win.webContents.on('new-window', (event, url, frameName) => {
-	// 	if (frameName === 'ytSearch') {
-	// 		// 將視窗以強制回應方式開啟
-	// 		event.preventDefault();
-	// 		let child = new BrowserWindow({
-	// 			backgroundColor: '#ddd',
-	// 			// skipTaskbar: true,
-	// 			width: 600,
-	// 			height: 960,
-	// 			///
-	// 			center: true,
-	// 			show: false,
-	// 			autoHideMenuBar: true,
-	// 			frame: false,
-	// 			resizable: false,
-	// 			webPreferences: {
-	// 				nodeIntegration: true
-	// 			}
-	// 		});
-	// 		child.loadURL(url);
+		if (frameName === 'editPanel') {
+			// 將視窗以強制回應方式開啟
+			event.preventDefault();
 
-	// 		child.on('ready-to-show', () => {
-	// 			child.show();
-	// 		});
+			child = new BrowserWindow({
+				backgroundColor: '#ddd',
+				// skipTaskbar: true,
+				width: 640,
+				height: 960,
+				///
+				center: true,
 
-	// 		child.on('close', () => {
-	// 			child = null;
-	// 		});
-	// 	}
-	// });
+				modal: true,
+				show: false,
+				autoHideMenuBar: true,
+				frame: false,
+				resizable: false,
+				webPreferences: {
+					nodeIntegration: true
+				}
+			});
+			child.loadURL(url);
+
+			child.on('ready-to-show', () => {
+				child?.show();
+			});
+
+			child.on('close', () => {
+				child = null;
+			});
+		}
+	});
 	// win.webContents.op
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -227,10 +232,6 @@ ipcMain.handle('isMaxmized', () => {
 	return win?.isMaximized();
 });
 // // // // // // // // // // // // // // // // // // //
-
-// ipcMain.handle('dialogImage', () => {
-// 	return dialog.showOpenDialog({ filters: [{ name: 'Images', extensions: ['jpg', 'png', 'bmp'] }] });
-// });
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

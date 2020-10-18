@@ -23,7 +23,7 @@ This is a lyric crawler build by electron.
 * [ ] Design an icon
 * [ ] vue i18n
 
-### Learning 
+### Typescript
 
 * [ ] Typescript (search nodejs + typescript)
 * [ ] Test after changing to typescript
@@ -52,14 +52,21 @@ This is a lyric crawler build by electron.
 * [x] ~~Fix nedb in electron 9~~
 * [x] Remove () after crawl ## ## ## ##
 * [x] Save video id which playing now
-* [ ] replace all commit
 * [x] Fix bug that unable build
 * [x] Update sharp.js
+* [x] Remove some console.log not important
+* [x] Open picture directory
+* [x] Move save button to bottom 
+* [ ] replace all commit
 * [ ] Add global hotkey
-* [ ] Remove some console.log not important
 * [ ] i18n
-* [ ] let lyrci title and artist could be edit (open new window)
-* [ ] Open picture directory
+* [ ] ~Make media.vue smaller, divide it.~
+* [ ] Save settings in json (main/sub text color, text align, language), use fs writefile in main process, path is userData
+* [-] let lyrci title and artist could be edit (open new window)
+* [ ] Create new widnow for edit panel
+* [x] Try vuedraggable to switch youtube obj index
+* [ ] Show title of YouTube in Embed.vue
+* [x] Fix toolbar of YouTube URL 
 
 ### Known bug 
 

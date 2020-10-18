@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<v-row no-gutters align="start" justify="start">
+		<v-row no-gutters align="start" justify="start" class="mr-3">
 			<v-col cols="12">
 				<v-toolbar flat dense height="40" color="transparent" class="px-0">
 					<v-btn
@@ -21,7 +21,7 @@
 
 					<!-- <v-hover v-model="fieldHover"> -->
 					<v-text-field
-						v-model="url"
+						v-model="activedURL"
 						filled
 						rounded
 						dense
@@ -31,10 +31,6 @@
 						@mousewheel="mouseWheel"
 						@blur="fieldBlur"
 					>
-						<!-- <template v-slot:prepend>
-							<v-icon color="red">fab fa-youtube</v-icon>
-						</template> -->
-
 						<template v-slot:prepend-inner>
 							<v-badge :value="badge" :content="urlIndex + 1" overlap left bottom color="orange">
 								<v-hover v-model="badge" close-delay="500">
@@ -50,7 +46,7 @@
 										fas fa-plus
 									</v-icon>
 								</template>
-								<span>合計: {{ urlObj.length }}</span>
+								<span>{{ $t('total') }}: {{ urlObj.length }}</span>
 							</v-tooltip>
 						</template>
 					</v-text-field>
@@ -72,12 +68,9 @@
 								style="position:relative;"
 							>
 								<v-icon small>fab fa-chrome</v-icon>
-								<!-- <v-icon style="position:absolute; transform: rotate(-45deg);">
-									fas fa-long-arrow-alt-right
-								</v-icon> -->
 							</v-btn>
 						</template>
-						<span>外部ブラウザでサーチ</span>
+						<span>{{ $t('externalBrowser') }}</span>
 					</v-tooltip>
 				</v-toolbar>
 			</v-col>
@@ -90,7 +83,7 @@
 				</v-chip>
 
 				<v-chip class="mr-2 pr-4" color="light-green" text-color="white">
-					{{ $lodash.round(fitRatio * 100, 2) }}
+					{{ $lodash.round(imgZoomRatio * 100, 2) }}
 					<v-icon right small>fas fa-percentage</v-icon>
 				</v-chip>
 				<v-spacer />
@@ -105,14 +98,12 @@
 							@click="getVideoImg"
 							v-bind="attrs"
 							v-on="on"
-							:disabled="urlObj[0].url == null || urlObj[0].url.length == 0"
+							:disabled="activedURL == null || activedURL.length == 0"
 						>
 							<v-icon small>fas fa-photo-video</v-icon>
 						</v-btn>
 					</template>
-					<!-- <span>YouTubeカバー画像をゲット</span> -->
-					<span>サムネイルをゲット</span>
-					<!-- <span>プレビュー画像</span> -->
+					<span>{{ $t('getYouTubeCover') }}</span>
 				</v-tooltip>
 
 				<v-tooltip bottom open-delay="300">
@@ -129,12 +120,9 @@
 							<v-icon small>far fa-image</v-icon>
 						</v-btn>
 					</template>
-					<span>画像選択</span>
+					<span>{{ $t('selectImage') }}</span>
 				</v-tooltip>
 
-				<!-- <v-btn outlined icon class="ml-2">
-					<v-icon small>far fa-square</v-icon>
-				</v-btn>-->
 				<v-tooltip bottom open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn
@@ -142,7 +130,7 @@
 							outlined
 							class="ml-2"
 							:class="{ 'blue-grey darken-2': catchAvatar }"
-							:disabled="!imgurl"
+							:disabled="!imgBuffer"
 							@click="catchAvatar = !catchAvatar"
 							v-bind="attrs"
 							v-on="on"
@@ -150,126 +138,148 @@
 							<v-icon small style="transform: rotate(90deg)">fas fa-crop-alt</v-icon>
 						</v-btn>
 					</template>
-					<span>アバターキャプチャ</span>
+					<span>{{ $t('avatarImage') }}</span>
 				</v-tooltip>
 
 				<v-tooltip bottom open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
-						<v-btn icon outlined class="ml-2" @click="removeImage()" v-bind="attrs" v-on="on">
+						<v-btn icon outlined class="ml-2" @click="removeImage" v-bind="attrs" v-on="on">
 							<v-icon small>fas fa-times</v-icon>
 						</v-btn>
 					</template>
-					<span>画像を削除する</span>
+					<span>{{ $t('removeImage') }}</span>
 				</v-tooltip>
 
 				<!--  -->
-				<v-divider vertical class="mx-2" />
+				<!-- <v-divider vertical class="mx-2" />
 				<v-tooltip bottom open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
-						<v-btn outlined icon v-bind="attrs" v-on="on" @click="keepMedia">
+						<v-btn outlined icon v-bind="attrs" v-on="on" @click="saveMedia">
 							<v-icon small>fas fa-download</v-icon>
 						</v-btn>
 					</template>
-					<span>保存する</span>
-				</v-tooltip>
-				<!--  -->
-			</v-col>
-
-			<v-col cols="12" class="mt-3">
-				<v-responsive :aspect-ratio="16 / 9">
-					<div
-						class="image-zone d-flex align-center justify-center pa-3"
-						:class="{ 'drag-hover': dragging, 'drag-focus': canPaste }"
-					>
-						<div
-							tabindex="0"
-							class="paste-zone"
-							@paste="onPaste"
-							@focus="canPaste = true"
-							@blur="canPaste = false"
-							style="outline: 0;"
-						></div>
-
-						<v-card
-							id="imgCard"
-							flat
-							class="no-select rounded-lg transparent"
-							@dragenter.capture="dragging = true"
-							@dragleave.capture="dragging = false"
-							@drop.capture="dragging = false"
-							width="100%"
-							ref="imgCard"
-							@mousedown.capture="rectOn"
-							@mousemove.capture="crossMove"
-							@mouseleave.capture="crossReset"
-							@mouseup.capture="rectOff"
-						>
-							<transition name="imagFadeIn">
-								<v-img
-									v-if="imgurl"
-									:src="`data:image/jpeg;base64,${imgurl.toString('base64')}`"
-									contain
-									:max-width="imgSize.width > 0 ? imgSize.width : null"
-									:max-height="imgSize.height > 0 ? imgSize.height : null"
-									style="border-radius: inherit; margin:auto;"
-									ref="img"
-									v-resize="resize"
-									@load="updateRatio"
-								>
-									<template v-if="catchAvatar">
-										<div id="small-region" ref="region" />
-										<div id="crosshair-h" class="hair" ref="hairH" />
-										<div id="crosshair-v" class="hair" ref="hairV" />
-										<span id="mousepos" ref="pos" v-text="'X:0, Y:0'" />
-									</template>
-									<div id="small-region-freeze" ref="region-freeze" />
-								</v-img>
-								<v-card-text
-									v-else
-									class="text-center grey darken-2 mx-auto rounded-lg"
-									style="width: 75%"
-								>
-									ドラッグ & ドロップ
-									<br />
-									<small>Drag image and drop here</small>
-								</v-card-text>
-							</transition>
-
-							<input
-								ref="file"
-								type="file"
-								@change="onChange"
-								@click.prevent
-								title
-								accept="image/jpeg, image/png, image/bmp"
-							/>
-						</v-card>
-					</div>
-				</v-responsive>
+					<span>{{ $t('save') }}</span>
+				</v-tooltip> -->
 			</v-col>
 		</v-row>
 
-		<template v-if="true">
-			<div>
-				abs: {{ rectAbs }}
-				<br />
-				perc: {{ rectPercent }}
-				<br />
-				imageSize: {{ imgSize }}
-				<br />
-				{{ imgurl ? imgurl.length : 0 }}
-			</div>
+		<div class="min-scroll y info-scroll mt-3 pr-3" :style="{ height: `${$root.webHeight - 144}px` }">
+			<v-row no-gutters align="start" justify="start">
+				<v-col cols="12" class="">
+					<v-responsive :aspect-ratio="16 / 9">
+						<div
+							class="image-zone d-flex align-center justify-center pa-3"
+							:class="{ 'drag-hover': dragging, 'drag-focus': canPaste }"
+						>
+							<div
+								tabindex="0"
+								class="paste-zone"
+								@paste="onPaste"
+								@focus="canPaste = true"
+								@blur="canPaste = false"
+								style="outline: 0;"
+							></div>
 
-			<div v-for="(item, index) in lyric.obj" :key="index">
-				{{ index != 'lyric' ? `${index}:` : null }}
-				{{ index != 'lyric' ? item : null }}
-			</div>
-			{{ lyric.obj.key }}
-			<br />
-			{{ urlObj }}
+							<v-card
+								id="imgCard"
+								flat
+								class="no-select rounded-lg transparent"
+								@dragenter.capture="dragging = true"
+								@dragleave.capture="dragging = false"
+								@drop.capture="dragging = false"
+								width="100%"
+								ref="imgCard"
+								@mousedown.capture="rectOn"
+								@mousemove.capture="crossMove"
+								@mouseleave.capture="crossReset"
+								@mouseup.capture="rectOff"
+							>
+								<transition name="imagFadeIn">
+									<v-img
+										v-if="imgBuffer"
+										:src="`data:image/jpeg;base64,${imgBuffer.toString('base64')}`"
+										contain
+										:max-width="imgSize.width > 0 ? imgSize.width : null"
+										:max-height="imgSize.height > 0 ? imgSize.height : null"
+										style="border-radius: inherit; margin:auto;"
+										ref="img"
+										v-resize="resize"
+										@load="updateRatio"
+									>
+										<template v-if="catchAvatar">
+											<div id="small-region" ref="region" />
+											<div id="crosshair-h" class="hair" ref="hairH" />
+											<div id="crosshair-v" class="hair" ref="hairV" />
+											<span id="mousepos" ref="pos" v-text="'X:0, Y:0'" />
+										</template>
+										<div id="small-region-freeze" ref="region-freeze" />
+									</v-img>
+									<v-card-text
+										v-else
+										class="text-center grey darken-2 mx-auto rounded-lg"
+										style="width: 75%"
+									>
+										<template v-if="$t('dragAndDrop')">
+											{{ $t('dragAndDrop') }}
+											<br />
+											<small>Drag image and drop here</small>
+										</template>
+										<template v-else>
+											Drag image and drop here
+										</template>
+									</v-card-text>
+								</transition>
 
-			{{ $refs.file ? $refs.file.files.length : '' }}
-		</template>
+								<input
+									ref="file"
+									type="file"
+									@change="onChange"
+									@click.prevent
+									title
+									accept="image/jpeg, image/png, image/bmp"
+								/>
+							</v-card>
+						</div>
+					</v-responsive>
+				</v-col>
+
+				<v-col cols="12" class="mt-3">
+					<editPanel :urlObjArray.sync="urlObj" />
+				</v-col>
+				<v-col cols="3" offset="9" xl="2" offset-xl="10" class="mt-3 text-right">
+					<v-btn block outlined @click="saveMedia">
+						<div style="position: relative;">
+							<v-icon class="opa-75">fas fa-list</v-icon>
+							<v-icon x-small color="cyan" class="small-icon">fas fa-save</v-icon>
+						</div>
+						<span class="ml-2  font-weight-bold">{{ $t('save') }}</span>
+					</v-btn>
+				</v-col>
+			</v-row>
+
+			<template v-if="true">
+				<div>
+					abs: {{ rectAbs }}
+					<br />
+					%: {{ rectPercent }}
+					<br />
+					imgSize: {{ imgSize }}
+					<br />
+					{{ imgBuffer ? imgBuffer.length : 0 }}
+				</div>
+
+				<div v-for="(item, index) in lyric.obj" :key="index">
+					{{ index != 'lyric' ? `${index}: ${item}` : null }}
+				</div>
+				{{ lyric.obj.key }}
+				<br />
+
+				{{ urlObj.length }}
+				<div v-for="item in urlObj" :key="item.id">
+					{{ item }}
+				</div>
+			</template>
+		</div>
 
 		<v-menu
 			v-model="showMenu"
@@ -295,14 +305,21 @@
 </template>
 
 <script lang="ts">
+import edit from '@/components/Edit.vue';
+
 import { AppModule, Colors } from '@/store/modules/app';
-// import debounce from 'lodash/debounce';
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
-@Component
+@Component({
+	components: {
+		editPanel: edit
+	}
+})
 export default class Media extends Vue {
-	@Prop() bigImage!: boolean;
-	@Prop() lyric!: {
+	/**是否使用大圖 */
+	@Prop({ required: true }) bigImage!: boolean;
+	/**Lyric Object，儲存用 */
+	@Prop({ required: true }) lyric!: {
 		obj: {
 			key: string;
 			url: string;
@@ -312,34 +329,47 @@ export default class Media extends Vue {
 		};
 	};
 
-	private urlObj: Array<{ url: string; id?: string; title?: string }> = [{ url: '' }];
+	/**YouTube obj array */
+	private urlObj: Array<{ url: string; id?: string; title?: string; singer?: string; cover?: boolean }> = [
+		{ url: '' }
+	];
+	/**顯示之YouTube url之index */
 	private urlIndex = 0;
-	//
+	/**開啟dialog後，disable按鈕，避免重複開啟 */
 	private disableDialog = false;
-	//
-	private imgurl: Buffer | null = null;
-
+	/**image buffer */
+	private imgBuffer: Buffer | null = null;
+	/**是否顯示badge，顯示現在儲存的youtube url數量 */
 	private badge = false;
+	/**badge隱藏之timeout */
 	private badgeTimeout: NodeJS.Timeout | null = null;
-
+	/**是否有圖片將要拉進 */
 	private dragging = false;
+	/**是否可以貼上？當圖片區域focus時為true */
 	private canPaste = false;
 	//
 	private catchAvatar = false;
 	private startRectFlag = false;
+
+	/**是否顯示確認menu，確認縮圖範圍 */
 	private showMenu = false;
-	//
-	private rectAbs = { x: 0, y: 0, width: 0, height: 0 };
-	private rectPercent = { x: 0, y: 0, width: 0, height: 0 };
-	private imgSize = { width: 0, height: 0 };
+	/**menu 位置 */
 	private menuPos = { x: 0, y: 0 };
-	private fitRatio = 0;
-	///
-	get url(): string {
+
+	/**縮圖Rectangle absolute */
+	private rectAbs = { x: 0, y: 0, width: 0, height: 0 };
+	/**縮圖Rectangle Percent */
+	private rectPercent = { x: 0, y: 0, width: 0, height: 0 };
+	/**圖片原始大小 */
+	private imgSize = { width: 0, height: 0 };
+	/**圖片縮放率 */
+	private imgZoomRatio = 0;
+	/**當前顯示URL */
+	get activedURL(): string {
 		return this.urlObj[this.urlIndex].url || '';
 	}
-
-	set url(value) {
+	/**更改當前顯示URL */
+	set activedURL(value) {
 		if (!value) this.urlObj[this.urlIndex].url = '';
 		else this.urlObj[this.urlIndex].url = value;
 	}
@@ -357,6 +387,11 @@ export default class Media extends Vue {
 	}
 
 	mounted() {
+		// console.log(this.$route);
+		// console.log(this.$route.query);
+		// console.log(this.$route.params);
+		// if (!this.lyric) return;
+
 		this.$ipcRenderer
 			.invoke('listFindOne', { query: { uniqueKey: this.lyric.obj.key } })
 			.then(doc => {
@@ -368,7 +403,7 @@ export default class Media extends Vue {
 								this.$store.commit('snackbar', { text: res.message, color: 'error' });
 								return;
 							}
-							this.imgurl = Buffer.from(res.data);
+							this.imgBuffer = Buffer.from(res.data);
 
 							this.$nextTick(() => {
 								this.$set(this.imgSize, 'width', res.info.width);
@@ -396,11 +431,13 @@ export default class Media extends Vue {
 			});
 	}
 
+	/**開啟外部瀏覽器搜尋 */
 	private openWindow(keyWord: string): void {
 		const url = `https://www.youtube.com/results?search_query=${keyWord}`;
 		this.$shell.openExternal(url);
 	}
 
+	/**切換顯示之YouTube URL */
 	private mouseWheel(e: MouseWheelEvent): void {
 		if (e.deltaY > 0) {
 			this.urlIndex = this.urlIndex + 1 > this.urlObj.length - 1 ? this.urlObj.length - 1 : this.urlIndex + 1;
@@ -409,6 +446,7 @@ export default class Media extends Vue {
 		}
 	}
 
+	/**URL Text filed不為Focus狀態，呼叫YouTube v3 API */
 	private fieldBlur(/*e*/): void {
 		// this.urlObj = this.urlObj.filter(o => {
 		// 	return o.url && o.url.length > 0;
@@ -447,7 +485,8 @@ export default class Media extends Vue {
 		e.preventDefault();
 		e.stopPropagation();
 
-		const videoID = this.urlObj[0].url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+		// const videoID = this.urlObj[0].url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+		const videoID = this.activedURL.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
 		if (videoID && videoID[0].length == 11) {
 			this.$ipcRenderer
 				.invoke('videoCover', { ID: videoID })
@@ -456,7 +495,7 @@ export default class Media extends Vue {
 						AppModule.snackbar({ text: res.message, color: Colors.Error });
 						return;
 					}
-					this.imgurl = Buffer.from(res.data);
+					this.imgBuffer = Buffer.from(res.data);
 
 					const { width, height } = res.info;
 					this.$nextTick(() => {
@@ -491,7 +530,7 @@ export default class Media extends Vue {
 			this.$ipcRenderer
 				.invoke('toBuffer', { buffer: buf })
 				.then(res => {
-					this.imgurl = Buffer.from(res.data);
+					this.imgBuffer = Buffer.from(res.data);
 
 					const { width, height } = res.info;
 					this.$nextTick(() => {
@@ -524,7 +563,7 @@ export default class Media extends Vue {
 		this.$ipcRenderer
 			.invoke('toBuffer', { path: filePath })
 			.then(res => {
-				this.imgurl = Buffer.from(res.data);
+				this.imgBuffer = Buffer.from(res.data);
 
 				const { width, height } = res.info;
 				this.$nextTick(() => {
@@ -545,7 +584,7 @@ export default class Media extends Vue {
 		this.$ipcRenderer
 			.invoke('dialogImage')
 			.then(res => {
-				this.imgurl = Buffer.from(res.data);
+				this.imgBuffer = Buffer.from(res.data);
 
 				const { width, height } = res.info;
 				this.$nextTick(() => {
@@ -561,11 +600,9 @@ export default class Media extends Vue {
 			});
 	}
 
-	private keepMedia(): void {
-		if (this.imgurl) {
-			// const image = this.$sharp(this.imgurl);
-			// const promises = [];
-
+	/**儲存Media資料 */
+	private saveMedia(): void {
+		if (this.imgBuffer) {
 			const x = Math.round((this.imgSize.width * this.rectPercent.x) / 100);
 			const y = Math.round((this.imgSize.height * this.rectPercent.y) / 100);
 			const w = Math.round((this.imgSize.width * this.rectPercent.width) / 100);
@@ -573,7 +610,7 @@ export default class Media extends Vue {
 
 			this.$ipcRenderer
 				.invoke('saveImage', {
-					buffer: this.imgurl,
+					buffer: this.imgBuffer,
 					key: this.lyric.obj.key,
 					size: { left: x, top: y, width: w, height: h }
 				})
@@ -584,11 +621,13 @@ export default class Media extends Vue {
 					}
 
 					const obj = this.lyric.obj;
-					// const picPath = this.$store.state.picPath;
 					const picPath = AppModule.picPath;
 					// this.urlObj = this.$lodash.compact(this.urlObj);
 					this.urlIndex = 0; // Set index to 0 or maybe return url not in urlObj
+					// 移除url為空
 					this.urlObj = this.urlObj.filter(e => e.url && e.url.length > 0);
+					// 去頭尾空白
+					this.urlObj.forEach(e => (e.singer = e.singer?.replace(/(^\s+)|(\s+$)/g, '')));
 
 					// const urlIdArr = [];
 					// this.urlObj.forEach(u => {
@@ -628,90 +667,13 @@ export default class Media extends Vue {
 						files: [`${obj.key}.jpg`, `${obj.key}.icon.jpg`]
 					});
 				});
-
-			//#region
-			// promises.push(
-			// 	image
-			// 		.clone()
-			// 		.toFormat('jpeg')
-			// 		.toFile(`${this.$picPath}\\${this.lyric.obj.key}.jpg`)
-			// );
-
-			// //
-			// if (w > 0 && h > 0) {
-			// 	promises.push(
-			// 		image
-			// 			.clone()
-			// 			.extract({ left: x, top: y, width: w, height: h })
-			// 			.resize(128, 128, { fit: this.$sharpFit.outside, withoutEnlargement: true })
-			// 			.toFormat('jpeg')
-			// 			.toFile(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`)
-			// 	);
-			// }
-
-			// Promise.all(promises)
-			// 	.then(res => {
-			// 		console.warn('Done!', res);
-
-			// 		const obj = this.lyric.obj;
-
-			// 		// this.urlObj = this.$lodash.compact(this.urlObj);
-			// 		this.urlIndex = 0; // Set index to 0 or maybe return url not in urlObj
-			// 		this.urlObj = this.urlObj.filter(e => e.url != null && e.url.length > 0);
-
-			// 		// const urlIdArr = [];
-			// 		// this.urlObj.forEach(u => {
-			// 		// 	const id = u.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-			// 		// 	if (id && id[0].length == 11) urlIdArr.push(id[0]);
-			// 		// });
-			// 		// const v = this.url[0].match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-			// 		// add image / avatart to list
-			// 		this.$dbList.update(
-			// 			{ uniqueKey: obj.key },
-			// 			{
-			// 				$set: {
-			// 					// uniqueKey: this.lyricObj.key,
-			// 					ytObj: this.urlObj,
-			// 					// ytID: v && v[0].length == 11 ? v[0] : null,
-			// 					// ytID: urlIdArr,
-			// 					imagePath: `${this.$picPath}\\${obj.key}.jpg`,
-			// 					imageSize: Object.freeze(this.imgSize),
-			// 					rectangle: Object.freeze(this.rectPercent),
-			// 					avatarPath: w > 0 && h > 0 ? `${this.$picPath}\\${obj.key}_avatar.jpg` : null,
-			// 					datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-			// 				}
-			// 			},
-			// 			{ upsert: false },
-			// 			err => {
-			// 				if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-			// 				else this.$store.commit('snackbar', { text: '変更が保存された', color: 'success' });
-			// 			}
-			// 		);
-			// 	})
-			// 	.catch(err => {
-			// 		if (err) {
-			// 			this.$store.commit('snackbar', { text: err, color: 'error' });
-
-			// 			this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}.jpg`, err => {
-			// 				if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
-			// 			});
-			// 			this.$fs.unlink(`${this.$picPath}\\${this.lyric.obj.key}_avatar.jpg`, err => {
-			// 				if (err) this.$store.commit('snackbar', { text: err, color: 'warning' });
-			// 			});
-			// 		}
-			// 	});
-			//#endregion
 		} else {
 			const obj = this.lyric.obj;
 
-			// this.urlObj = this.$lodash.compact(this.url);
+			// 移除url為空
 			this.urlObj = this.urlObj.filter(e => e.url && e.url.length > 0);
-			// const urlIdArr = [];
-			// this.url.forEach(u => {
-			// 	const id = u.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-			// 	if (id && id[0].length == 11) urlIdArr.push(id[0]);
-			// });
-			// const v = this.url ? this.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/) : null;
+			// 去頭尾空白
+			this.urlObj.forEach(e => (e.singer = e.singer?.replace(/(^\s+)|(\s+$)/g, '')));
 
 			this.$ipcRenderer
 				.invoke('listSave', {
@@ -740,10 +702,9 @@ export default class Media extends Vue {
 	}
 
 	private removeImage(): void {
-		this.imgurl = null; // 重置 imgurl
+		this.imgBuffer = null; // 重置 imgBuffer
 		this.imgSize.width = this.imgSize.height = 0; // 重置 imgSize
-		this.fitRatio = 0; // 重置縮小倍率
-		// this.$refs.file.value = null; // 重置 file
+		this.imgZoomRatio = 0; // 重置縮小倍率
 		//
 		this.catchAvatar = false;
 		this.startRectFlag = false;
@@ -751,15 +712,14 @@ export default class Media extends Vue {
 	}
 
 	private crossMove(e: MouseEvent): void {
-		if (!this.imgurl || !this.catchAvatar) return;
+		if (!this.imgBuffer || !this.catchAvatar) return;
 
 		const x = e.offsetX - 2 < 0 ? 0 : e.offsetX - 2;
 		const y = e.offsetY - 2 < 0 ? 0 : e.offsetY - 2;
 		(this.$refs.hairV as HTMLLIElement).style.left = `${e.offsetX}px`;
 		(this.$refs.hairH as HTMLLIElement).style.top = `${e.offsetY}px`;
 		(this.$refs.pos as HTMLLIElement).innerText = `X:${x}, Y:${y}`;
-		// this.$refs.pos.style.top = `${e.offsetY}px`;
-		// this.$refs.pos.style.left = `${e.offsetX}px`;
+
 		if (this.startRectFlag) {
 			const w = (this.$refs.img as Vue).$el.clientWidth;
 			const h = (this.$refs.img as Vue).$el.clientHeight;
@@ -771,7 +731,6 @@ export default class Media extends Vue {
 			else region.style.left = `${(100 * this.rectAbs.x) / w}%`;
 			if (e.offsetY < this.rectAbs.y) region.style.top = `${(100 * e.offsetY) / h}%`;
 			else region.style.top = `${(100 * this.rectAbs.y) / h}%`;
-			// this.$refs.region.style.left =
 
 			this.rectAbs.width = Math.abs(e.offsetX - this.rectAbs.x) + 1;
 			this.rectAbs.height = Math.abs(e.offsetY - this.rectAbs.y) + 1;
@@ -781,7 +740,7 @@ export default class Media extends Vue {
 	}
 
 	private crossReset(e: MouseEvent) {
-		if (!this.imgurl || !this.catchAvatar) return;
+		if (!this.imgBuffer || !this.catchAvatar) return;
 
 		this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
 		this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
@@ -796,7 +755,7 @@ export default class Media extends Vue {
 	}
 
 	private rectOn(e: MouseEvent) {
-		if (!this.imgurl || !this.catchAvatar) return;
+		if (!this.imgBuffer || !this.catchAvatar) return;
 		//
 		if (e.button == 0) {
 			this.startRectFlag = true;
@@ -823,7 +782,7 @@ export default class Media extends Vue {
 	}
 
 	private rectOff(e: MouseEvent) {
-		if (!this.imgurl || !this.catchAvatar) return;
+		if (!this.imgBuffer || !this.catchAvatar) return;
 		//
 		if (e.button == 0 && this.startRectFlag) {
 			this.startRectFlag = false;
@@ -857,7 +816,7 @@ export default class Media extends Vue {
 	private updateRatio() {
 		this.$nextTick(() => {
 			if (this.$refs.img) {
-				this.fitRatio = (this.$refs.img as Vue).$el.clientWidth / this.imgSize.width;
+				this.imgZoomRatio = (this.$refs.img as Vue).$el.clientWidth / this.imgSize.width;
 			}
 		});
 	}
@@ -1003,5 +962,11 @@ input[type='file'] {
 .imagFadeIn-enter {
 	opacity: 0.15;
 	transform: scale(0.1, 0.1);
+}
+
+.small-icon {
+	position: absolute;
+	right: -5px;
+	bottom: -3px;
 }
 </style>

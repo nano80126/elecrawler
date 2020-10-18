@@ -15,6 +15,12 @@ const routes = [
 		path: '/list',
 		name: 'List',
 		component: () => import(/* webpackChunkName */ '@/views/List.vue')
+	},
+	///
+	{
+		path: '/media/:a?',
+		name: 'Media',
+		component: () => import(/* webpackChunkName */ '@/components/Media.vue')
 	}
 	// {
 	// 	path: '/dev',

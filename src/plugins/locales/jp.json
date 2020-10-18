@@ -5,6 +5,8 @@
 	"list": "リスト",
 	"player": "プレーヤー",
 	"settings": "設定",
+	"language": "言語",
+	"imageDir": "画像ディレクトリ",
 	"clearData": "データをクリア",
 	"exit": "終了",
 
@@ -12,18 +14,29 @@
 	"song": "曲名",
 	"keyWord": "キーワード",
 	"link": "リンク",
-	"doSearchLyrics": "歌詞を探しましょう",
-	"beforeAddToList": "リストに追加しないと操作できず",
-	"listAdd": "リストに追加",
-	"inTheList": "追加済み",
-	"youtubeUrl": "YouTubeのリンク",
-	"externalBrowser": "外部ブラウザでサーチ",
-	"getYouTubeCoverImage": "YouTubeカバー画像をゲット",
-	"selectImage": "画像選択",
-	"previewImage": "アバターキャプチャ",
-	"removeImage": "画像を削除する",
-	"save": "保存する",
-	"dragAndDrop": "ドラッグ & ドロップ",
+	"doSearchLyrics": "歌詞を探しましょう！",
 
-	"search_alt": "サーチ"
+	"addListToAccess": "リストに追加しないと操作できず",
+	"addList": "リストに追加",
+	"inList": "追加済み",
+	"noLyricsExist": "歌詞が存在しない。",
+
+	"youtubeUrl": "YouTubeのリンク",
+	"total": "合計",
+	"externalBrowser": "外部ブラウザでサーチ",
+	"getYouTubeCover": "YouTubeサムネイルをゲット",
+	"selectImage": "画像選択",
+	"avatarImage": "アバターキャプチャ",
+	"removeImage": "画像を削除する",
+	"save": "保存",
+	"dragAndDrop": "ドラッグ & ドロップ",
+	"cover": "カバー",
+
+	"search_alt": "サーチ",
+	"delete": "削除",
+
+	"end": "終わり",
+
+	"loop": "ループ再生",
+	"shuffle": "シャッフル再生"
 }

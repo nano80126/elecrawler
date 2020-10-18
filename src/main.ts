@@ -176,7 +176,6 @@ new Vue({
 							})
 							.catch(err => {
 								AppModule.snackbar({ text: err, color: 'error' });
-								// this.$store.commit('snackbar', );
 							});
 					}, 1500);
 			}
@@ -189,7 +188,7 @@ new Vue({
 
 		// make pictures directory
 		this.$ipcRenderer.invoke('mkPicDir').then((res: { path: string }) => {
-			console.info(`%c${res.path}`, 'color: #4CAF50;');
+			console.info(`%c${res.path}`, `color: ${this.$vuetify.theme.themes.dark.success};`);
 			AppModule.savePicPath(res.path);
 		});
 	},

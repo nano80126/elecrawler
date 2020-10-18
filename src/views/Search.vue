@@ -15,29 +15,11 @@
 				<v-row no-gutters align="center" justify="center">
 					<v-col>
 						<v-text-field
-							v-model="artist"
-							filled
-							rounded
-							dense
-							hide-details
-							placeholder="歌手名"
-							class="mx-1"
-							color="info"
-							@keyup.enter="lyricSearch"
-						>
-							<template v-slot:prepend-inner>
-								<v-icon left small class="mt-1 mr-1">fas fa-microphone-alt</v-icon>
-							</template>
-						</v-text-field>
-					</v-col>
-
-					<v-col>
-						<v-text-field
 							v-model="title"
 							filled
 							rounded
 							dense
-							placeholder="曲名"
+							:placeholder="$t('song')"
 							hide-details
 							class="mx-1"
 							color="info"
@@ -45,6 +27,24 @@
 						>
 							<template v-slot:prepend-inner>
 								<v-icon left small class="mt-1 mr-1">fas fa-music</v-icon>
+							</template>
+						</v-text-field>
+					</v-col>
+
+					<v-col>
+						<v-text-field
+							v-model="artist"
+							filled
+							rounded
+							dense
+							hide-details
+							:placeholder="$t('singer')"
+							class="mx-1"
+							color="info"
+							@keyup.enter="lyricSearch"
+						>
+							<template v-slot:prepend-inner>
+								<v-icon left small class="mt-1 mr-1">fas fa-microphone-alt</v-icon>
 							</template>
 						</v-text-field>
 					</v-col>
@@ -68,7 +68,7 @@
 						<v-col cols="auto">
 							<v-chip label small color="orange lighten-1">
 								<v-icon x-small color="white">fas fa-star</v-icon>
-								<span class="ml-1 white--text">キーワード</span>
+								<span class="ml-1 white--text">{{ $t('keyWord') }}</span>
 							</v-chip>
 						</v-col>
 						<v-col cols class="px-3 ellipsis" style="width:100%;">
@@ -86,7 +86,7 @@
 							</v-chip>
 						</v-col>
 					</template>
-					<!-- scroll below  --><!-- scroll below  --><!-- scroll below  -->
+
 					<!-- scroll below  --><!-- scroll below  --><!-- scroll below  -->
 					<!-- scroll below  --><!-- scroll below  --><!-- scroll below  -->
 					<transition name="lyricSlide">
@@ -96,9 +96,7 @@
 								class="min-scroll y success-scroll"
 								:style="{ height: `${($root.webHeight - 136) / 2.5 - 12}px` }"
 							>
-								<!-- <v-col  cols="12" class="mb-3 px-0"> -->
 								<lyricCard :lyric="lyricObj" :exist.sync="lyricObj.exist" />
-								<!-- </v-col> -->
 							</div>
 						</v-col>
 					</transition>
@@ -107,7 +105,7 @@
 						<v-virtual-scroll
 							class="min-scroll y success-scroll scroll-darken"
 							bench="1"
-							:items="list"
+							:items="searchList"
 							item-height="150"
 							:height="($root.webHeight - 136) / (lyricObj && !isTwoColumn ? 1.667 : 1)"
 						>
@@ -216,7 +214,8 @@
 						<div class="d-flex align-center" style="height:100%;">
 							<v-card flat shaped class="mr-3" width="100%">
 								<v-card-subtitle class="text-center">
-									歌詞を探しましょう
+									{{ $t('doSearchLyrics') }}
+									<!-- 歌詞を探しましょう -->
 								</v-card-subtitle>
 							</v-card>
 						</div>
@@ -233,18 +232,22 @@
 				<v-col
 					v-if="isThreeColumn"
 					cols
-					class="px-3"
+					class="pl-3"
 					:style="{ 'max-width': bigImage ? `${$root.webWidth - 480}px` : `${$root.webWidth - 960}px` }"
 					style="border-left:1px solid rgba(150, 150, 150, 0.5);"
 				>
+					<!-- border-right:1px solid rgba(150, 150, 150, 0.5); -->
 					<template v-if="lyricObj && lyricObj.exist">
+						<!-- <div class="min-scroll y info-scroll" :style="{ height: `${$root.webHeight - 44}px` }"> -->
 						<lyricMedia :bigImage.sync="bigImage" :lyric="lyricObj" />
+						<!-- </div> -->
 					</template>
 					<template v-else>
 						<div class="d-flex align-center" style="height:100%">
 							<v-card flat shaped width="100%">
 								<v-card-subtitle class="text-center">
-									リストに追加しないと操作できず
+									{{ $t('addListToAccess') }}
+									<!-- リストに追加しないと操作できず -->
 								</v-card-subtitle>
 							</v-card>
 						</div>
@@ -271,32 +274,38 @@ import { Component, Vue } from 'vue-property-decorator';
 	}
 })
 export default class Search extends Vue {
+	/**歌詞物件 */
 	private lyricObj: { obj: {}; exist: boolean } | null = null;
-	//
-	private list: Array<{}> = [];
-	private historyList: Array<{
+
+	/**搜尋清單 */
+	private searchList: Array<{}> = [];
+	/**已加入清單，搜尋比對用，已存在的項目將會被標記 */
+	private List: Array<{
 		uniqueKey: string;
 		title: string;
 		artist: string;
 		lyricUrl: string;
 		datetime: string;
 	}> = [];
-	//
+
+	/**搜尋歌手 */
 	private artist = '';
+	/**搜尋歌曲名 */
 	private title = '';
-	//
+	/**是否展開大圖 */
 	private bigImage = false;
-	//
+	/**關鍵字紀錄 */
 	private keywords: Array<{ artist: string; title: string; datetime: string }> = [];
 
+	/**是否可以搜尋 */
 	get canSearch(): boolean {
 		return this.title?.length > 0 || this.artist?.length > 0;
 	}
-
+	/**視窗寬度 */
 	get windowWidth(): number {
 		return this.$root.$data.webWidth;
 	}
-
+	/**視窗高度 */
 	get windowHeight(): number {
 		return this.$root.$data.webHeight;
 	}
@@ -313,7 +322,6 @@ export default class Search extends Vue {
 		this.$ipcRenderer
 			.invoke('historyFind', { query: {} })
 			.then(res => {
-				console.log(res);
 				this.keywords = res;
 			})
 			.catch(err => {
@@ -326,7 +334,11 @@ export default class Search extends Vue {
 		this.$ipcRenderer
 			.invoke('listFind', { query: {}, sort: { datetime: 1 } })
 			.then(res => {
-				this.historyList = res;
+				this.List = res;
+
+				// 待刪
+				const toStr = this.List.map(item => `${item.title} / ${item.artist}`);
+				console.info(`%c${toStr.join(', ')}`, `color: ${this.$vuetify.theme.themes.dark.success};`);
 			})
 			.catch(err => {
 				this.$store.commit('snackbar', { text: err, color: Colors.Error });
@@ -340,7 +352,7 @@ export default class Search extends Vue {
 				}
 
 				// 取得交集
-				// const intersection = this.$lodash.intersectionBy(args.list, this.historyList, 'lyricUrl');
+				// const intersection = this.$lodash.intersectionBy(args.list, this.List, 'lyricUrl');
 
 				///////////////////
 				// 確認是否存在列表中
@@ -355,11 +367,11 @@ export default class Search extends Vue {
 							exist: boolean;
 						}) => {
 							// if (this.$lodash.findIndex(intersection, ['lyric']))
-							const index = this.historyList.findIndex(item => item.lyricUrl == obj.lyricUrl);
+							const index = this.List.findIndex(item => item.lyricUrl == obj.lyricUrl);
 							Object.assign(obj, { exist: index > -1 });
 
 							setTimeout(() => {
-								this.list.push(Object.freeze(obj));
+								this.searchList.push(Object.freeze(obj));
 							}, obj.id * 50);
 						}
 					);
@@ -367,76 +379,52 @@ export default class Search extends Vue {
 				this.$store.commit('changeOverlay', false);
 			});
 		}
-		//
-
-		// old method // old method // old method // old method // old method // old method
-		// if (!this.$ipcRenderer.eventNames().includes('lyricRes')) {
-		// 	this.$ipcRenderer.on('lyricRes', (e, args) => {
-		// 		if (args.error) console.error(args.error);
-
-		// 		const { obj, exist } = args;
-		// 		this.$nextTick(() => {
-		// 			// check if has be in list
-		// 			this.lyricObj = {
-		// 				obj: Object.freeze({
-		// 					key: obj.lyricKey,
-		// 					url: obj.url,
-		// 					title: obj.mainTxt,
-		// 					artist: obj.artist,
-		// 					lyric: obj.lyricContent
-		// 				}),
-		// 				exist: exist
-		// 			};
-		// 		});
-		// 		this.$store.commit('changeOverlay', false);
-		// 	});
-		// }
 	}
 
 	beforeDestroy() {
 		this.$ipcRenderer.removeAllListeners('searchRes');
 		this.$ipcRenderer.removeAllListeners('lyricRes');
 	}
-
+	/**搜尋 */
 	private lyricSearch() {
 		if (!this.canSearch) return;
 		this.$store.commit('changeOverlay', true);
 
 		this.bigImage = false;
 		this.lyricObj = null;
-		this.list = [];
+		this.searchList = [];
 		this.$ipcRenderer.send('searchReq', {
 			artist: this.artist,
 			title: this.title
 		});
 		///
-		this.historySave(this.artist, this.title);
+		this.keywordSave(this.artist, this.title);
 	}
-
+	/**歷史紀錄搜尋 */
 	private historySearch(artist: string, title: string) {
 		this.$store.commit('changeOverlay', true);
 
 		this.bigImage = false;
 		this.lyricObj = null;
-		this.list = [];
+		this.searchList = [];
 		this.$ipcRenderer.send('searchReq', {
 			artist: artist,
 			title: title
 		});
 	}
-
-	private historySave(artist: string, title: string) {
-		const historySave = this.$ipcRenderer.invoke('historySave', {
-			query: { artist, title },
-			data: {
-				$set: {
-					artist,
-					title,
-					datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+	/**關鍵字紀錄 */
+	private keywordSave(artist: string, title: string) {
+		this.$ipcRenderer
+			.invoke('historySave', {
+				query: { artist, title },
+				data: {
+					$set: {
+						artist,
+						title,
+						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+					}
 				}
-			}
-		});
-		historySave
+			})
 			.then(() => {
 				this.keywords.unshift({
 					artist,
@@ -448,10 +436,9 @@ export default class Search extends Vue {
 				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
 	}
-
+	/**取得歌詞 */
 	private getLyric(url: string, exist: boolean) {
 		this.$store.commit('changeOverlay', true);
-		// this.$ipcRenderer.send('getLyric', { url, exist });
 
 		this.$ipcRenderer
 			.invoke('getLyric', { url, exist })
@@ -483,25 +470,7 @@ export default class Search extends Vue {
 			});
 	}
 
-	// 	this.$dbList.update(
-	// 		{ uniqueKey: this.lyricObj.obj.key },
-	// 		{
-	// 			$set: {
-	// 				// uniqueKey: this.lyricObj.key,
-	// 				artist: this.lyricObj.obj.artist,
-	// 				title: this.lyricObj.obj.title,
-	// 				lyricUrl: this.lyricObj.obj.url,
-	// 				datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-	// 			}
-	// 		},
-	// 		{ upsert: true },
-	// 		(err, nb) => {
-	// 			if (err) console.warn(err);
-	// 			console.log(nb);
-	// 		}
-	// 	);
-	// }
-
+	/**展開寬度，三段 */
 	private expandWidth() {
 		if (this.$root.$data.webWidth < 960) {
 			this.$ipcRenderer.send('windowWidth', { width: 960, height: this.windowHeight });
@@ -511,7 +480,6 @@ export default class Search extends Vue {
 			this.$ipcRenderer.send('windowWidth', { width: 480, height: this.windowHeight });
 			this.bigImage = false;
 		}
-		// console.log(this.$root.webWidth);
 	}
 }
 </script>

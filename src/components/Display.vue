@@ -38,10 +38,8 @@
 				:class="`${mainColor}--text ${subColor}--subtext text-${textAlign}`"
 				style="position:relative; overflow-y: auto; height: 100%;"
 			>
-				<span class="text-center" v-html="lyric.lyric || '<span>歌詞が存在しない。</span>'"></span>
-				<span class="grey--text text-lighten-2 px-4 mt-10" style="float: right;">
-					-- 終わり
-				</span>
+				<span class="text-center" v-html="lyric.lyric || `<span>${$('noLyricsExist')}</span>`"></span>
+				<span class="grey--text text-lighten-2 px-4 mt-10" style="float: right;"> -- {{ $t('end') }} </span>
 			</div>
 		</v-card-text>
 
