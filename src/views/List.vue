@@ -2,25 +2,35 @@
 	<div>
 		<v-row no-gutters align="stretch" justify="center">
 			<v-col
-				cols
 				class="pl-3"
 				:style="{ 'min-height': `${$root.webHeight - 44}px`, 'max-width': isTwoColumn ? '416px' : null }"
 			>
-				<v-text-field
-					v-model="filterStr"
-					filled
-					rounded
-					dense
-					hide-details
-					:placeholder="$t('search_alt')"
-					color="success"
-					class="mr-3"
-				>
-					<template v-slot:prepend-inner>
-						<v-icon left small class="mt-1 mr-1">fas fa-search</v-icon>
-					</template>
-				</v-text-field>
+				<div class="d-flex align-center justify-center">
+					<v-text-field
+						v-model="filterStr"
+						filled
+						rounded
+						dense
+						hide-details
+						:placeholder="$t('search_alt')"
+						color="success"
+						class="mr-3"
+					>
+						<template v-slot:prepend-inner>
+							<v-icon left small class="mt-1 mr-1">fas fa-search</v-icon>
+						</template>
+					</v-text-field>
 
+					<v-btn icon color="info" class="mr-3 blue-grey darken-4" height="40" width="40" @click="loadList">
+						<v-icon small>fa fa-sync</v-icon>
+					</v-btn>
+				</div>
+				<!-- </v-col>
+				<v-col
+					cols="12"
+					class="pl-3"
+					:style="{ 'min-height': `${$root.webHeight - 84}px`, 'max-width': isTwoColumn ? '416px' : null }"
+				> -->
 				<v-list two-line class="transparent mt-2 py-0">
 					<v-virtual-scroll
 						:items="filterList"
@@ -52,7 +62,11 @@
 										</template>
 										<v-list dense color="brown darken-4" outlined class="py-0">
 											<v-list-item>
-												<v-icon class="mr-3" :color="item.ytObj ? 'success' : 'grey'" size="20">
+												<v-icon
+													class="mr-3"
+													:color="item.videoArr ? 'success' : 'grey'"
+													size="20"
+												>
 													fas fa-music
 												</v-icon>
 												<v-icon
@@ -64,24 +78,24 @@
 												</v-icon>
 
 												<v-spacer />
-												<v-btn icon color="primary" @click="openEditWindow">
+												<v-btn icon color="primary" @click="openEditWindow(item)">
 													<v-icon size="20">fas fa-edit</v-icon>
 												</v-btn>
 											</v-list-item>
 											<v-divider />
 
-											<template v-if="item.ytObj && item.ytObj.length">
+											<template v-if="item.videoArr && item.videoArr.length">
 												<v-list-item
-													v-for="(obj, idx) in item.ytObj"
-													:key="item.ytObj[idx].id"
-													@click="getLyric(item, item.ytObj[idx].id)"
+													v-for="(obj, idx) in item.videoArr"
+													:key="`${obj.videoID}_${idx}`"
+													@click="getLyric(item, obj.videoID, obj.videoTitle)"
 												>
-													<template v-if="obj.singer">
-														<span>{{ `${item.title} / ${obj.singer}` }}</span>
-														<span v-if="obj.cover">(cover)</span>
+													<template v-if="obj.artist">
+														<span>{{ `${item.title} / ${obj.artist}` }}</span>
+														<span v-if="obj.cover" class="ml-3">(cover)</span>
 													</template>
 													<template v-else>
-														{{ obj.title }}
+														{{ obj.videoTitle }}
 													</template>
 												</v-list-item>
 											</template>
@@ -92,7 +106,7 @@
 											</template>
 											<v-divider />
 
-											<v-list-item @click="singleRemove(item.uniqueKey, $event)">
+											<v-list-item @click="singleRemove(item.lyricsKey, $event)">
 												<v-icon small>fas fa-times</v-icon>
 												<span class="ml-3">
 													{{ $t('delete') }}
@@ -109,25 +123,27 @@
 
 			<v-col v-if="isTwoColumn" cols class="px-3" style="border-left:1px solid rgba(150, 150, 150, 0.5);">
 				<!-- <div class="d-flex align-center" style="height:100%;"> -->
-				<template v-if="lyricObj">
-					<v-card flat shaped width="100%">
-						<LyricDisplay :lyric="lyricObj" />
-						<v-divider />
-						<EmbedPlayer :videoID="this.videoID" />
-					</v-card>
-				</template>
-				<template v-else>
-					<div class="d-flex align-center" style="height:100%">
+				<transition name="fadeIn" mode="out-in">
+					<template v-if="lyricsObj">
 						<v-card flat shaped width="100%">
-							<v-card-subtitle class="text-center">
-								<v-icon size="128">fas fa-spider</v-icon>
-								<span class="mx-auto logo-text" style="">
-									EleCrawler
-								</span>
-							</v-card-subtitle>
+							<LyricDisplay :lyricsObj="lyricsObj" />
+							<v-divider />
+							<EmbedPlayer :videoID="videoID" />
 						</v-card>
-					</div>
-				</template>
+					</template>
+					<template v-else>
+						<div class="d-flex align-center" style="height:100%">
+							<v-card flat shaped width="100%">
+								<v-card-subtitle class="text-center">
+									<v-icon size="128">fas fa-spider</v-icon>
+									<span class="mx-auto logo-text" style="">
+										EleCrawler
+									</span>
+								</v-card-subtitle>
+							</v-card>
+						</div>
+					</template>
+				</transition>
 			</v-col>
 		</v-row>
 
@@ -144,11 +160,13 @@
 </template>
 
 <script lang="ts">
-import display from '@/components/Display.vue';
-import player from '@/components/Embed.vue';
+import display from '@/components/List/Display.vue';
+import player from '@/components/List/Embed.vue';
 import { AppModule, Colors } from '@/store/modules/app';
 import { LyModule } from '@/store/modules/lyrics';
 import { PlayerModule } from '@/store/modules/player';
+import { IlyricsDisplayObj, IlyricsObj, IsongList, IsongListWithIcon } from '@/types/renderer';
+import { OutputInfo } from 'sharp';
 
 import { Component, Vue } from 'vue-property-decorator';
 // import { getModule } from 'vuex-module-decorators';
@@ -167,23 +185,14 @@ export default class List extends Vue {
 	private filterStr = '';
 
 	/**清單 */
-	private list: Array<{
-		title: string;
-		artist: string;
-	}> = [];
+	private list: IsongListWithIcon[] = [];
 
 	/**歌詞物件 */
-	private lyricObj: {
-		key: string;
-		url: string;
-		title: string;
-		artist: string;
-		lyric: string;
-		image?: string;
-		imageSize: {};
-	} | null = null;
+	private lyricsObj: IlyricsDisplayObj | null = null;
 	/**影片ID，Embed用 */
 	private videoID: string | null = null;
+	/**影片Title，Embed用 */
+	// private videoTitle: string | null = null;
 
 	get isTwoColumn(): boolean {
 		return this.$root.$data.webWidth >= 960;
@@ -199,58 +208,14 @@ export default class List extends Vue {
 	// life cycle
 	created() {
 		if (!this.$root._events.getLyricByID) {
-			this.$root.$on(
-				'getLyricByID',
-				(obj: {
-					key: string;
-					url: string;
-					title: string;
-					artist: string;
-					lyric: string;
-					image?: string;
-					imageSize: {};
-				}) => {
-					this.lyricObj = obj;
-				}
-			);
+			this.$root.$on('getLyricByID', (obj: IlyricsDisplayObj) => {
+				this.lyricsObj = obj;
+			});
 		}
 	}
 
 	mounted() {
-		this.$ipcRenderer
-			.invoke('listFind', { query: {}, sort: { artist: 1, title: 1, datetime: -1 } })
-			.then(doc => {
-				const filter = this.$lodash.filter(doc, 'ytObj').map(e => e.ytObj);
-				const flatten = this.$lodash.flatten(filter).map(e => e.id) as string[];
-				// this.$store.commit('setPlayList', );
-				AppModule.setPlayList(flatten);
-
-				const iconArray = doc.map((item: { iconPath?: string }) => item.iconPath || undefined);
-
-				this.$ipcRenderer
-					.invoke('loadBuffer', { path: iconArray })
-					.then(res => {
-						doc.forEach((e: { icon: Uint8Array }, i: number) => {
-							if (res[i]) Object.assign(e, { icon: Buffer.from(res[i].data) });
-						});
-						this.list = doc;
-					})
-					.catch(err => {
-						console.log(err);
-					});
-
-				const toStr = doc.map((item: { title: string; artist: string }) => `${item.title} / ${item.artist}`);
-				console.log(`%c${toStr.join(', ')}`, `color: ${this.$vuetify.theme.themes.dark.accent}`);
-				// console.log(doc);
-				// this.lyricObj = this.$store.state.lyrics.lyricObj;
-				this.lyricObj = LyModule.lyricObj;
-				console.log(this.lyricObj);
-			})
-			.catch(err => {
-				AppModule.snackbar({ text: err, color: Colors.Error });
-			});
-
-		// this.lyricObj = this.$store.state.lyricObj;
+		this.loadList();
 	}
 
 	beforeDestroy() {
@@ -264,35 +229,72 @@ export default class List extends Vue {
 		if (!this.isTwoColumn) this.$ipcRenderer.send('windowWidth', { width: 1680 });
 	}
 
-	/**取得歌詞資訊 */
-	private async getLyric(item: { lyricUrl: string; imagePath: string; imageSize: {} }, ytID: string) {
-		console.log(item);
-		console.log(ytID);
+	/**刷新列表 */
+	private loadList() {
+		this.$ipcRenderer
+			.invoke('listFind', { query: {}, sort: { artist: 1, title: 1, datetime: -1 } })
+			.then((doc: IsongList[]) => {
+				const filter = this.$lodash.filter(doc, 'videoArr').map(e => e.videoArr);
+				const flatten = this.$lodash.flatten(filter).map(e => e?.videoID) as string[];
+				AppModule.setPlayList(flatten);
 
+				const iconArray = doc.map(item => item.iconPath || undefined);
+
+				this.$ipcRenderer
+					.invoke('loadBuffer', { path: iconArray })
+					.then((res: { data: Buffer; info: OutputInfo }[]) => {
+						doc.forEach((e, i) => {
+							if (res[i]) Object.assign(e, { icon: Buffer.from(res[i].data) });
+						});
+						this.list = doc as IsongListWithIcon[];
+						console.log(this.list);
+					})
+					.catch((err: Error) => {
+						AppModule.snackbar({ text: err.message, color: Colors.Error });
+					});
+
+				// show all songs
+				const toStr = doc.map((item: { title: string; artist: string }) => `${item.title} / ${item.artist}`);
+				console.log(`%c${toStr.join(', ')}`, `color: ${this.$vuetify.theme.themes.dark.accent}`);
+
+				/// /// /// /// /// /// /// /// ///
+				this.lyricsObj = LyModule.lyricObj;
+				console.log(this.lyricsObj);
+			})
+			.catch(err => {
+				AppModule.snackbar({ text: err, color: Colors.Error });
+			});
+	}
+
+	/**取得歌詞資訊 */
+	private async getLyric(item: IsongListWithIcon, videoID: string, videoTitle: string) {
 		AppModule.changeOverlay(true);
 		this.expandWidth();
 
-		if (!ytID) PlayerModule.destroyPlayer();
+		if (!videoID) PlayerModule.destroyPlayer();
 
-		const res = await this.$ipcRenderer.invoke('getLyric', { url: item.lyricUrl });
-
+		const res = await this.$ipcRenderer.invoke('getLyrics', { url: item.lyricsUrl, exist: true });
 		this.$nextTick(() => {
 			if (res.error) {
 				AppModule.snackbar({ text: res.error, color: Colors.Error });
 			} else {
 				this.$nextTick(() => {
-					const { obj } = res;
-					this.lyricObj = {
-						key: obj.lyricKey,
-						url: obj.url,
-						title: obj.mainTxt,
+					const obj = res.obj as IlyricsObj;
+
+					this.lyricsObj = {
+						title: obj.title,
 						artist: obj.artist,
-						lyric: obj.lyricContent,
-						image: item.imagePath || undefined,
-						imageSize: item.imageSize || {}
+						lyricsKey: obj.lyricsKey,
+						lyricsUrl: obj.lyricsUrl,
+						lyrics: obj.lyrics,
+						imagePath: item.imagePath || undefined,
+						imageSize: item.imageSize || undefined
 					};
-					this.videoID = ytID;
-					console.log(this.lyricObj);
+					this.videoID = videoID;
+					AppModule.setVideoTitle(videoTitle);
+
+					console.log(this.lyricsObj);
+					console.log(obj);
 				});
 			}
 			AppModule.changeOverlay(false);
@@ -302,7 +304,7 @@ export default class List extends Vue {
 	/**刪除歌詞(包含圖片等) */
 	private singleRemove(key: string) {
 		this.$ipcRenderer
-			.invoke('listRemoveOne', { query: { uniqueKey: key } })
+			.invoke('listRemoveOne', { query: { lyricsKey: key } })
 			.then(res => {
 				console.log(res);
 				if (res.ok > 0) {
@@ -310,7 +312,7 @@ export default class List extends Vue {
 						files: [`${key}.jpg`, `${key}.icon.jpg`]
 					});
 
-					const index = this.$lodash.findIndex(this.list, ['uniqueKey', key]);
+					const index = this.$lodash.findIndex(this.list, ['lyricsKey', key]);
 					this.list.splice(index, 1);
 				}
 			})
@@ -319,14 +321,19 @@ export default class List extends Vue {
 			});
 	}
 
-	private openEditWindow() {
-		if (process.env.NODE_ENV == 'development') {
-			const routeData = this.$router.resolve({ name: 'Media', params: { a: '123' }, query: { b: '456' } });
-			console.log(routeData);
-			window.open(routeData.href, 'editPanel');
-		} else {
-			//
-		}
+	private openEditWindow(obj: IsongListWithIcon) {
+		const lyricObj = {
+			artist: obj.artist,
+			title: obj.title,
+			lyricsKey: obj.lyricsKey,
+			lyricsUrl: obj.lyricsUrl
+		};
+		const qs = this.$qs.stringify(lyricObj, { delimiter: ',' });
+
+		const routeData = this.$router.resolve({ path: '/panel.html', append: true });
+		// window.open(routeData.location.path, 'editPanel', qs);
+		window.open(routeData.location.path, 'editPanel', qs);
+		console.log(routeData);
 	}
 }
 </script>
@@ -362,5 +369,22 @@ export default class List extends Vue {
 	to {
 		margin-left: -250%;
 	}
+}
+
+.fadeIn-enter-active {
+	transition: opacity 0.5s ease;
+}
+
+.fadeIn-leave-active {
+	transition: all 0.5s ease;
+}
+
+.fadeIn-enter {
+	opacity: 0.16;
+}
+
+.fadeIn-leave-to {
+	opacity: 0;
+	transform: translateX(100%);
 }
 </style>

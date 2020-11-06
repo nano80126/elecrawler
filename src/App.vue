@@ -4,12 +4,10 @@
 			<v-app-bar app flat height="32" color="blue-grey darken-4">
 				<div class="window-drag header ml-n4" />
 				<!--  -->
-				<div class="" style="width:90px;">
+				<div class="" style="width: 90px;">
 					<v-slider ref="slider1" class="no-drag" value="100" hide-details />
 				</div>
-
-				<span class="ml-3">{{ $t('message') }}</span>
-
+				<!-- <span class="ml-3">{{ $t('message') }}</span> -->
 				<v-spacer />
 				<!--  -->
 				<v-btn min-width="24" width="36" text class="no-drag" small @click="windowMin">
@@ -36,7 +34,7 @@
 				</v-btn>
 			</v-app-bar>
 
-			<v-navigation-drawer app dark permanent mini-variant mini-variant-width="64" class="teal">
+			<v-navigation-drawer app dark permanent mini-variant mini-variant-width="64" class="teal lighten-2">
 				<div class="window-drag left" />
 				<!--  -->
 				<v-list flat class="no-drag">
@@ -197,6 +195,7 @@
 
 			<!-- class="grey lighten-4" -->
 			<v-main>
+				<!-- <div id="youtube-audio" class="" /> -->
 				<router-view />
 			</v-main>
 
@@ -205,15 +204,6 @@
 					<EmbedPlayer :sheet="bottomSheet" />
 				</v-sheet>
 			</v-bottom-sheet>
-
-			<!-- <v-footer app inset color="success">
-				<v-row no-gutters align="center">
-					<v-spacer />
-					<v-col cols="auto">
-						&copy; 2020
-					</v-col>
-				</v-row>
-			</v-footer> -->
 
 			<!--  snackbar  -->
 			<transition-group name="slideRight">
@@ -283,7 +273,7 @@
 </template>
 
 <script lang="ts">
-import Embed from '@/components/Embed.vue';
+import Embed from '@/components/List/Embed.vue';
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { AppModule } from '@/store/modules/app';
@@ -298,11 +288,15 @@ export default class App extends Vue {
 	// 	webHeight: number;
 	// };
 
+	/**Show after mounted */
 	private SHOW = false;
+	/**Dialog for clear data */
 	private dialog = false;
+	/**Toggle player show / hide */
 	private bottomSheet = false;
 
-	private playerState: Readonly<{}> = Object.freeze({
+	/**Showing player state color of badge */
+	private playerState = Object.freeze({
 		'-1': 'grey darken-2',
 		0: 'lime',
 		1: 'light-green',
@@ -311,19 +305,23 @@ export default class App extends Vue {
 		5: 'info'
 	});
 
+	/**Toggle menu show / hide, hide after language changed */
 	private menu = false;
+	/**Language selectable options */
 	private languages = Object.freeze({
 		tw: '中文',
 		en: 'English',
 		jp: '日本語'
 	});
+	/**Language used now */
 	private language = this.$i18n.locale;
 
-	get contentHeight() {
-		return `${this.$root.$data.webHeight - 38}px`;
-	}
+	/**deprecated */
+	// get contentHeight(): string {
+	// 	return `${this.$root.$data.webHeight - 38}px`;
+	// }
 
-	get overlay() {
+	get overlay(): boolean {
 		return AppModule.overlay;
 	}
 
@@ -337,15 +335,11 @@ export default class App extends Vue {
 
 	@Watch('$store.getters.barsVisible')
 	onBarsVisibleChange(value: number) {
-		// if (value == 0) this.$store.state.snackbars = [];
-		// if (value == 0) AppModule.snackbars = [];
 		if (value == 0) AppModule.emptySnackbars();
 	}
 
 	@Watch('language')
 	onLanguageChange(value: string) {
-		console.log(value);
-
 		this.$i18n.locale = value;
 		this.menu = false;
 	}
@@ -408,42 +402,17 @@ export default class App extends Vue {
 				AppModule.snackbar({ text: err, color: 'error' });
 			})
 			.finally(() => (this.dialog = false));
-		/*
-		this.$dbList.remove({}, { multi: true }, (err, nb) => {
-			if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-			else {
-				// const files = this.$fs.readdirSync(this.$picPath);
-
-				// this.$ipcRenderer.invoke('removeFile', { files, }).then(res => {
-				// 	console.log(res);
-				// });
-				this.$ipcRenderer
-					.invoke('emptyDir', { dirPath: 'P:/Users/Administrator/Pictures/lyric_scrawer' })
-					.then(res => {
-						console.log(res);
-					});
-
-				// files.forEach(file => {
-				// 	this.$fs.unlink(`${this.$picPath}\\${file}`, err => {
-				// 		if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-				// 	});
-				// });
-
-				this.dialog = false;
-			}
-
-			console.log(err, nb);
-		});
-		*/
 	}
 
 	private TestFunc() {
 		// this
-		console.log(this.$i18n.locale);
-		console.log(this.$i18n);
-		if (this.$i18n.locale == 'en') this.$i18n.locale = 'tw';
-		else if (this.$i18n.locale == 'tw') this.$i18n.locale = 'jp';
-		else this.$i18n.locale = 'en';
+		// console.log(this.$i18n.locale);
+		// console.log(this.$i18n);
+		// if (this.$i18n.locale == 'en') this.$i18n.locale = 'tw';
+		// else if (this.$i18n.locale == 'tw') this.$i18n.locale = 'jp';
+		// else this.$i18n.locale = 'en';
+
+		AppModule.snackbar({ text: 'test' });
 	}
 }
 </script>

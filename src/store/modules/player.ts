@@ -5,22 +5,26 @@ import { LyModule } from './lyrics'; // for destroy lyrics obj
 
 export interface PlayerState {
 	intervalArray: NodeJS.Timeout[];
+	/**播放器 */
 	player: YT.Player | null;
-	// player: YTPlayer | null;
+	/**循環播放 */
 	playerLoop: boolean;
+	/**隨機播放 */
 	playerShuffle: boolean;
+	/**播放器狀態 */
 	playerState: number;
+	/**播放器音量 */
 	playerVolume: number;
 }
 
-export interface YTPlayer extends YT.Player {
-	getVideoData(): {
-		author: string;
-		title: string;
-		video_id: string;
-		video_quality: string;
-	};
-}
+// export interface YTPlayer extends YT.Player {
+// 	getVideoData(): {
+// 		author: string;
+// 		title: string;
+// 		video_id: string;
+// 		video_quality: string;
+// 	};
+// }
 
 @Module({ dynamic: true, store, name: 'player' })
 export default class Player extends VuexModule implements PlayerState {
@@ -55,6 +59,10 @@ export default class Player extends VuexModule implements PlayerState {
 		this.player = yt;
 		this.player.addEventListener('onStateChange', (e: YT.OnStateChangeEvent) => {
 			this.playerState = e.data;
+
+			if (e.data == YT.PlayerState.PLAYING) {
+				this.player?.setVolume(this.playerVolume);
+			}
 		});
 	}
 
@@ -79,7 +87,7 @@ export default class Player extends VuexModule implements PlayerState {
 	cuePlayerByID(id: string) {
 		if (this.player) {
 			this.player.cueVideoById({ videoId: id, suggestedQuality: 'small' });
-			this.player.setVolume(this.playerVolume);
+			// this.player.setVolume(this.playerVolume);
 			AppModule.setVideoID(id);
 		}
 	}
@@ -88,7 +96,7 @@ export default class Player extends VuexModule implements PlayerState {
 	loadPlayerByID(id: string) {
 		if (this.player) {
 			this.player.loadVideoById({ videoId: id, suggestedQuality: 'small' });
-			this.player.setVolume(this.playerVolume);
+			// this.player.setVolume(this.playerVolume);
 			AppModule.setVideoID(id);
 		}
 	}
@@ -121,17 +129,20 @@ export default class Player extends VuexModule implements PlayerState {
 		this.player?.seekTo(value, true);
 	}
 
+	/**變更音量 */
 	@Mutation
 	videoSetVolume(value: number) {
 		this.playerVolume = value;
 		this.player?.setVolume(value);
 	}
 
+	/**變更 loop */
 	@Mutation
 	videoLoop(bool: boolean) {
 		this.playerLoop = bool;
 	}
 
+	/**變更 shffle */
 	@Mutation
 	videoShuffle(bool: boolean) {
 		this.playerShuffle = bool;

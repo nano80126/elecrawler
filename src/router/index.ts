@@ -1,11 +1,11 @@
 import Vue from 'vue';
-import VueRouter from 'vue-router';
+import VueRouter, { RouteConfig } from 'vue-router';
 // import path from 'path';
 // import Home from '../views/Home.vue';
 
 Vue.use(VueRouter);
 
-const routes = [
+const routes: RouteConfig[] = [
 	{
 		path: '/',
 		name: 'Search',
@@ -15,13 +15,13 @@ const routes = [
 		path: '/list',
 		name: 'List',
 		component: () => import(/* webpackChunkName */ '@/views/List.vue')
-	},
-	///
-	{
-		path: '/media/:a?',
-		name: 'Media',
-		component: () => import(/* webpackChunkName */ '@/components/Media.vue')
 	}
+	///
+	// {
+	// 	path: '/media/:a?',
+	// 	name: 'Media',
+	// 	component: () => import(/* webpackChunkName */ '@/components/Media.vue')
+	// }
 	// {
 	// 	path: '/dev',
 	// 	name: 'Media',

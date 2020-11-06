@@ -1,4 +1,5 @@
 /* eslint-disable */
+const { chunk } = require('lodash');
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 
@@ -17,15 +18,58 @@ module.exports = {
 		open: false,
 		port: 8080
 	},
-
-	// 保留空白
+	css: {
+		extract: { ignoreOrder: true }
+	},
+	pages: {
+		main: {
+			entry: "src/main.ts",
+			template: "public/index.html",
+			filename: "index.html",
+			chunks: ["chunk-common", "chunk-main-vendors", "main"]
+		},
+		panel: {
+			entry: "src/pages/panel/main.ts",
+			template: "public/panel.html",
+			filename: "panel.html",
+			chunks: ["chunk-common", "chunk-panel-vendors", "panel"]
+		}
+	},
 	chainWebpack: config => {
+		// 保留空白
 		config.module
 			.rule('vue')
 			.use('vue-loader')
 			.tap(args => {
 				args.compilerOptions.whitespace = 'preserve';
 			});
+
+		config.optimization.splitChunks({
+			cacheGroups: {
+				main: {
+					name: 'chunk-main-vendors',
+					priority: -10,
+					chunks: chunk => chunk.name === "main",
+					test: /[\\/]node_modules[\\/]/,
+					enforce: true
+				},
+				panel: {
+					name: 'chunk-panel-vendors',
+					priority: -11,
+					chunks: chunk => chunk.name === "panel",
+					test: /[\\/]node_modules[\\/]/,
+					enforce: true
+				},
+				common: {
+					name: 'chunk-common',
+					priority: -20,
+					chunks: "initial",
+					minChunks: 2,
+					reuseExistingChunk: true,
+					enforce: true
+				}
+			}
+		});
 	},
 	configureWebpack: () => {
 		return {
@@ -63,7 +107,7 @@ module.exports = {
 			},
 			// mainProcessFile: './src/background.ts',
 			//
-			mainProcessWatch: ['src/main/*.ts'],
+			mainProcessWatch: ['src/api/*.ts'],
 			// disableMainProcessTypescript: true, // Manually disable typescript plugin for main process. Enable if you want to use regular js for the main process (src/background.js by default).
 			// mainProcessTypeChecking: false, // Manually enable type checking during webpck bundling for background file.
 			builderOptions: {

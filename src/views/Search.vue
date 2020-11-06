@@ -23,7 +23,7 @@
 							hide-details
 							class="mx-1"
 							color="info"
-							@keyup.enter="lyricSearch"
+							@keyup.enter="lyricsSearch"
 						>
 							<template v-slot:prepend-inner>
 								<v-icon left small class="mt-1 mr-1">fas fa-music</v-icon>
@@ -41,7 +41,7 @@
 							:placeholder="$t('singer')"
 							class="mx-1"
 							color="info"
-							@keyup.enter="lyricSearch"
+							@keyup.enter="lyricsSearch"
 						>
 							<template v-slot:prepend-inner>
 								<v-icon left small class="mt-1 mr-1">fas fa-microphone-alt</v-icon>
@@ -50,8 +50,7 @@
 					</v-col>
 
 					<v-col cols="auto">
-						<v-btn icon color="success" height="40" @click="lyricSearch" :disabled="!canSearch">
-							<!-- <span class="mr-2">検索</span> -->
+						<v-btn icon color="success" height="40" @click="lyricsSearch" :disabled="!canSearch">
 							<v-icon small>fas fa-search</v-icon>
 						</v-btn>
 
@@ -90,13 +89,13 @@
 					<!-- scroll below  --><!-- scroll below  --><!-- scroll below  -->
 					<!-- scroll below  --><!-- scroll below  --><!-- scroll below  -->
 					<transition name="lyricSlide">
-						<v-col v-if="lyricObj && !isTwoColumn" cols="12" class="mt-3">
+						<v-col v-if="lyricsObj && !isTwoColumn" cols="12" class="mt-3">
 							<!-- :style="{height: `${($root.webHeight - 136) / 2 - 12}px`" -->
 							<div
 								class="min-scroll y success-scroll"
 								:style="{ height: `${($root.webHeight - 136) / 2.5 - 12}px` }"
 							>
-								<lyricCard :lyric="lyricObj" :exist.sync="lyricObj.exist" />
+								<lyricCard :lyricsObj="lyricsObj" :exist.sync="lyricsObj.exist" />
 							</div>
 						</v-col>
 					</transition>
@@ -107,7 +106,7 @@
 							bench="1"
 							:items="searchList"
 							item-height="150"
-							:height="($root.webHeight - 136) / (lyricObj && !isTwoColumn ? 1.667 : 1)"
+							:height="($root.webHeight - 136) / (lyricsObj && !isTwoColumn ? 1.667 : 1)"
 						>
 							<!-- <div
 							class="min-scroll y success-scroll mt-3 pr-3"
@@ -150,7 +149,7 @@
 
 									<v-divider />
 									<v-card-actions>
-										<v-btn text color="info" @click="getLyric(item.lyricUrl, item.exist)">
+										<v-btn text color="info" @click="getLyric(item.lyricsUrl, item.exist)">
 											<v-icon>fas fa-link</v-icon>
 											<span class="ml-2 font-weight-bold">リンク</span>
 										</v-btn>
@@ -166,7 +165,7 @@
 												</v-btn>
 											</template>
 											<span>
-												{{ item.lyric }}
+												{{ item.lyricsFront }}
 											</span>
 										</v-tooltip>
 									</v-card-actions>
@@ -204,10 +203,10 @@
 					:style="{ 'max-width': isThreeColumn ? '480px' : null }"
 					style="border-left:1px solid rgba(150, 150, 150, 0.5);"
 				>
-					<!-- {{ this.lyricObj ? this.lyricObj.exist : null }} -->
-					<template v-if="lyricObj">
+					<!-- {{ this.lyricsObj ? this.lyricsObj.exist : null }} -->
+					<template v-if="lyricsObj">
 						<div class="min-scroll y primary-scroll" :style="{ height: `${$root.webHeight - 44}px` }">
-							<lyricCard :lyric="lyricObj" :exist.sync="lyricObj.exist" />
+							<lyricCard :lyricsObj="lyricsObj" :exist.sync="lyricsObj.exist" />
 						</div>
 					</template>
 					<template v-else>
@@ -226,20 +225,17 @@
 
 			<!-- </template> -->
 
-			<!-- <keep-alive> -->
-			<!-- <template v-if="isThreeColumn"> -->
 			<transition name="lyricsFadeIn">
 				<v-col
 					v-if="isThreeColumn"
 					cols
 					class="pl-3"
-					:style="{ 'max-width': bigImage ? `${$root.webWidth - 480}px` : `${$root.webWidth - 960}px` }"
+					:style="{ 'max-width': extendImage ? `${$root.webWidth - 480}px` : `${$root.webWidth - 960}px` }"
 					style="border-left:1px solid rgba(150, 150, 150, 0.5);"
 				>
-					<!-- border-right:1px solid rgba(150, 150, 150, 0.5); -->
-					<template v-if="lyricObj && lyricObj.exist">
+					<template v-if="lyricsObj && lyricsObj.exist">
 						<!-- <div class="min-scroll y info-scroll" :style="{ height: `${$root.webHeight - 44}px` }"> -->
-						<lyricMedia :bigImage.sync="bigImage" :lyric="lyricObj" />
+						<lyricMedia :extendImage.sync="extendImage" :lyricsObj="lyricsObj" />
 						<!-- </div> -->
 					</template>
 					<template v-else>
@@ -254,18 +250,17 @@
 					</template>
 				</v-col>
 			</transition>
-			<!-- </template> -->
-			<!-- </keep-alive> -->
 		</v-row>
 	</div>
 </template>
 
 <script lang="ts">
-import board from '@/components/Board.vue';
-import media from '@/components/Media.vue';
+import board from '@/components/Search/Board.vue';
+import media from '@/components/Search/Media.vue';
 import { AppModule, Colors } from '@/store/modules/app';
 
 import { Component, Vue } from 'vue-property-decorator';
+import { Ikeywords, IlistSearched, IlyricsObjSearched } from '@/types/renderer';
 
 @Component({
 	components: {
@@ -274,28 +269,20 @@ import { Component, Vue } from 'vue-property-decorator';
 	}
 })
 export default class Search extends Vue {
-	/**歌詞物件 */
-	private lyricObj: { obj: {}; exist: boolean } | null = null;
-
 	/**搜尋清單 */
-	private searchList: Array<{}> = [];
-	/**已加入清單，搜尋比對用，已存在的項目將會被標記 */
-	private List: Array<{
-		uniqueKey: string;
-		title: string;
-		artist: string;
-		lyricUrl: string;
-		datetime: string;
-	}> = [];
+	private searchList: IlistSearched[] = [];
+
+	/**歌詞物件 */
+	private lyricsObj: IlyricsObjSearched | null = null;
 
 	/**搜尋歌手 */
 	private artist = '';
 	/**搜尋歌曲名 */
 	private title = '';
 	/**是否展開大圖 */
-	private bigImage = false;
+	private extendImage = false;
 	/**關鍵字紀錄 */
-	private keywords: Array<{ artist: string; title: string; datetime: string }> = [];
+	private keywords: Ikeywords[] = [];
 
 	/**是否可以搜尋 */
 	get canSearch(): boolean {
@@ -311,11 +298,11 @@ export default class Search extends Vue {
 	}
 
 	get isTwoColumn(): boolean {
-		return this.$root.$data.webWidth >= 960 && !this.bigImage;
+		return this.$root.$data.webWidth >= 960 && !this.extendImage;
 	}
 
 	get isThreeColumn(): boolean {
-		return this.$root.$data.webWidth >= 1440 && this.lyricObj != null;
+		return this.$root.$data.webWidth >= 1440 && this.lyricsObj != null;
 	}
 
 	created() {
@@ -330,55 +317,18 @@ export default class Search extends Vue {
 	}
 
 	mounted() {
-		// load list saved
-		this.$ipcRenderer
-			.invoke('listFind', { query: {}, sort: { datetime: 1 } })
-			.then(res => {
-				this.List = res;
-
-				// 待刪
-				const toStr = this.List.map(item => `${item.title} / ${item.artist}`);
-				console.info(`%c${toStr.join(', ')}`, `color: ${this.$vuetify.theme.themes.dark.success};`);
-			})
-			.catch(err => {
-				this.$store.commit('snackbar', { text: err, color: Colors.Error });
-			});
-
-		// const included = this.$ipcRenderer.eventNames().includes('searchRes');
-		if (!this.$ipcRenderer.eventNames().includes('searchRes')) {
-			this.$ipcRenderer.on('searchRes', (e, args: { error: string; list: [] }) => {
-				if (args.error) {
-					this.$store.commit('snackbar', { text: args.error, color: Colors.Error });
-				}
-
-				// 取得交集
-				// const intersection = this.$lodash.intersectionBy(args.list, this.List, 'lyricUrl');
-
-				///////////////////
-				// 確認是否存在列表中
-				this.$nextTick(() => {
-					args.list.forEach(
-						(obj: {
-							title: string;
-							lyricUrl: string;
-							artist: string;
-							lyric: string;
-							id: number;
-							exist: boolean;
-						}) => {
-							// if (this.$lodash.findIndex(intersection, ['lyric']))
-							const index = this.List.findIndex(item => item.lyricUrl == obj.lyricUrl);
-							Object.assign(obj, { exist: index > -1 });
-
-							setTimeout(() => {
-								this.searchList.push(Object.freeze(obj));
-							}, obj.id * 50);
-						}
-					);
-				});
-				this.$store.commit('changeOverlay', false);
-			});
-		}
+		// // load list saved
+		// this.$ipcRenderer
+		// 	.invoke('listFind', { query: {}, sort: { datetime: 1 } })
+		// 	.then((doc: IsongList[]) => {
+		// 		this.list = doc;
+		// 		console.log(this.list);
+		// 		this.urlList = doc.map(item => item.lyricsUrl);
+		// 		console.log(this.urlList);
+		// 	})
+		// 	.catch(err => {
+		// 		this.$store.commit('snackbar', { text: err, color: Colors.Error });
+		// 	});
 	}
 
 	beforeDestroy() {
@@ -386,32 +336,49 @@ export default class Search extends Vue {
 		this.$ipcRenderer.removeAllListeners('lyricRes');
 	}
 	/**搜尋 */
-	private lyricSearch() {
+	private lyricsSearch() {
 		if (!this.canSearch) return;
-		this.$store.commit('changeOverlay', true);
+		AppModule.changeOverlay(true);
 
-		this.bigImage = false;
-		this.lyricObj = null;
+		this.extendImage = false;
+		this.lyricsObj = null;
 		this.searchList = [];
-		this.$ipcRenderer.send('searchReq', {
-			artist: this.artist,
-			title: this.title
-		});
+		this.$ipcRenderer
+			.invoke('searchReq', {
+				artist: this.artist,
+				title: this.title
+			})
+			.then(res => {
+				this.searchRes(res);
+			})
+			.catch((err: Error) => {
+				AppModule.snackbar({ text: err.message, color: Colors.Error });
+			})
+			.finally(() => {
+				this.keywordSave(this.artist, this.title);
+			});
 		///
-		this.keywordSave(this.artist, this.title);
 	}
 	/**歷史紀錄搜尋 */
 	private historySearch(artist: string, title: string) {
-		this.$store.commit('changeOverlay', true);
+		AppModule.changeOverlay(true);
 
-		this.bigImage = false;
-		this.lyricObj = null;
+		this.extendImage = false;
+		this.lyricsObj = null;
 		this.searchList = [];
-		this.$ipcRenderer.send('searchReq', {
-			artist: artist,
-			title: title
-		});
+		this.$ipcRenderer
+			.invoke('searchReq', {
+				artist: artist,
+				title: title
+			})
+			.then(res => {
+				this.searchRes(res);
+			})
+			.catch((err: Error) => {
+				AppModule.snackbar({ text: err.message, color: Colors.Error });
+			});
 	}
+
 	/**關鍵字紀錄 */
 	private keywordSave(artist: string, title: string) {
 		this.$ipcRenderer
@@ -436,26 +403,53 @@ export default class Search extends Vue {
 				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
 	}
+	/**處理搜尋回傳之物件 */
+	private searchRes(res: { error: Error; list: IlistSearched[] }) {
+		if (res.error) {
+			AppModule.snackbar({ text: res.error.message, color: Colors.Error });
+		}
+
+		console.log('res');
+		console.log(res);
+
+		// 確認是否存在列表中
+		this.$nextTick(() => {
+			res.list.forEach(obj => {
+				// const index = this.list.findIndex(item => item.lyricsUrl == obj.lyricsUrl);
+				const exist = AppModule.urlList.includes(obj.lyricsUrl);
+				Object.assign(obj, { exist });
+
+				setTimeout(() => {
+					this.searchList.push(Object.freeze(obj));
+				}, obj.id * 50);
+			});
+			AppModule.changeOverlay(false);
+		});
+		console.log(this.searchList[0]);
+	}
+
 	/**取得歌詞 */
 	private getLyric(url: string, exist: boolean) {
-		this.$store.commit('changeOverlay', true);
+		AppModule.changeOverlay(true);
 
 		this.$ipcRenderer
-			.invoke('getLyric', { url, exist })
+			.invoke('getLyrics', { url, exist })
 			.then(res => {
 				// 這邊為 main process產生的error
-				if (res.error) this.$store.commit('snackbar', { text: res.error, color: Colors.Error });
+				if (res.error) {
+					AppModule.snackbar({ text: res.error, color: Colors.Error });
+				}
 
 				const { obj, exist } = res;
 				this.$nextTick(() => {
 					// check if has be in list
-					this.lyricObj = {
+					this.lyricsObj = {
 						obj: Object.freeze({
-							key: obj.lyricKey,
-							url: obj.url,
-							title: obj.mainTxt,
 							artist: obj.artist,
-							lyric: obj.lyricContent
+							title: obj.title,
+							lyricsKey: obj.lyricsKey,
+							lyricsUrl: obj.lyricsUrl,
+							lyrics: obj.lyrics
 						}),
 						exist: exist
 					};
@@ -463,10 +457,10 @@ export default class Search extends Vue {
 			})
 			.catch(err => {
 				// 這邊為其他 error，主要原因為上面
-				this.$store.commit('snackbar', { text: err, color: Colors.Error });
+				AppModule.snackbar({ text: err, color: Colors.Error });
 			})
 			.finally(() => {
-				this.$store.commit('changeOverlay', false);
+				AppModule.changeOverlay(false);
 			});
 	}
 
@@ -478,7 +472,7 @@ export default class Search extends Vue {
 			this.$ipcRenderer.send('windowWidth', { width: 1680, height: this.windowHeight });
 		} else {
 			this.$ipcRenderer.send('windowWidth', { width: 480, height: this.windowHeight });
-			this.bigImage = false;
+			this.extendImage = false;
 		}
 	}
 }

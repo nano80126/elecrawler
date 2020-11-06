@@ -1,21 +1,27 @@
 import { Module, Mutation, VuexModule, getModule } from 'vuex-module-decorators';
 import store from '@/store/index';
+import { IlyricsDisplayObj } from '@/types/renderer';
+import { ItextConfig } from '@/types/main-process';
 
-interface LyricsObject {
-	key: string;
-	url: string;
-	title: string;
-	artist: string;
-	lyric: string;
-	image?: string;
-	imageSize: {};
-}
+type LyricsObject = IlyricsDisplayObj;
 
-interface LyricsTxtConf {
-	main: string;
-	sub: string;
-	align: string;
-}
+// interface LyricsObject {
+// 	key: string;
+// 	url: string;
+// 	title: string;
+// 	artist: string;
+// 	lyric: string;
+// 	image?: string;
+// 	imageSize?: { width: number; height: number };
+// }
+
+export type LyricsTxtConf = ItextConfig;
+
+// export interface LyricsTxtConf {
+// 	main: string;
+// 	sub: string;
+// 	align: string;
+// }
 
 export interface LyricsState {
 	lyricObj: LyricsObject | null;

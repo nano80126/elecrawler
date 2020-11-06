@@ -6,11 +6,12 @@ import cheerio from 'cheerio';
 // const cheerio = require('cheerio');
 
 import { ipcMain } from 'electron';
+import { IlistCrawled, IlyricsObjCrawled } from '@/types/main-process';
 
 // const axios = require('axios');
 // const { ipcMain } = require('electron');
 
-async function listScraper(artist: string, title: string): Promise<{}> {
+async function listCrawl(artist: string, title: string): Promise<{}> {
 	// const att = artist ? encodeURI(artist) : '';
 	// const tle = title ? encodeURI(title) : '';
 	// const url = `https://utaten.com/lyric/search?sort=&artist_name=${att}&title=${tle}&form_open=0&show_artists=1`;
@@ -23,7 +24,7 @@ async function listScraper(artist: string, title: string): Promise<{}> {
 		show_artists: 1
 	};
 
-	const data: { error: string | null; list: {}[] } = {
+	const data: { error: Error | null; list: IlistCrawled[] } = {
 		error: null,
 		list: []
 	};
@@ -60,26 +61,26 @@ async function listScraper(artist: string, title: string): Promise<{}> {
 					// console.log(lyric);
 					data.list.push({
 						id: i,
-						title: songTitle,
-						lyricUrl: href,
 						artist: songSinger,
-						lyric: lyric
+						title: songTitle,
+						lyricsUrl: href || '',
+						lyricsFront: lyric
 						// expanded: false
 					});
 				}
 			}
 		})
 		.catch(err => {
-			data.error = err;
+			data.error = new Error(err);
 		});
 
 	return data;
 }
 
-async function lyricGetter(subUrl: string): Promise<{}> {
+async function lyricsCrawl(subUrl: string): Promise<{}> {
 	const url = `https://utaten.com/${subUrl}`;
 
-	const data: { error: string | null } = { error: null };
+	const data: { error: Error | null; obj?: IlyricsObjCrawled } = { error: null };
 
 	await axios
 		.get(url)
@@ -106,16 +107,16 @@ async function lyricGetter(subUrl: string): Promise<{}> {
 
 			Object.assign(data, {
 				obj: {
-					lyricKey: subUrl.match(/(?<=^\/lyric\/)\w+(?=\/$)/)?.[0],
-					url: subUrl,
-					mainTxt,
-					artist,
-					lyricContent
+					artist: artist,
+					title: mainTxt,
+					lyricsUrl: subUrl,
+					lyricsKey: subUrl.match(/(?<=^\/lyric\/)\w+(?=\/$)/)?.[0],
+					lyrics: lyricContent
 				}
 			});
 		})
 		.catch(err => {
-			data.error = err;
+			data.error = new Error(err);
 		});
 
 	return data;
@@ -123,22 +124,28 @@ async function lyricGetter(subUrl: string): Promise<{}> {
 
 ipcMain.on('searchReq', async (e, args) => {
 	const { artist, title } = args;
-	const ret = await listScraper(artist, title);
+	const ret = await listCrawl(artist, title);
 	e.sender.send('searchRes', ret);
 });
 
-ipcMain.on('getLyric', async (e, args: { url: string; exist: boolean }) => {
+ipcMain.handle('searchReq', async (e, args) => {
+	const { artist, title } = args;
+	const ret = await listCrawl(artist, title);
+	return ret;
+});
+
+ipcMain.on('getLyrics', async (e, args: { url: string; exist: boolean }) => {
 	const { url, exist } = args;
-	const ret = await lyricGetter(url);
+	const ret = await lyricsCrawl(url);
 	Object.assign(ret, { exist });
 
 	e.sender.send('lyricRes', ret);
 });
 
-ipcMain.handle('getLyric', async (e, args: { url: string; exist: boolean }) => {
+ipcMain.handle('getLyrics', async (e, args: { url: string; exist: boolean }) => {
 	console.log(args);
 	const { url, exist } = args;
-	const ret = await lyricGetter(url);
+	const ret = await lyricsCrawl(url);
 	Object.assign(ret, { exist });
 
 	return ret;

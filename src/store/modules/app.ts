@@ -7,9 +7,12 @@ export interface AppState {
 	isElectron: boolean;
 	picPath: string;
 	playList: string[];
+	urlList: string[];
 	videoID: string;
+	videoTitle: string;
 }
 
+/**snackbar 顏色 */
 export enum Colors {
 	Info = 'info',
 	Primary = 'primary',
@@ -25,11 +28,16 @@ class Common extends VuexModule implements AppState {
 	public snackbars: { show: boolean; color: Colors | string; text: string; timeout: number }[] = [];
 	//
 	public isElectron = process.env.IS_ELECTRON ? true : false;
-	//
+	/**圖片路徑 */
 	public picPath = '';
-	//
+	/**播放列表 video ID */
 	public playList: string[] = [];
+	/**播放中之 video ID */
 	public videoID = '';
+	/**播放中之 video 標題 */
+	public videoTitle = '';
+	/**歌詞列表 Lyrics Url */
+	public urlList: string[] = [];
 
 	/// getters
 	get barsHidden(): number {
@@ -65,14 +73,34 @@ class Common extends VuexModule implements AppState {
 		this.picPath = path;
 	}
 
+	/**儲存播放列表 */
 	@Mutation
 	setPlayList(list: string[]) {
 		this.playList = list;
 	}
 
+	/**更改播放中影片ID */
 	@Mutation
 	setVideoID(id: string) {
 		this.videoID = id;
+	}
+
+	/**更改播放中標題 */
+	@Mutation
+	setVideoTitle(title: string) {
+		this.videoTitle = title;
+	}
+
+	/**儲存歌詞URL列表 */
+	@Mutation
+	setUrlList(list: string[]) {
+		this.urlList = list;
+	}
+
+	/**新增歌詞URL進列表 */
+	@Mutation
+	addUrlList(url: string) {
+		this.urlList.push(url);
 	}
 }
 

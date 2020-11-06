@@ -4,6 +4,7 @@
 			<v-col cols="12">
 				<v-toolbar flat dense height="40" color="transparent" class="px-0">
 					<v-btn
+						v-if="!panelWindow"
 						icon
 						small
 						class="ml-n4"
@@ -11,12 +12,12 @@
 						height="36"
 						@click="
 							() => {
-								this.$emit('update:bigImage', !this.bigImage);
+								this.$emit('update:extendImage', !this.extendImage);
 								updateRatio();
 							}
 						"
 					>
-						<v-icon>{{ bigImage ? 'fas fa-chevron-right' : 'fas fa-chevron-left' }}</v-icon>
+						<v-icon>{{ extendImage ? 'fas fa-chevron-right' : 'fas fa-chevron-left' }}</v-icon>
 					</v-btn>
 
 					<!-- <v-hover v-model="fieldHover"> -->
@@ -27,7 +28,7 @@
 						dense
 						hide-details
 						placeholder="YouTubeのリンク"
-						class="ml-3"
+						:class="!panelWindow ? 'ml-3' : 'ml-n4'"
 						@mousewheel="mouseWheel"
 						@blur="fieldBlur"
 					>
@@ -62,7 +63,7 @@
 								dark
 								width="36"
 								height="36"
-								@click="openWindow(lyric.obj.title)"
+								@click="openWindow(lyricsObj.obj.title)"
 								v-bind="attrs"
 								v-on="on"
 								style="position:relative;"
@@ -257,7 +258,7 @@
 				</v-col>
 			</v-row>
 
-			<template v-if="true">
+			<template v-if="false">
 				<div>
 					abs: {{ rectAbs }}
 					<br />
@@ -268,10 +269,10 @@
 					{{ imgBuffer ? imgBuffer.length : 0 }}
 				</div>
 
-				<div v-for="(item, index) in lyric.obj" :key="index">
-					{{ index != 'lyric' ? `${index}: ${item}` : null }}
+				<div v-for="(item, index) in lyricsObj.obj" :key="index">
+					{{ index != 'lyrics' ? `${index}: ${item}` : null }}
 				</div>
-				{{ lyric.obj.key }}
+				{{ lyricsObj.obj.key }}
 				<br />
 
 				{{ urlObj.length }}
@@ -305,10 +306,12 @@
 </template>
 
 <script lang="ts">
-import edit from '@/components/Edit.vue';
+import edit from '@/components/Search/Edit.vue';
 
 import { AppModule, Colors } from '@/store/modules/app';
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+
+import { IlyricsObjSearched, IyouTubeObj, IsongList, Irectangle } from '@/types/renderer';
 
 @Component({
 	components: {
@@ -316,23 +319,20 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 	}
 })
 export default class Media extends Vue {
+	/**是否為panel window */
+	@Prop({ required: false, default: false }) panelWindow?: boolean;
+
+	/**是否可以切換大圖 */
+	@Prop({ required: false, default: true }) canExtendImage?: boolean;
+
 	/**是否使用大圖 */
-	@Prop({ required: true }) bigImage!: boolean;
+	@Prop({ required: true }) extendImage!: boolean;
+
 	/**Lyric Object，儲存用 */
-	@Prop({ required: true }) lyric!: {
-		obj: {
-			key: string;
-			url: string;
-			title: string;
-			artist: string;
-			lyric: string;
-		};
-	};
+	@Prop({ required: true }) lyricsObj!: IlyricsObjSearched;
 
 	/**YouTube obj array */
-	private urlObj: Array<{ url: string; id?: string; title?: string; singer?: string; cover?: boolean }> = [
-		{ url: '' }
-	];
+	private urlObj: IyouTubeObj[] = [{ videoUrl: '' }];
 	/**顯示之YouTube url之index */
 	private urlIndex = 0;
 	/**開啟dialog後，disable按鈕，避免重複開啟 */
@@ -347,9 +347,10 @@ export default class Media extends Vue {
 	private dragging = false;
 	/**是否可以貼上？當圖片區域focus時為true */
 	private canPaste = false;
-	//
+	/**是否可以框選icon */
 	private catchAvatar = false;
-	private startRectFlag = false;
+	/**是否開始框選icon */
+	private onRectFlag = false;
 
 	/**是否顯示確認menu，確認縮圖範圍 */
 	private showMenu = false;
@@ -357,25 +358,25 @@ export default class Media extends Vue {
 	private menuPos = { x: 0, y: 0 };
 
 	/**縮圖Rectangle absolute */
-	private rectAbs = { x: 0, y: 0, width: 0, height: 0 };
+	private rectAbs: Irectangle = { x: 0, y: 0, width: 0, height: 0 };
 	/**縮圖Rectangle Percent */
-	private rectPercent = { x: 0, y: 0, width: 0, height: 0 };
+	private rectPercent: Irectangle = { x: 0, y: 0, width: 0, height: 0 };
 	/**圖片原始大小 */
 	private imgSize = { width: 0, height: 0 };
 	/**圖片縮放率 */
 	private imgZoomRatio = 0;
 	/**當前顯示URL */
 	get activedURL(): string {
-		return this.urlObj[this.urlIndex].url || '';
+		return this.urlObj[this.urlIndex].videoUrl || '';
 	}
 	/**更改當前顯示URL */
 	set activedURL(value) {
-		if (!value) this.urlObj[this.urlIndex].url = '';
-		else this.urlObj[this.urlIndex].url = value;
+		if (!value) this.urlObj[this.urlIndex].videoUrl = '';
+		else this.urlObj[this.urlIndex].videoUrl = value;
 	}
 
 	@Watch('urlIndex')
-	OnUrlIndexChanged() {
+	onUrlIndexChanged() {
 		this.badge = true;
 
 		if (this.badgeTimeout) clearTimeout(this.badgeTimeout);
@@ -385,16 +386,20 @@ export default class Media extends Vue {
 			}, 1000);
 		});
 	}
+	@Watch('lyricsObj.obj.lyricsKey')
+	onLyricsKeyChanged() {
+		this.loadLyricsObj();
+	}
 
 	mounted() {
-		// console.log(this.$route);
-		// console.log(this.$route.query);
-		// console.log(this.$route.params);
-		// if (!this.lyric) return;
+		this.loadLyricsObj();
+	}
 
+	/**載入歌詞物件，包含影片與圖片 */
+	private loadLyricsObj() {
 		this.$ipcRenderer
-			.invoke('listFindOne', { query: { uniqueKey: this.lyric.obj.key } })
-			.then(doc => {
+			.invoke('listFindOne', { query: { lyricsKey: this.lyricsObj.obj.lyricsKey } })
+			.then((doc: IsongList) => {
 				if (doc.imagePath) {
 					this.$ipcRenderer
 						.invoke('loadBuffer', { path: doc.imagePath })
@@ -410,7 +415,7 @@ export default class Media extends Vue {
 								this.$set(this.imgSize, 'height', res.info.height);
 
 								const regionFreeze = this.$refs['region-freeze'] as HTMLElement;
-								if (regionFreeze && doc.rectangle != {}) {
+								if (regionFreeze && doc.rectangle) {
 									this.rectPercent = doc.rectangle;
 									regionFreeze.style.left = `${this.rectPercent.x}%`;
 									regionFreeze.style.top = `${this.rectPercent.y}%`;
@@ -423,8 +428,8 @@ export default class Media extends Vue {
 							this.$store.commit('snackbar', { text: err, color: 'error' });
 						});
 				}
-				// 先判斷 ytObj存在
-				if (doc.ytObj) this.urlObj = doc.ytObj;
+				// 先判斷 videoArr存在
+				if (doc.videoArr) this.urlObj = doc.videoArr;
 			})
 			.catch(error => {
 				AppModule.snackbar({ text: error, color: Colors.Error });
@@ -453,9 +458,9 @@ export default class Media extends Vue {
 		// });
 		// this.urlObj.filter(o => o.url != null);
 		this.urlObj.forEach((item, itemKey: number) => {
-			if (item.url != null && item.url.length > 0) {
-				const id = item.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-				if (id && id[0].length == 11 && item.id !== id[0]) {
+			if (item.videoUrl.length > 0) {
+				const id = item.videoUrl.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
+				if (id && id[0].length == 11 && item.videoID !== id[0]) {
 					this.$axios
 						.get('https://www.googleapis.com/youtube/v3/videos', {
 							params: { part: 'snippet', id: id[0], key: process.env.VUE_APP_YOUTUBE_DATA_API_KEY }
@@ -464,9 +469,8 @@ export default class Media extends Vue {
 							this.$set(
 								this.urlObj,
 								itemKey,
-								Object.assign(item, { id: id[0], title: res.data.items[0].snippet.title })
+								Object.assign(item, { videoID: id[0], videoTitle: res.data.items[0].snippet.title })
 							);
-							// Object.assign(item, { id: id[0], title: res.data.items[0].snippet.title });
 						})
 						.catch(err => {
 							AppModule.snackbar({ text: err, color: Colors.Error });
@@ -477,7 +481,7 @@ export default class Media extends Vue {
 	}
 
 	private addUrl(): void {
-		this.urlObj.push({ url: '' });
+		this.urlObj.push({ videoUrl: '' });
 		this.urlIndex = this.urlObj.length - 1;
 	}
 
@@ -611,7 +615,7 @@ export default class Media extends Vue {
 			this.$ipcRenderer
 				.invoke('saveImage', {
 					buffer: this.imgBuffer,
-					key: this.lyric.obj.key,
+					key: this.lyricsObj.obj.lyricsKey,
 					size: { left: x, top: y, width: w, height: h }
 				})
 				.then(res => {
@@ -620,14 +624,14 @@ export default class Media extends Vue {
 						return;
 					}
 
-					const obj = this.lyric.obj;
+					const { obj } = this.lyricsObj;
 					const picPath = AppModule.picPath;
 					// this.urlObj = this.$lodash.compact(this.urlObj);
 					this.urlIndex = 0; // Set index to 0 or maybe return url not in urlObj
 					// 移除url為空
-					this.urlObj = this.urlObj.filter(e => e.url && e.url.length > 0);
+					this.urlObj = this.urlObj.filter(e => e.videoUrl && e.videoUrl.length > 0);
 					// 去頭尾空白
-					this.urlObj.forEach(e => (e.singer = e.singer?.replace(/(^\s+)|(\s+$)/g, '')));
+					this.urlObj.forEach(e => (e.artist = e.artist?.replace(/(^\s+)|(\s+$)/g, '')));
 
 					// const urlIdArr = [];
 					// this.urlObj.forEach(u => {
@@ -638,14 +642,14 @@ export default class Media extends Vue {
 					// add image / avatart to list
 					this.$ipcRenderer
 						.invoke('listSave', {
-							query: { uniqueKey: obj.key },
+							query: { lyricsKey: obj.lyricsKey },
 							data: {
 								$set: {
-									ytObj: this.urlObj,
-									imagePath: res[0] ? `${picPath}\\${obj.key}.jpg` : null,
+									videoArr: this.urlObj,
+									imagePath: res[0] ? `${picPath}\\${obj.lyricsKey}.jpg` : undefined,
+									iconPath: res[1] ? `${picPath}\\${obj.lyricsKey}.icon.jpg` : undefined,
 									imageSize: this.imgSize,
 									rectangle: this.rectPercent,
-									iconPath: res[1] ? `${picPath}\\${obj.key}.icon.jpg` : null,
 									datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
 								}
 							}
@@ -655,48 +659,50 @@ export default class Media extends Vue {
 								AppModule.snackbar({ text: '変更が保存された', color: Colors.Success });
 							}
 						})
-						.catch(err2 => {
-							AppModule.snackbar({ text: err2, color: Colors.Error });
+						.catch((err2: Error) => {
+							AppModule.snackbar({ text: err2.message, color: Colors.Error });
 						});
 				})
-				.catch(err => {
-					AppModule.snackbar({ text: err, color: Colors.Error });
+				.catch((err: Error) => {
+					AppModule.snackbar({ text: err.message, color: Colors.Error });
 
-					const obj = this.lyric.obj;
+					const { obj } = this.lyricsObj;
 					this.$ipcRenderer.send('removeFile', {
-						files: [`${obj.key}.jpg`, `${obj.key}.icon.jpg`]
+						files: [`${obj.lyricsKey}.jpg`, `${obj.lyricsKey}.icon.jpg`]
 					});
 				});
 		} else {
-			const obj = this.lyric.obj;
+			const { obj } = this.lyricsObj;
 
 			// 移除url為空
-			this.urlObj = this.urlObj.filter(e => e.url && e.url.length > 0);
+			this.urlObj = this.urlObj.filter(e => e.videoUrl && e.videoUrl.length > 0);
 			// 去頭尾空白
-			this.urlObj.forEach(e => (e.singer = e.singer?.replace(/(^\s+)|(\s+$)/g, '')));
+			this.urlObj.forEach(e => (e.artist = e.artist?.replace(/(^\s+)|(\s+$)/g, '')));
 
 			this.$ipcRenderer
 				.invoke('listSave', {
-					query: { uniqueKey: obj.key },
+					query: { lyricsKey: obj.lyricsKey },
 					data: {
 						$set: {
-							ytObj: this.urlObj,
-							imagePath: null,
-							imageSize: {},
-							rectangle: {},
-							iconPath: null,
+							videoArr: this.urlObj,
+							imagePath: undefined,
+							imageSize: undefined,
+							rectangle: undefined,
+							iconPath: undefined,
 							datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
 						}
 					}
 				})
 				.then(res => {
 					if (res.ok > 0) {
-						this.$ipcRenderer.send('removeFile', { files: [`${obj.key}.jpg`, `${obj.key}.icon.jpg`] });
+						this.$ipcRenderer.send('removeFile', {
+							files: [`${obj.lyricsKey}.jpg`, `${obj.lyricsKey}.icon.jpg`]
+						});
 						AppModule.snackbar({ text: '変更が保存された', color: Colors.Success });
 					}
 				})
-				.catch(err => {
-					AppModule.snackbar({ text: err, color: Colors.Error });
+				.catch((err: Error) => {
+					AppModule.snackbar({ text: err.message, color: Colors.Error });
 				});
 		}
 	}
@@ -707,7 +713,7 @@ export default class Media extends Vue {
 		this.imgZoomRatio = 0; // 重置縮小倍率
 		//
 		this.catchAvatar = false;
-		this.startRectFlag = false;
+		this.onRectFlag = false;
 		this.showMenu = false;
 	}
 
@@ -720,7 +726,7 @@ export default class Media extends Vue {
 		(this.$refs.hairH as HTMLLIElement).style.top = `${e.offsetY}px`;
 		(this.$refs.pos as HTMLLIElement).innerText = `X:${x}, Y:${y}`;
 
-		if (this.startRectFlag) {
+		if (this.onRectFlag) {
 			const w = (this.$refs.img as Vue).$el.clientWidth;
 			const h = (this.$refs.img as Vue).$el.clientHeight;
 			// console.log(w, h);
@@ -739,18 +745,18 @@ export default class Media extends Vue {
 		}
 	}
 
-	private crossReset(e: MouseEvent) {
+	private crossReset(/*e: MouseEvent*/) {
 		if (!this.imgBuffer || !this.catchAvatar) return;
 
-		this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
-		this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
+		// this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
+		// this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
 		this.$nextTick(() => {
-			this.showMenu = true;
+			// this.showMenu = true;
 
 			(this.$refs.hairH as HTMLDivElement).style.top = '0';
 			(this.$refs.hairV as HTMLDivElement).style.left = '0';
 			(this.$refs.pos as HTMLSpanElement).innerText = 'X:0, Y:0';
-			this.startRectFlag = false;
+			this.onRectFlag = false;
 		});
 	}
 
@@ -758,7 +764,7 @@ export default class Media extends Vue {
 		if (!this.imgBuffer || !this.catchAvatar) return;
 		//
 		if (e.button == 0) {
-			this.startRectFlag = true;
+			this.onRectFlag = true;
 
 			this.$nextTick(() => {
 				const w = (this.$refs.img as Vue).$el.clientWidth;
@@ -768,7 +774,7 @@ export default class Media extends Vue {
 				this.rectAbs.y = e.offsetY - 1;
 
 				this.rectAbs.width = this.rectAbs.height = 0;
-				this.rectPercent.width = this.rectPercent.height = 0;
+				(this.rectPercent as Irectangle).width = this.rectPercent.height = 0;
 
 				const region = this.$refs.region as HTMLDivElement;
 				region.style.width = '0';
@@ -784,8 +790,8 @@ export default class Media extends Vue {
 	private rectOff(e: MouseEvent) {
 		if (!this.imgBuffer || !this.catchAvatar) return;
 		//
-		if (e.button == 0 && this.startRectFlag) {
-			this.startRectFlag = false;
+		if (e.button == 0 && this.onRectFlag) {
+			this.onRectFlag = false;
 
 			this.$nextTick(() => {
 				const region = this.$refs.region as HTMLDivElement;

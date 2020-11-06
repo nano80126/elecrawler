@@ -2,10 +2,10 @@
 	<div>
 		<!-- <v-card v-if="lyric" flat shaped width="100%"> -->
 		<v-card-title>
-			<span class="ellipsis" v-text="lyric.title" style="max-width: 500px" />
+			<span class="ellipsis" v-text="lyricsObj.title" style="max-width: 500px" />
 		</v-card-title>
 		<v-card-subtitle style="position: relative;">
-			<span v-text="lyric.artist" />
+			<span v-text="lyricsObj.artist" />
 		</v-card-subtitle>
 
 		<v-divider />
@@ -27,7 +27,7 @@
 					:width="fullImg ? '100%' : null"
 					position="top center"
 					:src="`data:image/jpeg;base64,${image.toString('base64')}`"
-					:style="{ opacity: backOpacity }"
+					:style="{ opacity: bkOpacity }"
 				/>
 				<!-- :width="backSize ? backSize.width : null"
 						:height="backSize ? backSize.height : null" -->
@@ -38,7 +38,7 @@
 				:class="`${mainColor}--text ${subColor}--subtext text-${textAlign}`"
 				style="position:relative; overflow-y: auto; height: 100%;"
 			>
-				<span class="text-center" v-html="lyric.lyric || `<span>${$('noLyricsExist')}</span>`"></span>
+				<span class="text-center" v-html="lyricsObj.lyrics || `<span>${$('noLyricsExist')}</span>`"></span>
 				<span class="grey--text text-lighten-2 px-4 mt-10" style="float: right;"> -- {{ $t('end') }} </span>
 			</div>
 		</v-card-text>
@@ -95,7 +95,7 @@
 			<v-spacer />
 
 			<input
-				v-model="backOpacity"
+				v-model="bkOpacity"
 				max="1"
 				min="0.2"
 				step="0.02"
@@ -115,105 +115,100 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
-import { LyModule } from '@/store/modules/lyrics';
+import { LyModule, LyricsTxtConf } from '@/store/modules/lyrics';
 import { AppModule, Colors } from '@/store/modules/app';
+import { IlyricsDisplayObj } from '@/types/renderer';
 
 @Component
 export default class Display extends Vue {
-	@Prop({ required: false, type: Object }) lyric?: {
-		key: string;
-		url: string;
-		title: string;
-		artist: string;
-		lyric: string;
-		image?: string;
-		imageSize: {};
-	};
+	/**歌詞物件 */
+	@Prop({ required: false, type: Object }) lyricsObj?: IlyricsDisplayObj;
 
+	/**圖片Buffer */
 	private image: Buffer | null = null;
 	private mainColor = 'primary';
 	private subColor = 'grey';
 	private textAlign = 'left';
 
-	private colors: Readonly<Array<string>> = Object.freeze([
-		'primary',
-		'cyan',
-		'success',
-		'teal',
-		'error',
-		'warning',
-		'yellow',
-		'purple',
-		'white',
-		'grey',
-		'black'
-	]);
+	/**文字顏色 */
+	private colors: Readonly<Array<string>> = this.$root.$data.colors;
 
+	/**是否展開大圖 */
 	private fullImg = true;
+	/**背景透明度 */
 	private bkOpacity = 0.36;
 
-	get backSize(): {} | null {
-		return this.lyric ? this.lyric.imageSize : null;
-		// if (this.lyric)
-		// else return null;
-	}
+	/** */
+	// get backSize(): {} | null {
+	// 	return this.lyric ? this.lyric.imageSize : null;
+	// }
+	// get backOpacity(): number {
+	// 	return this.bkOpacity;
+	// }
+	// set backOpacity(val) {
+	// 	this.$lodash.debounce(() => {
+	// 		this.bkOpacity = val;
+	// 	}, 300);
+	// }
 
-	get backOpacity(): number {
-		return this.bkOpacity;
-	}
-	set backOpacity(val) {
-		this.bkOpacity = val;
-	}
-
-	@Watch('lyric.image')
+	@Watch('lyricsObj.imagePath')
 	changeLyricImage(img: string) {
 		this.image = null;
 		if (img) this.backimgLoad();
 	}
 
-	mounted() {
-		console.log(this.lyric);
+	@Watch('mainColor')
+	changeMainColor(val: string) {
+		this.$ipcRenderer.invoke('writeConfig', { mainColor: val }).then(res => {
+			console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
+		});
+	}
 
-		if (this.lyric?.image) {
+	@Watch('subColor')
+	changeSubColor(val: string) {
+		this.$ipcRenderer.invoke('writeConfig', { subColor: val }).then(res => {
+			console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
+		});
+	}
+
+	@Watch('textAlign')
+	changeTextAlign(val: string) {
+		this.$ipcRenderer.invoke('writeConfig', { textAlign: val }).then(res => {
+			console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
+		});
+	}
+
+	created() {
+		const { mainColor, subColor, textAlign } = LyModule.lyricText as LyricsTxtConf;
+		this.mainColor = mainColor || this.mainColor;
+		this.subColor = subColor || this.subColor;
+		this.textAlign = textAlign || this.textAlign;
+	}
+
+	mounted() {
+		if (this.lyricsObj?.imagePath) {
 			this.backimgLoad();
 		}
 
-		const text = LyModule.lyricText;
-		if (text) {
-			this.mainColor = text.main;
-			this.subColor = text.sub;
-			this.textAlign = text.align;
-		}
+		console.log(this.lyricsObj);
+		console.log(LyModule.lyricText);
 	}
 
 	beforeDestroy() {
-		//  this.$store.commit('saveLyric', this.lyric);
-		if (this.lyric) LyModule.saveLyric(this.lyric);
-		// this.$store.commit('saveText', { main: this.mainColor, sub: this.subColor, align: this.textAlign });
-		LyModule.saveText({ main: this.mainColor, sub: this.subColor, align: this.textAlign });
+		if (this.lyricsObj) LyModule.saveLyric(this.lyricsObj);
+		LyModule.saveText({ mainColor: this.mainColor, subColor: this.subColor, textAlign: this.textAlign });
 	}
 
+	/**載入背景圖 */
 	private backimgLoad() {
 		this.$ipcRenderer
-			.invoke('loadBuffer', { path: this.lyric?.image })
+			.invoke('loadBuffer', { path: this.lyricsObj?.imagePath })
 			.then(res => {
 				this.image = Buffer.from(res.data);
 			})
 			.catch(err => {
 				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
-
-		// this.$sharp(this.lyric.image).toBuffer((err: Error, data: Buffer) => {
-		// 	if (err) this.$store.commit('snackbar', { text: err, color: 'error' });
-		// 	this.image = data;
-		// });
-
-		// .then(data => {
-		// 	this.image = data;
-		// })
-		// .catch(err => {
-		// 	this.$store.commit('snackbar', { text: err, color: 'error' });
-		// });
 	}
 }
 </script>

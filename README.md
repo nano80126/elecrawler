@@ -20,13 +20,8 @@ This is a lyric crawler build by electron.
 
 ### Waiting
 
-* [ ] Design an icon
+* [ ] Design an icon (lightning + spider)
 * [ ] vue i18n
-
-### Typescript
-
-* [ ] Typescript (search nodejs + typescript)
-* [ ] Test after changing to typescript
 
 ### Onprogress
 
@@ -49,34 +44,59 @@ This is a lyric crawler build by electron.
 * [x] Simple lyric and background with no embeded youtube
 * [x] Open dialog in main process
 * [x] Use debounce in typescript
-* [x] ~~Fix nedb in electron 9~~
-* [x] Remove () after crawl ## ## ## ##
+* [ ] ~~Fix nedb in electron 9~~
+* [x] Remove () after crawl
 * [x] Save video id which playing now
 * [x] Fix bug that unable build
 * [x] Update sharp.js
 * [x] Remove some console.log not important
 * [x] Open picture directory
 * [x] Move save button to bottom 
-* [ ] replace all commit
-* [ ] Add global hotkey
-* [ ] i18n
+* [x] replace all commit
 * [ ] ~Make media.vue smaller, divide it.~
-* [ ] Save settings in json (main/sub text color, text align, language), use fs writefile in main process, path is userData
-* [-] let lyrci title and artist could be edit (open new window)
-* [ ] Create new widnow for edit panel
 * [x] Try vuedraggable to switch youtube obj index
-* [ ] Show title of YouTube in Embed.vue
 * [x] Fix toolbar of YouTube URL 
+* [x] Show title of YouTube in Embed.vue
+* [x] Random text color with marqee
+* [x] let lyrci title and artist could be edit (open new window)
+* [ ] ~Display.vue try use debounce for change background opacity~
+* [x] Add pages dir for multiple pages, and popped window for edit panel
+* [x] Save settings in json (main/sub text color, text align, language), use fs writefile in main process, path is userData
+* [x] What trigger to save config? use @Watch
+* [x] Rename all object key with unified name
+* [x] searchRes edit to invoke / handle
+* [x] Add interfaces of often used items
+* [x] Add refresh in list.vue
+* [x] Edit.vue video title slide in if got 
+* [x] Animation for panel window if lyricsKey Changed
+* [x] Create new widnow for edit panel
+* [ ] Add global hotkey
+* [x] Remove hot key of panel window
+* [x] Close panel window if long time no use
+* [x] Change playing title in shuffle mode
+* [x] Try to fix volumn bugs
+* [x] Call setPlayList in main.ts  
+* [ ] Custom title and artist of lyric object
+* [ ] Test youtube embed api in production mode 
+* [x] Open panel window in production mode
+* [x] Scroll bar bugs in panel window (restart vs code)
+* [ ] Create logo window
+* [ ] Icon & logo ( ) 
+
+
 
 ### Known bug 
 
 * [ ] Mongodb bundle warning in production environment
-
+* [ ] Production mode may not play video
+    * some viedo will occured problem
+    * will show can't play video
+    * Must use in http server ?    
 ### Vuex
 
-* [*] Migrate vuex to typescript (vuex-module-decorators)
-* [*] Use moudles player, common, lyric
-* [*] Fix vuex after using decorators
+* [x] Migrate vuex to typescript (vuex-module-decorators)
+* [x] Use moudles player, common, lyric
+* [x] Fix vuex after using decorators
 
 ### sqlite
 
@@ -88,4 +108,5 @@ This is a lyric crawler build by electron.
 
 ### bundle / build
 
+### Make easy to migrate from development to production
 

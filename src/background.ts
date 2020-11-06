@@ -14,25 +14,48 @@ import {
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // import crawler
-import './main/crawler';
-import './main/fs';
-// import './main/mongo';
-import './main/sharp';
-import { mongoCLient } from './main/mongo';
+// import './api/fastify';
+import './api/express';
+import './api/crawler';
+import './api/sharp';
+
+import { config, saveConfig } from './api/fs';
+import { mongoCLient } from './api/mongo';
+
+// custom types
+import { Iconfig, IchannelLyricsObj } from './types/main-process';
+// import './api/mongo';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 // let win: BrowserWindow | null = null;
-let win: BrowserWindow | null = null;
-let child: BrowserWindow | null = null;
 let tray: Tray | null = null;
 
+let win: BrowserWindow | null = null;
+let child: BrowserWindow | null = null;
+let childCloseTimer: NodeJS.Timeout | null = null;
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
+
+// console.log(process.env);
+
+// const mainMenu = Menu.buildFromTemplate([
+// 	{
+// 		label: 'File',
+// 		type: 'submenu',
+// 		submenu: [{ role: 'close' }]
+// 	},
+// 	{
+// 		label: 'Window',
+// 		type: 'submenu',
+// 		submenu: [{ role: 'toggleDevTools' }]
+// 	}
+// ]);
 
 function createWindow() {
 	// Create the browser window.
 	win = new BrowserWindow({
+		title: 'EleCrawler',
 		backgroundColor: '#212121',
 		// backgroundColor: 'transparent',
 		minWidth: 480,
@@ -41,10 +64,9 @@ function createWindow() {
 		minHeight: 720,
 		height: 960,
 		///
-		x: 30,
-		y: 40,
+		x: (config as Iconfig).x || 30,
+		y: (config as Iconfig).y || 40,
 		// frame: false,
-		title: 'electron searcher',
 		// opacity: 0.5,
 		// autoHideMenuBar: true,
 		// transparent: true,
@@ -58,36 +80,71 @@ function createWindow() {
 		}
 	});
 
-	win.webContents.on('new-window', (event, url, frameName) => {
-		console.log(url);
-		console.log(frameName);
+	// if (process.env.NODE_ENV == 'production') win.removeMenu();
+	// win.setMenu(mainMenu);
+	// Menu.setApplicationMenu(mainMenu);
+
+	win.webContents.on('new-window', (event, url, frameName, disposition, options) => {
+		event.preventDefault();
 
 		if (frameName === 'editPanel') {
-			// 將視窗以強制回應方式開啟
-			event.preventDefault();
+			const { artist, title, lyricsKey, lyricsUrl } = options as IchannelLyricsObj;
 
-			child = new BrowserWindow({
-				backgroundColor: '#ddd',
-				// skipTaskbar: true,
-				width: 640,
-				height: 960,
-				///
-				center: true,
+			if (!child) {
+				child = new BrowserWindow({
+					title: 'Panel',
+					backgroundColor: '#212121',
+					///
+					width: 640,
+					height: 840,
+					///
+					parent: win as BrowserWindow,
+					center: true,
+					modal: true,
+					show: false,
+					autoHideMenuBar: true,
+					frame: false,
+					resizable: false,
+					webPreferences: {
+						nodeIntegration: true
+					}
+				});
+				// child.removeMenu(); // 移除 menu
+				child.loadURL(url);
+				console.log(url);
 
-				modal: true,
-				show: false,
-				autoHideMenuBar: true,
-				frame: false,
-				resizable: false,
-				webPreferences: {
-					nodeIntegration: true
-				}
-			});
-			child.loadURL(url);
+				// if (process.env.WEBPACK_DEV_SERVER_URL) {
+				// 	child.loadURL(url.replace(/(#\/)/, ''));
+				// } else {
+				// 	child.loadURL('http://localhost:4000' + url);
+				// }
+			} else {
+				child.webContents.send('lyricObj', {
+					artist: artist,
+					song: title,
+					key: lyricsKey,
+					url: lyricsUrl,
+					delay: 500
+				});
+				if (!child.isVisible()) child.show();
+				if (childCloseTimer) clearTimeout(childCloseTimer);
+			}
 
 			child.on('ready-to-show', () => {
+				child?.webContents.send('lyricObj', {
+					artist: artist,
+					song: title,
+					key: lyricsKey,
+					url: lyricsUrl,
+					delay: 0
+				});
 				child?.show();
+				if (childCloseTimer) clearTimeout(childCloseTimer);
 			});
+
+			// child.on('focus', () => {
+			// 	console.log(Menu.getApplicationMenu());
+			// });
 
 			child.on('close', () => {
 				child = null;
@@ -96,6 +153,8 @@ function createWindow() {
 	});
 	// win.webContents.op
 
+	console.log(process.env.WEBPACK_DEV_SERVER_URL, process.env.NODE_ENV);
+
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
 		// Load the url of the dev server if in development mode
 		win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
@@ -103,11 +162,18 @@ function createWindow() {
 	} else {
 		createProtocol('app');
 		// Load the index.html when not in development
-		win.loadURL('app://./index.html');
+		// win.loadURL('app://./index.html');
+		win.loadURL('http://localhost:4000/');
 	}
 
 	win.on('ready-to-show', () => {
 		win?.show();
+	});
+
+	win.on('close', () => {
+		/**關閉前紀錄現在視窗位置 */
+		const bound = win?.getBounds();
+		saveConfig({ x: bound?.x, y: bound?.y });
 	});
 
 	win.on('closed', () => {
@@ -129,15 +195,14 @@ app.on('window-all-closed', () => {
 	}
 });
 
+// app.disableHardwareAcceleration();
+
 app.on('ready', () => {
 	// const iconPath = path.resolve(__dirname, 'trayicon.ico');
 	// const trayIcon = nativeImage.createFromPath(iconPath);
 	// trayIcon.resize({ width: 16, height: 16 });
 	// console.log(iconPath);
 	tray = new Tray(path.resolve(__static, 'icons/trayicon.ico'));
-	// console.log(path.resolve(__dirname, 'build/trayicon.ico'));
-	// console.log(path.resolve(__dirname, '/'));
-	// console.log(__dirname);
 	const contextMenu = Menu.buildFromTemplate([
 		{
 			label: 'Open',
@@ -217,6 +282,14 @@ ipcMain.on('windowRestore', () => {
 
 ipcMain.on('windowHide', () => {
 	win?.hide();
+});
+
+ipcMain.on('panelHide', () => {
+	child?.hide();
+	// 10 分鐘後關閉 child
+	childCloseTimer = setTimeout(() => {
+		child?.close();
+	}, 1000 * 60 * 10);
 });
 
 ipcMain.on('windowWidth', (e, args) => {

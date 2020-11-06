@@ -52,7 +52,7 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (
 	});
 
 	ipcMain.handle('listSave', async (e, args) => {
-		await list.createIndex({ uniqueKey: 1 }, { unique: true });
+		await list.createIndex({ lyricsKey: 1 }, { unique: true });
 
 		const ret = await list.updateOne(args.query, args.data, { upsert: true });
 		return ret.result;

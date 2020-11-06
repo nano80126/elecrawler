@@ -1,11 +1,29 @@
 import fs from 'fs';
 import path from 'path';
 import { app, ipcMain } from 'electron';
+import { Iconfig } from '@/types/main-process';
 
 const picPath =
 	process.env.NODE_ENV == 'development'
 		? path.resolve(app.getPath('pictures'), 'EleCrawler')
 		: path.resolve(app.getPath('exe'), '../pictures');
+
+const jsonPath = path.resolve(app.getPath('userData'), 'config.json');
+console.log(jsonPath);
+
+let config: Iconfig | {} = {};
+
+// 載入 config
+(function loadConfig() {
+	const exist = fs.existsSync(jsonPath);
+	if (!exist) {
+		fs.writeFileSync(jsonPath, JSON.stringify({}));
+		config = {};
+	} else {
+		const cfg = JSON.parse(fs.readFileSync(jsonPath).toString());
+		config = cfg;
+	}
+})();
 
 // create picture directory
 ipcMain.handle('mkPicDir', () => {
@@ -15,6 +33,12 @@ ipcMain.handle('mkPicDir', () => {
 			if (err) console.log(err);
 		});
 	}
+	return { path: picPath };
+});
+
+ipcMain.handle('getPicDir', () => {
+	const exist = fs.existsSync(picPath);
+	if (!exist) throw new Error('No image directory exists.');
 	return { path: picPath };
 });
 
@@ -44,4 +68,20 @@ ipcMain.on('removeFile', (e, args: { files: string[] }) => {
 	});
 });
 
-export { picPath };
+ipcMain.handle('readConfig', () => {
+	return config;
+});
+
+ipcMain.handle('writeConfig', (e, args) => {
+	return Object.assign(config, args);
+});
+
+export function saveConfig(args = {}): void {
+	Object.assign(config, args);
+	fs.writeFile(jsonPath, JSON.stringify(config), err => {
+		//
+		if (err) console.log(err);
+	});
+}
+
+export { config, picPath };

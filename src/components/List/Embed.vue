@@ -3,7 +3,7 @@
 		<v-card-actions>
 			<v-list class="py-0" dense width="100%" color="transparent">
 				<v-list-item :disabled="!player">
-					<v-list-item-content>
+					<v-list-item-content class=" col col-lg-6">
 						<div class="d-flex align-center progress-container">
 							<span>{{ $moment.utc(progressCurr * 1000).format('mm:ss') }}</span>
 							<v-progress-linear
@@ -17,7 +17,18 @@
 						</div>
 					</v-list-item-content>
 
-					<v-spacer v-show="$root.webWidth > 1200" />
+					<!-- <v-spacer v-show="$root.webWidth >= 1264" /> -->
+
+					<!-- random text color -->
+					<!-- vuetify lg breakpoint >= 1264  -->
+					<v-list-item-content
+						v-show="$root.webWidth >= 1264"
+						class="col-1 col-lg-2 mx-lg-auto"
+						:class="`${randomColor}--text`"
+						style="position: relative;"
+					>
+						<span class="video-title">{{ videoTitle }}</span>
+					</v-list-item-content>
 
 					<v-list-item-icon class="mr-3 align-center">
 						<v-menu
@@ -118,26 +129,50 @@ import { AppModule } from '@/store/modules/app';
 
 @Component
 export default class Embed extends Vue {
+	/**YouTUbe 影片ID */
 	@Prop() videoID?: string;
+
+	/**是否以sheet為容器(App.vue) */
 	@Prop() sheet?: boolean;
 
+	/**音樂目前播放時間 */
 	private progressCurr = 0;
+	/**音樂最大播放時間 */
 	private progressMax = 0;
 
+	/**音量 */
 	private volume = 75;
+	/**音量(backup) */
 	private volumeBack = 75;
 
+	/**文字顏色，移除末項黑色 */
+	private colors: Readonly<Array<string>> = this.$root.$data.colors;
+
+	/**播放狀態 */
 	private playState = -1;
 	// private s = stata.a;
 
-	get canPlay() {
-		return this.playState == 0 || this.playState == 2 || this.playState == 5;
+	get videoTitle() {
+		return AppModule.videoTitle;
 	}
 
+	get randomColor() {
+		// 長度-1及不包含黑色
+		const r = this.$lodash.random(this.colors.length - 2);
+		return this.colors[r];
+	}
+
+	/**播放器 */
 	get player() {
 		return PlayerModule.player;
 	}
 
+	/**播放器是否可播放 */
+	get canPlay() {
+		return this.playState == 0 || this.playState == 2 || this.playState == 5;
+	}
+
+	/**循環狀態 */
 	get loop(): boolean {
 		return PlayerModule.playerLoop;
 	}
@@ -146,6 +181,7 @@ export default class Embed extends Vue {
 		PlayerModule.videoLoop(value);
 	}
 
+	/**隨機播放狀態 */
 	get shuffle(): boolean {
 		return PlayerModule.playerShuffle;
 	}
@@ -154,6 +190,7 @@ export default class Embed extends Vue {
 		PlayerModule.videoShuffle(value);
 	}
 
+	/**播放進度條 */
 	get progress() {
 		return (this.progressCurr / this.progressMax) * 100;
 	}
@@ -182,12 +219,6 @@ export default class Embed extends Vue {
 						this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
 					}, 250)
 				);
-				// this.$store.commit(
-				// 	'pushIntervalArr',
-				// 	setInterval(() => {
-				// 		this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
-				// 	}, 250)
-				// );
 				this.progressMax = this.player?.getDuration() || this.progressMax;
 				break;
 			case 5:
@@ -196,11 +227,13 @@ export default class Embed extends Vue {
 		}
 	}
 
+	/**if sheet changed, trigger when user operating in Search.vue */
 	@Watch('sheet')
 	onSheetChange(value: boolean) {
 		if (value) this.CheckPlayer();
 	}
 
+	/**if videoID changed, trigger when user operating in List.vue*/
 	@Watch('videoID')
 	onVideoIDChange(value?: string) {
 		if (value?.length == 11) {
@@ -231,6 +264,7 @@ export default class Embed extends Vue {
 		if (!id) return;
 
 		const youtube = window.YT;
+		console.log(window);
 		// new youtube.Player(,)
 
 		const py = new youtube.Player('youtube-audio', {
@@ -242,8 +276,16 @@ export default class Embed extends Vue {
 				autoplay: 0,
 				controls: 0,
 				loop: 0,
+				fs: 0,
+				rel: 0,
+				disablekb: 1,
+				origin: 'https://www.youtube.com',
+				playsinline: 1,
+				modestbranding: 1,
 				// eslint-disable-next-line @typescript-eslint/camelcase
-				cc_load_policy: 0
+				cc_load_policy: 0,
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				iv_load_policy: 0
 			},
 			events: {
 				onReady: e => {
@@ -286,6 +328,7 @@ export default class Embed extends Vue {
 		// );
 	}
 
+	/**確認播放器狀態、參數 */
 	private CheckPlayer() {
 		// const player = this.$store.state.player.player;
 		const player = PlayerModule.player;
@@ -317,7 +360,7 @@ export default class Embed extends Vue {
 		}
 	}
 
-	// toogle volumn
+	/**切換靜音 */
 	private volumeToggle() {
 		if (!this.player) return;
 
@@ -329,7 +372,7 @@ export default class Embed extends Vue {
 		PlayerModule.videoSetVolume(this.volume);
 	}
 
-	// change volumn
+	/**變更音量 */
 	private volumeChange() {
 		if (!this.player) return;
 
@@ -337,32 +380,34 @@ export default class Embed extends Vue {
 		this.$store.commit('videoSetVolume', this.volume);
 	}
 
+	/**開始播放 */
 	private videoStart() {
 		PlayerModule.playVideo();
 	}
-
+	/**暫停播放 */
 	private videoPause() {
 		PlayerModule.pauseVideo();
 	}
-
+	/**倒退10sec */
 	private backward10() {
 		PlayerModule.backward10();
 	}
-
+	/**快進10sec */
 	private forward10() {
 		PlayerModule.forward10();
 	}
-
+	/**切換Loop */
 	private toggleLoop() {
 		this.shuffle = false;
 		this.loop = !this.loop;
 	}
-
+	/**切換Shuffle */
 	private toggleShuffle() {
 		this.loop = false;
 		this.shuffle = !this.shuffle;
 	}
 
+	/**進度條變更 */
 	private progressChange(e: number) {
 		PlayerModule.videoProgress((this.progressMax * e) / 100);
 		// this.$root.$player.seekTo((this.progressMax * e) / 100);
@@ -380,6 +425,24 @@ export default class Embed extends Vue {
 	// 控制按鈕
 	button > span > i {
 		color: rgba(255, 255, 255, 0.3) !important;
+	}
+}
+
+.video-title {
+	position: absolute;
+	// width: 100%;
+	white-space: nowrap;
+	animation: marqee 5s linear infinite;
+}
+
+@keyframes marqee {
+	0% {
+		margin-left: 100%;
+		transform: translateX(0%);
+	}
+	100% {
+		margin-left: 0;
+		transform: translateX(-100%);
 	}
 }
 </style>

@@ -11,16 +11,23 @@
 					<v-list-item-content
 						:style="`border-bottom: ${idx < urlObjArray.length - 1 ? '1px solid gray' : ''}`"
 					>
-						<v-list-item-title class="d-flex align-center justify-center">
-							<span class="ml-3">{{ `${idx + 1}.` }}</span>
-							<span class="subtitle-2 mr-3 ml-auto" style="user-select: text; max-width: 90%;">{{
-								item.title
-							}}</span>
+						<v-list-item-title class="d-flex align-center justify-start">
+							<span class="subtitle-2 ml-3">{{ `${idx + 1}.` }}</span>
+							<transition name="slideFadeIn">
+								<span
+									v-if="item.videoTitle"
+									class="subtitle-2 mr-3 ml-auto"
+									style="user-select: text; max-width: 90%;"
+									v-text="item.videoTitle"
+								/>
+								<!-- {{ item.videoTitle }} -->
+								<!-- </span> -->
+							</transition>
 						</v-list-item-title>
 						<v-list-item-subtitle class="d-flex align-center justify-center no-gutters">
 							<v-toolbar dense flat height="36" class="transparent">
 								<v-text-field
-									v-model="item.singer"
+									v-model="item.artist"
 									class="col-auto ml-auto"
 									dense
 									rounded
@@ -29,11 +36,11 @@
 									hide-details
 									color="orange"
 									prepend-icon="fas fa-microphone-alt"
-									style="max-width: 250px"
+									style="max-width: 450px"
 								/>
-								<v-tooltip top color="brown darken-2">
+								<v-tooltip top nudge-left="4" color="brown darken-2">
 									<template v-slot:activator="{ on, attrs }">
-										<div v-on="on" v-bind="attrs" class="ml-3">
+										<div v-on="on" v-bind="attrs" class="ml-3 mr-n1">
 											<v-checkbox
 												v-model="item.cover"
 												color="success"
@@ -55,8 +62,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
 import draggable from 'vuedraggable';
+
+import { Component, Vue, Prop } from 'vue-property-decorator';
+import { IyouTubeObj } from '@/types/renderer';
 
 @Component({
 	components: {
@@ -65,7 +74,7 @@ import draggable from 'vuedraggable';
 })
 export default class Edit extends Vue {
 	/**YouTube Obj Array，自訂title用 */
-	@Prop() urlObjArray!: Array<{ url: string; id?: string; title?: string }>;
+	@Prop() urlObjArray!: IyouTubeObj[];
 
 	/**回傳可拖動之陣列 */
 	get draggableArray() {
@@ -79,3 +88,14 @@ export default class Edit extends Vue {
 	}
 }
 </script>
+
+<style lang="scss" scoped>
+.slideFadeIn-enter-active {
+	transition: all 0.5s;
+}
+
+.slideFadeIn-enter {
+	opacity: 0.16;
+	transform: translateX(80%);
+}
+</style>
