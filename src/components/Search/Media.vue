@@ -130,9 +130,9 @@
 							icon
 							outlined
 							class="ml-2"
-							:class="{ 'blue-grey darken-2': catchAvatar }"
+							:class="{ 'blue-grey darken-2': onRect }"
 							:disabled="!imgBuffer"
-							@click="catchAvatar = !catchAvatar"
+							@click="onRect = !onRect"
 							v-bind="attrs"
 							v-on="on"
 						>
@@ -190,11 +190,12 @@
 								@drop.capture="dragging = false"
 								width="100%"
 								ref="imgCard"
-								@mousedown.capture="rectOn"
-								@mousemove.capture="crossMove"
-								@mouseleave.capture="crossReset"
-								@mouseup.capture="rectOff"
+								@mousedown="rectOn"
+								@mouseup="rectOff"
+								@mousemove="crossMove"
+								@mouseleave="crossReset"
 							>
+								<!-- @mousewheel="iconWheel" -->
 								<transition name="imagFadeIn">
 									<v-img
 										v-if="imgBuffer"
@@ -202,16 +203,22 @@
 										contain
 										:max-width="imgSize.width > 0 ? imgSize.width : null"
 										:max-height="imgSize.height > 0 ? imgSize.height : null"
-										style="border-radius: inherit; margin:auto;"
 										ref="img"
 										v-resize="resize"
 										@load="updateRatio"
+										style="border-radius: inherit; margin:auto;"
 									>
-										<template v-if="catchAvatar">
+										<template v-if="onRect">
 											<div id="small-region" ref="region" />
 											<div id="crosshair-h" class="hair" ref="hairH" />
 											<div id="crosshair-v" class="hair" ref="hairV" />
 											<span id="mousepos" ref="pos" v-text="'X:0, Y:0'" />
+
+											<!-- min size 128 x 128 -->
+											<!-- <div id="icon-region" ref="iconRegion" /> -->
+											<!-- <span id="mousepos" ref="pos">
+												{{ `X:${mousePos.x}, Y:${mousePos.y}` }}
+											</span> -->
 										</template>
 										<div id="small-region-freeze" ref="region-freeze" />
 									</v-img>
@@ -258,7 +265,7 @@
 				</v-col>
 			</v-row>
 
-			<template v-if="false">
+			<template v-if="true">
 				<div>
 					abs: {{ rectAbs }}
 					<br />
@@ -275,7 +282,6 @@
 				{{ lyricsObj.obj.key }}
 				<br />
 
-				{{ urlObj.length }}
 				<div v-for="item in urlObj" :key="item.id">
 					{{ item }}
 				</div>
@@ -312,6 +318,7 @@ import { AppModule, Colors } from '@/store/modules/app';
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
 import { IlyricsObjSearched, IyouTubeObj, IsongList, Irectangle } from '@/types/renderer';
+import { OutputInfo } from 'sharp';
 
 @Component({
 	components: {
@@ -348,9 +355,11 @@ export default class Media extends Vue {
 	/**是否可以貼上？當圖片區域focus時為true */
 	private canPaste = false;
 	/**是否可以框選icon */
-	private catchAvatar = false;
+	private onRect = false;
 	/**是否開始框選icon */
-	private onRectFlag = false;
+	private onRectStart = false;
+	/**滑鼠位置 */
+	// private mousePos = { x: 0, y: 0 };
 
 	/**是否顯示確認menu，確認縮圖範圍 */
 	private showMenu = false;
@@ -403,16 +412,18 @@ export default class Media extends Vue {
 				if (doc.imagePath) {
 					this.$ipcRenderer
 						.invoke('loadBuffer', { path: doc.imagePath })
-						.then(res => {
-							if (res.Error) {
-								this.$store.commit('snackbar', { text: res.message, color: 'error' });
-								return;
-							}
+						.then((res: { data: Buffer; info: OutputInfo }) => {
+							// if (res.Error) {
+							// 	this.$store.commit('snackbar', { text: res.message, color: 'error' });
+							// 	return;
+							// }
+
 							this.imgBuffer = Buffer.from(res.data);
 
 							this.$nextTick(() => {
-								this.$set(this.imgSize, 'width', res.info.width);
-								this.$set(this.imgSize, 'height', res.info.height);
+								const { width, height } = res.info;
+								this.$set(this.imgSize, 'width', width);
+								this.$set(this.imgSize, 'height', height);
 
 								const regionFreeze = this.$refs['region-freeze'] as HTMLElement;
 								if (regionFreeze && doc.rectangle) {
@@ -424,8 +435,8 @@ export default class Media extends Vue {
 								}
 							});
 						})
-						.catch(err => {
-							this.$store.commit('snackbar', { text: err, color: 'error' });
+						.catch((err: Error) => {
+							this.$store.commit('snackbar', { text: err.message, color: 'error' });
 						});
 				}
 				// 先判斷 videoArr存在
@@ -566,7 +577,7 @@ export default class Media extends Vue {
 
 		this.$ipcRenderer
 			.invoke('toBuffer', { path: filePath })
-			.then(res => {
+			.then((res: { data: Buffer; info: OutputInfo }) => {
 				this.imgBuffer = Buffer.from(res.data);
 
 				const { width, height } = res.info;
@@ -587,7 +598,7 @@ export default class Media extends Vue {
 
 		this.$ipcRenderer
 			.invoke('dialogImage')
-			.then(res => {
+			.then((res: { data: Buffer; info: OutputInfo }) => {
 				this.imgBuffer = Buffer.from(res.data);
 
 				const { width, height } = res.info;
@@ -618,11 +629,11 @@ export default class Media extends Vue {
 					key: this.lyricsObj.obj.lyricsKey,
 					size: { left: x, top: y, width: w, height: h }
 				})
-				.then(res => {
-					if (res.Error) {
-						AppModule.snackbar({ text: res.message, color: Colors.Error });
-						return;
-					}
+				.then((res: OutputInfo[]) => {
+					// if (res.Error) {
+					// 	AppModule.snackbar({ text: res.message, color: Colors.Error });
+					// 	return;
+					// }
 
 					const { obj } = this.lyricsObj;
 					const picPath = AppModule.picPath;
@@ -633,13 +644,6 @@ export default class Media extends Vue {
 					// 去頭尾空白
 					this.urlObj.forEach(e => (e.artist = e.artist?.replace(/(^\s+)|(\s+$)/g, '')));
 
-					// const urlIdArr = [];
-					// this.urlObj.forEach(u => {
-					// 	const id = u.url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-					// 	if (id && id[0].length == 11) urlIdArr.push(id[0]);
-					// });
-					// const v = this.url[0].match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-					// add image / avatart to list
 					this.$ipcRenderer
 						.invoke('listSave', {
 							query: { lyricsKey: obj.lyricsKey },
@@ -711,22 +715,39 @@ export default class Media extends Vue {
 		this.imgBuffer = null; // 重置 imgBuffer
 		this.imgSize.width = this.imgSize.height = 0; // 重置 imgSize
 		this.imgZoomRatio = 0; // 重置縮小倍率
-		//
-		this.catchAvatar = false;
-		this.onRectFlag = false;
+		Object.assign(this.rectAbs, { x: 0, y: 0, width: 0, height: 0 }); // 重置 rect
+		Object.assign(this.rectPercent, { x: 0, y: 0, width: 0, height: 0 }); // 重置 rect
+		// // // // //
+		this.onRect = false;
+		this.onRectStart = false;
 		this.showMenu = false;
 	}
 
+	// private iconWheel(e: WheelEvent): void {
+	// 	e.preventDefault();
+	// 	const width = (this.$refs.iconRegion as HTMLLIElement).clientWidth + 2; // 2 is border
+	// 	const height = (this.$refs.iconRegion as HTMLLIElement).clientHeight + 2; // 2 is border
+
+	// 	if (e.deltaY < 0) {
+	// 		(this.$refs.iconRegion as HTMLLIElement).style.width = `${width + 20}px`;
+	// 		(this.$refs.iconRegion as HTMLLIElement).style.height = `${height + 20}px`;
+	// 	} else if (e.deltaY > 0) {
+	// 		(this.$refs.iconRegion as HTMLLIElement).style.width = `${width - 20}px`;
+	// 		(this.$refs.iconRegion as HTMLLIElement).style.height = `${height - 20}px`;
+	// 	}
+	// }
+
+	/**mousemove evemt, show mouse position txt, if mousedown capture icon */
 	private crossMove(e: MouseEvent): void {
-		if (!this.imgBuffer || !this.catchAvatar) return;
+		if (!this.imgBuffer || !this.onRect) return;
 
 		const x = e.offsetX - 2 < 0 ? 0 : e.offsetX - 2;
 		const y = e.offsetY - 2 < 0 ? 0 : e.offsetY - 2;
-		(this.$refs.hairV as HTMLLIElement).style.left = `${e.offsetX}px`;
-		(this.$refs.hairH as HTMLLIElement).style.top = `${e.offsetY}px`;
-		(this.$refs.pos as HTMLLIElement).innerText = `X:${x}, Y:${y}`;
+		(this.$refs.hairV as HTMLLIElement).style.left = `${e.offsetX}px`; // crosshairV pos
+		(this.$refs.hairH as HTMLLIElement).style.top = `${e.offsetY}px`; // crosshairV pos
+		(this.$refs.pos as HTMLLIElement).innerText = `X:${x}, Y:${y}`; // show mouse pos
 
-		if (this.onRectFlag) {
+		if (this.onRectStart) {
 			const w = (this.$refs.img as Vue).$el.clientWidth;
 			const h = (this.$refs.img as Vue).$el.clientHeight;
 			// console.log(w, h);
@@ -745,26 +766,31 @@ export default class Media extends Vue {
 		}
 	}
 
-	private crossReset(/*e: MouseEvent*/) {
-		if (!this.imgBuffer || !this.catchAvatar) return;
+	/**mouseleave event, reset crosshair, position text */
+	private crossReset(e: MouseEvent) {
+		if (!this.imgBuffer || !this.onRect) return;
 
-		// this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
-		// this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
-		this.$nextTick(() => {
-			// this.showMenu = true;
+		(this.$refs.hairH as HTMLDivElement).style.top = '0';
+		(this.$refs.hairV as HTMLDivElement).style.left = '0';
+		(this.$refs.pos as HTMLSpanElement).innerText = 'X:0, Y:0';
 
-			(this.$refs.hairH as HTMLDivElement).style.top = '0';
-			(this.$refs.hairV as HTMLDivElement).style.left = '0';
-			(this.$refs.pos as HTMLSpanElement).innerText = 'X:0, Y:0';
-			this.onRectFlag = false;
-		});
+		// e.buttons & 0b1 左鍵 // mouse leave, show menu
+		if ((e.buttons & 0b01) == 0b01 && this.onRectStart) {
+			this.onRectStart = false;
+			this.$nextTick(() => {
+				this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
+				this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
+				this.showMenu = true;
+			});
+		}
 	}
 
+	/**mousedown event */
 	private rectOn(e: MouseEvent) {
-		if (!this.imgBuffer || !this.catchAvatar) return;
-		//
+		if (!this.imgBuffer || !this.onRect) return;
+		// 左鍵按下
 		if (e.button == 0) {
-			this.onRectFlag = true;
+			this.onRectStart = true;
 
 			this.$nextTick(() => {
 				const w = (this.$refs.img as Vue).$el.clientWidth;
@@ -774,7 +800,7 @@ export default class Media extends Vue {
 				this.rectAbs.y = e.offsetY - 1;
 
 				this.rectAbs.width = this.rectAbs.height = 0;
-				(this.rectPercent as Irectangle).width = this.rectPercent.height = 0;
+				this.rectPercent.width = this.rectPercent.height = 0;
 
 				const region = this.$refs.region as HTMLDivElement;
 				region.style.width = '0';
@@ -782,16 +808,19 @@ export default class Media extends Vue {
 				region.style.left = `${this.rectAbs.x / w}%`;
 				region.style.top = `${this.rectAbs.y / h}%`;
 
-				this.$nextTick(() => (this.showMenu = false));
+				this.$nextTick(() => {
+					this.showMenu = false;
+				});
 			});
 		}
 	}
 
+	/**mouseup event */
 	private rectOff(e: MouseEvent) {
-		if (!this.imgBuffer || !this.catchAvatar) return;
-		//
-		if (e.button == 0 && this.onRectFlag) {
-			this.onRectFlag = false;
+		if (!this.imgBuffer || !this.onRect) return;
+		// 左鍵放開
+		if (e.button == 0 && this.onRectStart) {
+			this.onRectStart = false;
 
 			this.$nextTick(() => {
 				const region = this.$refs.region as HTMLDivElement;
@@ -845,11 +874,11 @@ export default class Media extends Vue {
 		regionFreeze.style.top = `${this.rectPercent.y}%`;
 		regionFreeze.style.width = `${this.rectPercent.width}%`;
 		regionFreeze.style.height = `${this.rectPercent.height}%`;
-		//
+		// set temp rect min
 		const region = this.$refs.region as HTMLDivElement;
 		region.style.width = region.style.height = '0';
 		//
-		this.catchAvatar = false;
+		this.onRect = false;
 	}
 }
 </script>
@@ -908,6 +937,18 @@ input[type='file'] {
 	// border: 1px solid blue;
 }
 
+#icon-region {
+	position: absolute;
+	top: calc(50% - 64px);
+	left: calc(50% - 64px);
+	width: 128px;
+	height: 128px;
+	// margin-top: -2px;
+	// margin-left: -2px;
+	border: 1px solid rgba(cyan, 0.48);
+	background-color: rgba(darkcyan, 0.24);
+}
+
 #small-region {
 	position: absolute;
 	top: 0;
@@ -944,8 +985,8 @@ input[type='file'] {
 	margin-top: -2px;
 	margin-left: -2px;
 	background: transparent;
-	border-top: 1px dotted #000;
-	border-left: 1px dotted #000;
+	border-top: 1px dotted #888;
+	border-left: 1px dotted #888;
 	pointer-events: none;
 }
 
@@ -953,8 +994,8 @@ input[type='file'] {
 	position: absolute;
 	top: 0;
 	left: 0;
-	padding: 10px;
-	margin: 10px;
+	padding: 5px;
+	margin: 8px;
 	font: 14px arial;
 	color: #fff;
 	background: rgba(0, 0, 0, 0.5);

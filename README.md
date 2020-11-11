@@ -70,25 +70,30 @@ This is a lyric crawler build by electron.
 * [x] Edit.vue video title slide in if got 
 * [x] Animation for panel window if lyricsKey Changed
 * [x] Create new widnow for edit panel
-* [ ] Add global hotkey
+* [x] Add global hotkey
 * [x] Remove hot key of panel window
 * [x] Close panel window if long time no use
 * [x] Change playing title in shuffle mode
 * [x] Try to fix volumn bugs
 * [x] Call setPlayList in main.ts  
 * [ ] Custom title and artist of lyric object
-* [ ] Test youtube embed api in production mode 
+* [x] Test youtube embed api in production mode 
 * [x] Open panel window in production mode
 * [x] Scroll bar bugs in panel window (restart vs code)
 * [ ] Create logo window
-* [ ] Icon & logo ( ) 
-
-
+* [ ] Icon & logo (lightning + spider) 
+* [x] Migrate image from development mode to production mode ?
+    * Or use the same directory
+* [x] Move overlay to v-main component
+* [x] Hot key for play, pause, volume
+* [ ] Test volume include hotkey
+* [x] Add shortcut hide/show window
+* [x] Rewrite rect capture method
 
 ### Known bug 
 
 * [ ] Mongodb bundle warning in production environment
-* [ ] Production mode may not play video
+* [x] Production mode may not play video
     * some viedo will occured problem
     * will show can't play video
     * Must use in http server ?    
@@ -105,6 +110,14 @@ This is a lyric crawler build by electron.
 ### Sharp 
 
 * [x] Can't use sharp in main process
+
+
+### New Page 
+
+* [ ] First, create new branch
+* [ ] Toolbox window 
+* [ ] Browser window 
+
 
 ### bundle / build
 

@@ -40,12 +40,20 @@ export default class Player extends VuexModule implements PlayerState {
 		return this.playerState;
 	}
 
+	/**Default 75 */
+	get volume(): number {
+		return this.playerVolume;
+	}
+
 	/// Mutation
+
+	/**紀錄interval ID, 之後清除使用 */
 	@Mutation
 	pushIntervalArr(interval: NodeJS.Timeout) {
 		this.intervalArray.push(interval);
 	}
 
+	/**清除所有interval ID */
 	@Mutation
 	clearIntervalArr() {
 		this.intervalArray.forEach(id => {
@@ -134,6 +142,24 @@ export default class Player extends VuexModule implements PlayerState {
 	videoSetVolume(value: number) {
 		this.playerVolume = value;
 		this.player?.setVolume(value);
+	}
+
+	/**音量 + */
+	@Mutation
+	videoPlusVolume(value: number) {
+		if (this.playerVolume + value > 100) this.playerVolume = 100;
+		else this.playerVolume += value;
+
+		this.player?.setVolume(this.playerVolume);
+	}
+
+	/**音量 - */
+	@Mutation
+	videoMinusVolume(value: number) {
+		if (this.playerVolume - value < 0) this.playerVolume = 0;
+		else this.playerVolume -= value;
+
+		this.player?.setVolume(this.playerVolume);
 	}
 
 	/**變更 loop */

@@ -240,6 +240,7 @@ export default class List extends Vue {
 
 				const iconArray = doc.map(item => item.iconPath || undefined);
 
+				console.log(iconArray);
 				this.$ipcRenderer
 					.invoke('loadBuffer', { path: iconArray })
 					.then((res: { data: Buffer; info: OutputInfo }[]) => {
@@ -247,19 +248,27 @@ export default class List extends Vue {
 							if (res[i]) Object.assign(e, { icon: Buffer.from(res[i].data) });
 						});
 						this.list = doc as IsongListWithIcon[];
-						console.log(this.list);
 					})
 					.catch((err: Error) => {
 						AppModule.snackbar({ text: err.message, color: Colors.Error });
 					});
 
 				// show all songs
-				const toStr = doc.map((item: { title: string; artist: string }) => `${item.title} / ${item.artist}`);
-				console.log(`%c${toStr.join(', ')}`, `color: ${this.$vuetify.theme.themes.dark.accent}`);
+				if (process.env.NODE_ENV == 'development') {
+					const toStr = doc.map(item => `${item.title} / ${item.artist}`);
+					console.info(`%c${toStr.join(', ')}`, `color: ${this.$vuetify.theme.themes.dark.accent}`);
+				}
 
 				/// /// /// /// /// /// /// /// ///
 				this.lyricsObj = LyModule.lyricObj;
-				console.log(this.lyricsObj);
+
+				/// 待刪除
+				if (process.env.NODE_ENV == 'development') {
+					console.info(
+						`%c${JSON.stringify(this.lyricsObj)}`,
+						`color: ${this.$vuetify.theme.themes.dark.info}`
+					);
+				}
 			})
 			.catch(err => {
 				AppModule.snackbar({ text: err, color: Colors.Error });
@@ -292,9 +301,6 @@ export default class List extends Vue {
 					};
 					this.videoID = videoID;
 					AppModule.setVideoTitle(videoTitle);
-
-					console.log(this.lyricsObj);
-					console.log(obj);
 				});
 			}
 			AppModule.changeOverlay(false);
@@ -306,7 +312,6 @@ export default class List extends Vue {
 		this.$ipcRenderer
 			.invoke('listRemoveOne', { query: { lyricsKey: key } })
 			.then(res => {
-				console.log(res);
 				if (res.ok > 0) {
 					this.$ipcRenderer.send('removeFile', {
 						files: [`${key}.jpg`, `${key}.icon.jpg`]

@@ -3,10 +3,10 @@ import path from 'path';
 import { app, ipcMain } from 'electron';
 import { Iconfig } from '@/types/main-process';
 
-const picPath =
-	process.env.NODE_ENV == 'development'
-		? path.resolve(app.getPath('pictures'), 'EleCrawler')
-		: path.resolve(app.getPath('exe'), '../pictures');
+const picPath = path.resolve(app.getPath('pictures'), 'EleCrawler');
+// process.env.NODE_ENV == 'development'
+// 	? path.resolve(app.getPath('pictures'), 'EleCrawler')
+// 	: path.resolve(app.getPath('exe'), '../pictures');
 
 const jsonPath = path.resolve(app.getPath('userData'), 'config.json');
 console.log(jsonPath);

@@ -19,6 +19,7 @@ import './api/express';
 import './api/crawler';
 import './api/sharp';
 
+import { registerHotkey, unregisterAllHotKey } from './api/shortcut';
 import { config, saveConfig } from './api/fs';
 import { mongoCLient } from './api/mongo';
 
@@ -184,6 +185,7 @@ function createWindow() {
 app.on('before-quit', () => {
 	if (tray) tray.destroy();
 	if (mongoCLient) mongoCLient.close();
+	unregisterAllHotKey();
 });
 
 // Quit when all windows are closed.
@@ -258,6 +260,8 @@ app.on('activate', () => {
 app.whenReady().then(() => {
 	createWindow();
 
+	registerHotkey();
+
 	// installExtension(VUEJS_DEVTOOLS)
 	// 	.then(name => {
 	// 		console.log(`Add Extension: ${name}`);
@@ -320,3 +324,5 @@ if (isDevelopment) {
 		});
 	}
 }
+
+export { win, child };

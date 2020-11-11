@@ -38,7 +38,8 @@ ipcMain.handle('dialogImage', async () => {
 			return {};
 		}
 	} catch (error) {
-		return { Error: true, message: error.message };
+		throw new Error(error);
+		// return { Error: true, message: error.message };
 	}
 });
 
@@ -46,10 +47,11 @@ ipcMain.handle('loadBuffer', async (e, args) => {
 	const { path } = args;
 
 	try {
+		// 先判斷是否為 Array
 		if (!Array.isArray(path)) {
 			return sharp(path).toBuffer({ resolveWithObject: true });
 		} else {
-			const promiseArr = path.map(p => {
+			const promiseArr = path.map((p: string) => {
 				if (p) {
 					return sharp(p).toBuffer({ resolveWithObject: true });
 				} else {
@@ -59,7 +61,7 @@ ipcMain.handle('loadBuffer', async (e, args) => {
 			return Promise.all(promiseArr);
 		}
 	} catch (error) {
-		return { Error: true, message: error.message };
+		throw new Error(error);
 	}
 });
 
@@ -73,7 +75,8 @@ ipcMain.handle('toBuffer', async (e, args) => {
 
 		return image.toFormat('jpeg').toBuffer({ resolveWithObject: true });
 	} catch (error) {
-		return { Error: true, message: error.message };
+		throw new Error(error);
+		// return { Error: true, message: error.message };
 	}
 });
 
@@ -103,6 +106,7 @@ ipcMain.handle('saveImage', async (e, args) => {
 		}
 		return Promise.all(promise);
 	} catch (error) {
-		return { Error: true, message: error.message };
+		throw new Error(error);
+		// return { Error: true, message: error.message };
 	}
 });

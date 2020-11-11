@@ -107,7 +107,6 @@ new Vue({
 
 	watch: {
 		'$store.getters.playState'(state) {
-			console.log(state);
 			if (state == 0) {
 				const loop = PlayerModule.playerLoop;
 				const shuffle = PlayerModule.playerShuffle;
@@ -169,6 +168,8 @@ new Vue({
 		this.mkPicDir();
 		//
 		this.readConfig();
+		//
+		this.registerGlobalHotkey();
 	},
 
 	mounted() {
@@ -193,8 +194,8 @@ new Vue({
 			});
 		},
 
+		/**載入Config, text color and align */
 		readConfig() {
-			/**載入 */
 			this.$ipcRenderer
 				.invoke('readConfig')
 				.then((res: IdisplayTxt) => {
@@ -206,6 +207,7 @@ new Vue({
 				});
 		},
 
+		/**載入Url List, 比對用 */
 		loadUrlInList() {
 			this.$ipcRenderer
 				.invoke('listFind', { query: {}, sort: { datetime: 1 } })
@@ -216,6 +218,33 @@ new Vue({
 				.catch(err => {
 					this.$store.commit('snackbar', { text: err, color: Colors.Error });
 				});
+		},
+
+		/**  */
+		registerGlobalHotkey() {
+			this.$ipcRenderer.on('playVideo', () => {
+				if (PlayerModule.player) {
+					PlayerModule.playVideo();
+				}
+			});
+
+			this.$ipcRenderer.on('pauseVideo', () => {
+				if (PlayerModule.player) {
+					PlayerModule.pauseVideo();
+				}
+			});
+
+			this.$ipcRenderer.on('volumePlus', () => {
+				if (PlayerModule.player) {
+					PlayerModule.videoPlusVolume(5);
+				}
+			});
+
+			this.$ipcRenderer.on('volumeMinus', () => {
+				if (PlayerModule.player) {
+					PlayerModule.videoMinusVolume(5);
+				}
+			});
 		}
 	}
 }).$mount('#app');

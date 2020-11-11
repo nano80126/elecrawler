@@ -48,13 +48,9 @@
 								</v-btn>
 							</template>
 							<v-card width="120px" class="px-1 no-drag" style="overflow: hidden;" color="grey darken-2">
-								<v-slider
-									v-model="volume"
-									color="grey lighten-2"
-									hide-details
-									@end="volumeChange"
-									@click="volumeChange"
-								/>
+								<v-slider v-model="volume" color="grey lighten-2" hide-details />
+								<!-- @end="volumeChange"
+									@click="volumeChange" -->
 							</v-card>
 						</v-menu>
 					</v-list-item-icon>
@@ -141,7 +137,7 @@ export default class Embed extends Vue {
 	private progressMax = 0;
 
 	/**音量 */
-	private volume = 75;
+	// private volume = 75;
 	/**音量(backup) */
 	private volumeBack = 75;
 
@@ -199,6 +195,15 @@ export default class Embed extends Vue {
 		this.progressCurr = (this.progressMax * value) / 100;
 	}
 
+	get volume() {
+		return PlayerModule.volume;
+	}
+
+	set volume(value) {
+		console.log(value);
+		PlayerModule.videoSetVolume(value);
+	}
+
 	@Watch('$store.getters.playState')
 	onPlayStateChange(state: number) {
 		// console.log(state);
@@ -247,7 +252,6 @@ export default class Embed extends Vue {
 	}
 
 	mounted() {
-		// if (!this.$store.state.player.player && this.videoID) {
 		if (!PlayerModule.player && this.videoID) {
 			this.IframeAPIReady(this.videoID);
 		} else {
@@ -264,7 +268,6 @@ export default class Embed extends Vue {
 		if (!id) return;
 
 		const youtube = window.YT;
-		console.log(window);
 		// new youtube.Player(,)
 
 		const py = new youtube.Player('youtube-audio', {
@@ -299,33 +302,6 @@ export default class Embed extends Vue {
 			}
 		});
 		PlayerModule.creatPlayer(py);
-
-		// this.$store.commit(
-		// 	'creatPlayer',
-		// 	new youtube.Player('youtube-audio', {
-		// 		height: 20,
-		// 		// width: 500,
-		// 		videoId: id,
-		// 		playerVars: {
-		// 			enablejsapi: 1,
-		// 			autoplay: 0,
-		// 			controls: 0,
-		// 			loop: 0,
-		// 			// eslint-disable-next-line @typescript-eslint/camelcase
-		// 			cc_load_policy: 0
-		// 		},
-		// 		events: {
-		// 			onReady: e => {
-		// 				e.target.setPlaybackQuality('small');
-		// 				e.target.setVolume(this.volume);
-		// 				// this.$store.state.player.playerState = 5;
-		// 				// PlayerModule.playerState = 5;
-		// 				PlayerModule.changeState(5); // 5: 可播放
-		// 				AppModule.setVideoID(id); // 更新video id
-		// 			}
-		// 		}
-		// 	})
-		// );
 	}
 
 	/**確認播放器狀態、參數 */
@@ -334,7 +310,7 @@ export default class Embed extends Vue {
 		const player = PlayerModule.player;
 		if (player) {
 			this.playState = player.getPlayerState();
-			this.volume = this.volumeBack = player.getVolume();
+			this.volumeBack = player.getVolume();
 			this.progressCurr = player.getCurrentTime();
 			this.progressMax = player.getDuration();
 
@@ -343,13 +319,6 @@ export default class Embed extends Vue {
 					this.progressCurr = this.progressMax;
 					break;
 				case 1:
-					// this.$store.commit(
-					// 	'pushIntervalArr',
-					// 	setInterval(() => {
-					// 		// this.progressCurr = this.$store.state.player.player.getCurrentTime();
-					// 		this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
-					// 	}, 250)
-					// );
 					PlayerModule.pushIntervalArr(
 						setInterval(() => {
 							this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
@@ -364,21 +333,22 @@ export default class Embed extends Vue {
 	private volumeToggle() {
 		if (!this.player) return;
 
+		// 0 or BackVolume切換
 		if (this.volume > 0) {
 			this.volumeBack = this.volume;
-			this.volume = 0;
-		} else this.volume = this.volumeBack;
-
-		PlayerModule.videoSetVolume(this.volume);
+			PlayerModule.videoSetVolume(0);
+		} else {
+			PlayerModule.videoSetVolume(this.volumeBack);
+		}
 	}
 
-	/**變更音量 */
-	private volumeChange() {
-		if (!this.player) return;
+	/**變更音量, 保留待刪 */
+	// private volumeChange() {
+	// 	if (!this.player) return;
 
-		if (this.volume > 0) this.volumeBack = this.volume;
-		this.$store.commit('videoSetVolume', this.volume);
-	}
+	// 	if (this.volume > 0) this.volumeBack = this.volume;
+	// 	PlayerModule.videoSetVolume(this.volume);
+	// }
 
 	/**開始播放 */
 	private videoStart() {

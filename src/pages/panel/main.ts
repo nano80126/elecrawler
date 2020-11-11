@@ -77,6 +77,7 @@ new Vue({
 		this.$ipcRenderer
 			.invoke('getPicDir')
 			.then((res: { path: string }) => {
+				console.info(`%c${res.path}`, `color: ${this.$vuetify.theme.themes.dark.success};`);
 				AppModule.savePicPath(res.path);
 			})
 			.catch((err: Error) => {

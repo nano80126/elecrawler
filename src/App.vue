@@ -195,7 +195,10 @@
 
 			<!-- class="grey lighten-4" -->
 			<v-main>
-				<!-- <div id="youtube-audio" class="" /> -->
+				<v-overlay v-model="overlay" opacity="0.3" absolute>
+					<v-progress-circular indeterminate color="purple lighten-2" />
+				</v-overlay>
+				<!-- routes -->
 				<router-view />
 			</v-main>
 
@@ -228,9 +231,9 @@
 				</template>
 			</transition-group>
 
-			<v-overlay v-model="overlay" opacity="0.3">
+			<!-- <v-overlay v-model="overlay" opacity="0.3">
 				<v-progress-circular indeterminate color="purple" />
-			</v-overlay>
+			</v-overlay> -->
 
 			<v-dialog v-model="dialog" max-width="200" persistent>
 				<v-card>
