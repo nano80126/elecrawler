@@ -25,7 +25,7 @@
 					class="back-card my-4"
 					contain
 					:width="fullImg ? '100%' : null"
-					position="top center"
+					position="center center"
 					:src="`data:image/jpeg;base64,${image.toString('base64')}`"
 					:style="{ opacity: bkOpacity }"
 				/>

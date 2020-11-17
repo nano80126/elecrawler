@@ -53,23 +53,13 @@ new Vue({
 	i18n,
 	render: h => h(App),
 
-	///
 	data() {
 		return {
-			windowIsMax: false, // used in app.vue for changing icon
-			///
 			webWidth: window.innerWidth,
-			webHeight: window.innerHeight,
-			screenWidth: window.screen.width,
-			screenHeight: window.screen.height,
-			//
-			/**Paenl window */
-			panel: true
+			webHeight: window.innerHeight
 		};
 	},
-
-	watch: {},
-
+	///
 	created() {
 		// set theme dark
 		this.$vuetify.theme.dark = true;
@@ -88,6 +78,11 @@ new Vue({
 
 	mounted() {
 		if (process.env.NODE_ENV == 'development') console.warn('env', process.env);
-		// ////
+		// // //
+		window.onresize = async () => {
+			this.webWidth = window.innerWidth;
+			this.webHeight = window.innerHeight;
+			// this.windowIsMax = await this.$ipcRenderer.invoke('isMaxmized');
+		};
 	}
 }).$mount('#app');

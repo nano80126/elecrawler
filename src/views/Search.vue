@@ -409,9 +409,6 @@ export default class Search extends Vue {
 			AppModule.snackbar({ text: res.error.message, color: Colors.Error });
 		}
 
-		console.log('res');
-		console.log(res);
-
 		// 確認是否存在列表中
 		this.$nextTick(() => {
 			res.list.forEach(obj => {
@@ -425,7 +422,6 @@ export default class Search extends Vue {
 			});
 			AppModule.changeOverlay(false);
 		});
-		console.log(this.searchList[0]);
 	}
 
 	/**取得歌詞 */

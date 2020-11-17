@@ -164,7 +164,11 @@
 			</v-col>
 		</v-row>
 
-		<div class="min-scroll y info-scroll mt-3 pr-3" :style="{ height: `${$root.webHeight - 144}px` }">
+		<div
+			class="min-scroll y info-scroll mt-3 pr-3"
+			:style="{ height: `${$root.webHeight - 144}px` }"
+			@scroll.stop="showMenu = false"
+		>
 			<v-row no-gutters align="start" justify="start">
 				<v-col cols="12" class="">
 					<v-responsive :aspect-ratio="16 / 9">
@@ -179,23 +183,22 @@
 								@focus="canPaste = true"
 								@blur="canPaste = false"
 								style="outline: 0;"
-							></div>
+							/>
 
 							<v-card
 								id="imgCard"
+								:width="imgBuffer ? 'auto' : '75%'"
 								flat
 								class="no-select rounded-lg transparent"
 								@dragenter.capture="dragging = true"
 								@dragleave.capture="dragging = false"
 								@drop.capture="dragging = false"
-								width="100%"
 								ref="imgCard"
 								@mousedown="rectOn"
 								@mouseup="rectOff"
 								@mousemove="crossMove"
 								@mouseleave="crossReset"
 							>
-								<!-- @mousewheel="iconWheel" -->
 								<transition name="imagFadeIn">
 									<v-img
 										v-if="imgBuffer"
@@ -224,8 +227,8 @@
 									</v-img>
 									<v-card-text
 										v-else
-										class="text-center grey darken-2 mx-auto rounded-lg"
-										style="width: 75%"
+										class="text-center grey darken-2 rounded-lg"
+										style="width: 100%"
 									>
 										<template v-if="$t('dragAndDrop')">
 											{{ $t('dragAndDrop') }}
@@ -358,6 +361,7 @@ export default class Media extends Vue {
 	private onRect = false;
 	/**是否開始框選icon */
 	private onRectStart = false;
+
 	/**滑鼠位置 */
 	// private mousePos = { x: 0, y: 0 };
 
@@ -398,6 +402,11 @@ export default class Media extends Vue {
 	@Watch('lyricsObj.obj.lyricsKey')
 	onLyricsKeyChanged() {
 		this.loadLyricsObj();
+	}
+
+	@Watch('canPaste')
+	onCanPasteChanged(bool: boolean) {
+		console.log(bool);
 	}
 
 	mounted() {
@@ -741,6 +750,10 @@ export default class Media extends Vue {
 	private crossMove(e: MouseEvent): void {
 		if (!this.imgBuffer || !this.onRect) return;
 
+		console.log(e);
+		console.log((this.$refs.img as Vue).$el.clientWidth);
+		console.log((this.$refs.imgCard as Vue).$el.clientWidth);
+
 		const x = e.offsetX - 2 < 0 ? 0 : e.offsetX - 2;
 		const y = e.offsetY - 2 < 0 ? 0 : e.offsetY - 2;
 		(this.$refs.hairV as HTMLLIElement).style.left = `${e.offsetX}px`; // crosshairV pos
@@ -774,18 +787,19 @@ export default class Media extends Vue {
 		(this.$refs.hairV as HTMLDivElement).style.left = '0';
 		(this.$refs.pos as HTMLSpanElement).innerText = 'X:0, Y:0';
 
+		this.rectOff(e);
 		// e.buttons & 0b1 左鍵 // mouse leave, show menu
-		if ((e.buttons & 0b01) == 0b01 && this.onRectStart) {
-			this.onRectStart = false;
-			this.$nextTick(() => {
-				this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
-				this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
-				this.showMenu = true;
-			});
-		}
+		// if ((e.buttons & 0b01) == 0b01 && this.onRectStart) {
+		// 	this.onRectStart = false;
+		// 	this.$nextTick(() => {
+		// 		this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
+		// 		this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
+		// 		this.showMenu = true;
+		// 	});
+		// }
 	}
 
-	/**mousedown event */
+	/**mousedown event, start capture region */
 	private rectOn(e: MouseEvent) {
 		if (!this.imgBuffer || !this.onRect) return;
 		// 左鍵按下
@@ -815,9 +829,10 @@ export default class Media extends Vue {
 		}
 	}
 
-	/**mouseup event */
+	/**mouseup event, check region size and show menu */
 	private rectOff(e: MouseEvent) {
 		if (!this.imgBuffer || !this.onRect) return;
+
 		// 左鍵放開
 		if (e.button == 0 && this.onRectStart) {
 			this.onRectStart = false;
@@ -908,12 +923,12 @@ export default class Media extends Vue {
 		color: rgba($color: grey, $alpha: 0.48);
 		text-align: center;
 		position: absolute;
-		border-radius: 5px;
+		border-radius: 8px;
 		width: 100%;
 		height: 100%;
 		top: 0;
 		left: 0;
-		border: 10px solid rgba($color: grey, $alpha: 0.24);
+		border: 10px solid rgba($color: orange, $alpha: 0.24);
 	}
 }
 

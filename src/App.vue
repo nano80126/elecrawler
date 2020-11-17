@@ -5,6 +5,7 @@
 				<div class="window-drag header ml-n4" />
 				<!--  -->
 				<div class="" style="width: 90px;">
+					<!-- slider no used now -->
 					<v-slider ref="slider1" class="no-drag" value="100" hide-details />
 				</div>
 				<!-- <span class="ml-3">{{ $t('message') }}</span> -->
@@ -71,6 +72,7 @@
 							<v-list-item exact v-bind="attrs" v-on="on" @click="TestFunc">
 								<v-list-item-content>
 									<v-icon small>fas fa-random</v-icon>
+									{{ menu }}
 								</v-list-item-content>
 							</v-list-item>
 						</template>
@@ -107,7 +109,7 @@
 						</v-tooltip>
 						<!-- </v-list> -->
 
-						<v-menu rounded right min-width="150" v-model="menu">
+						<v-menu rounded right min-width="150" v-model="menu" close-on-click>
 							<template v-slot:activator="{ on: menu, attrs }">
 								<!-- <v-list flat class="no-drag"> -->
 								<v-tooltip right transition="scroll-x-transition" open-delay="300">
@@ -218,7 +220,6 @@
 						v-model="n.show"
 						right
 						bottom
-						absolute
 						:color="n.color"
 						:timeout="n.timeout"
 						:style="{ top: `-${5 + (10 + 50) * (idx - barsHidden)}px` }"
@@ -333,7 +334,7 @@ export default class App extends Vue {
 	}
 
 	get barsHidden(): number {
-		return this.$store.getters.barsHidden;
+		return AppModule.barsHidden;
 	}
 
 	@Watch('$store.getters.barsVisible')
@@ -414,8 +415,12 @@ export default class App extends Vue {
 		// if (this.$i18n.locale == 'en') this.$i18n.locale = 'tw';
 		// else if (this.$i18n.locale == 'tw') this.$i18n.locale = 'jp';
 		// else this.$i18n.locale = 'en';
-
 		AppModule.snackbar({ text: 'test' });
+	}
+
+	private mousedown(e: MouseEvent) {
+		console.log(e);
+		console.log('mousedown');
 	}
 }
 </script>

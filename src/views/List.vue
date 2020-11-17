@@ -239,8 +239,6 @@ export default class List extends Vue {
 				AppModule.setPlayList(flatten);
 
 				const iconArray = doc.map(item => item.iconPath || undefined);
-
-				console.log(iconArray);
 				this.$ipcRenderer
 					.invoke('loadBuffer', { path: iconArray })
 					.then((res: { data: Buffer; info: OutputInfo }[]) => {
@@ -259,16 +257,8 @@ export default class List extends Vue {
 					console.info(`%c${toStr.join(', ')}`, `color: ${this.$vuetify.theme.themes.dark.accent}`);
 				}
 
-				/// /// /// /// /// /// /// /// ///
-				this.lyricsObj = LyModule.lyricObj;
-
-				/// 待刪除
-				if (process.env.NODE_ENV == 'development') {
-					console.info(
-						`%c${JSON.stringify(this.lyricsObj)}`,
-						`color: ${this.$vuetify.theme.themes.dark.info}`
-					);
-				}
+				/// /// /// /// /// /// /// /// /// 先判斷不存在 /// 否則會被refresh刷掉
+				if (!this.lyricsObj) this.lyricsObj = LyModule.lyricObj;
 			})
 			.catch(err => {
 				AppModule.snackbar({ text: err, color: Colors.Error });

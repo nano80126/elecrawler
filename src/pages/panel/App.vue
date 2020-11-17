@@ -27,7 +27,6 @@
 						v-model="n.show"
 						right
 						bottom
-						absolute
 						:color="n.color"
 						:timeout="n.timeout"
 						:style="{ top: `-${5 + (10 + 50) * (idx - barsHidden)}px` }"
@@ -67,7 +66,7 @@ export default class App extends Vue {
 	}
 
 	get barsHidden(): number {
-		return this.$store.getters.barsHidden;
+		return AppModule.barsHidden;
 	}
 
 	@Watch('$store.getters.barsVisible')
@@ -101,10 +100,6 @@ export default class App extends Vue {
 
 	private windowHide() {
 		this.$ipcRenderer.send('panelHide');
-	}
-
-	private test() {
-		AppModule.snackbar({ text: 'test' });
 	}
 }
 </script>

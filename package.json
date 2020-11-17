@@ -1,6 +1,6 @@
 {
 	"name": "electron-lyrics-crawler",
-	"version": "2.2.1",
+	"version": "2.2.2",
 	"private": true,
 	"description": "mim sintering furnace electron-app",
 	"author": "keliduan",
@@ -68,7 +68,6 @@
 		"vue-property-decorator": "^9.0.2",
 		"vue-template-compiler": "^2.6.11",
 		"vuetify-loader": "^1.6.0",
-		"vuex-module-decorators": "^1.0.1",
-		"webpack-node-externals": "^2.5.2"
+		"vuex-module-decorators": "^1.0.1"
 	}
 }

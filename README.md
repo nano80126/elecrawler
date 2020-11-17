@@ -89,6 +89,10 @@ This is a lyric crawler build by electron.
 * [ ] Test volume include hotkey
 * [x] Add shortcut hide/show window
 * [x] Rewrite rect capture method
+* [x] Media.vue mouseleave bug 
+* [x] Media.vue capture bug if image width <= height
+    * fix bug of bug and image
+* [x] List.vue refresh wrong set lyrics object
 
 ### Known bug 
 
@@ -110,6 +114,11 @@ This is a lyric crawler build by electron.
 ### Sharp 
 
 * [x] Can't use sharp in main process
+
+
+### New Route
+
+* [ ] sub play list
 
 
 ### New Page 
