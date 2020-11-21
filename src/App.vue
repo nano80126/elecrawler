@@ -280,7 +280,7 @@
 import Embed from '@/components/List/Embed.vue';
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import { AppModule } from '@/store/modules/app';
+import { AppModule, Colors } from '@/store/modules/app';
 
 @Component({
 	components: {
@@ -389,21 +389,20 @@ export default class App extends Vue {
 	private dataEmpty() {
 		// 清空 list
 		// 清空 path directory
-
 		this.$ipcRenderer
 			.invoke('listRemove', { query: {} })
 			.then(res => {
-				console.log(res);
 				if (res.ok > 0) {
 					this.$ipcRenderer.invoke('emptyDir').then(res => {
-						console.log(res);
+						if (res) {
+							AppModule.snackbar({ text: this.$t('clearDone') as string, color: Colors.Success });
+						}
 					});
 				}
 			})
-			.catch(err => {
-				console.log(err);
+			.catch((err: Error) => {
 				// this.$store.commit('snackbar', );
-				AppModule.snackbar({ text: err, color: 'error' });
+				AppModule.snackbar({ text: err.message, color: 'error' });
 			})
 			.finally(() => (this.dialog = false));
 	}
@@ -416,11 +415,6 @@ export default class App extends Vue {
 		// else if (this.$i18n.locale == 'tw') this.$i18n.locale = 'jp';
 		// else this.$i18n.locale = 'en';
 		AppModule.snackbar({ text: 'test' });
-	}
-
-	private mousedown(e: MouseEvent) {
-		console.log(e);
-		console.log('mousedown');
 	}
 }
 </script>

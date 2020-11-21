@@ -205,7 +205,6 @@ export default class Embed extends Vue {
 
 	@Watch('$store.getters.playState')
 	onPlayStateChange(state: number) {
-		// console.log(state);
 		this.playState = state;
 
 		PlayerModule.clearIntervalArr();

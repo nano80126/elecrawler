@@ -8,6 +8,7 @@
 	"language": "言語",
 	"imageDir": "画像ディレクトリ",
 	"clearData": "データをクリア",
+	"clearDone": "データを削除した",
 	"exit": "終了",
 
 	"singer": "歌手名",
@@ -31,6 +32,8 @@
 	"save": "保存",
 	"dragAndDrop": "ドラッグ & ドロップ",
 	"cover": "カバー",
+	"noImage" : "クリップボードに画像がない",
+	"invalidImage": "無効なイメージ",
 
 	"search_alt": "サーチ",
 	"delete": "削除",

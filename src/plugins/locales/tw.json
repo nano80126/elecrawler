@@ -31,6 +31,8 @@
 	"save": "儲存",
 	"dragAndDrop": "拖放圖片於此",
 	"cover": "翻唱",
+	"noImage" : "剪貼簿中沒有圖片",
+	"invalidImage": "無效的圖片",
 
 	"search_alt": "尋找",
 	"delete": "刪除",

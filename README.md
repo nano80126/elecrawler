@@ -49,6 +49,7 @@ This is a music player application with lyric crawler build by electron.
 * [x] Media.vue capture bug if image width <= height
     * fix bug of bug and image
 * [x] List.vue refresh wrong set lyrics object
+* [ ] Child i18n async with win 
 
 ### Known bug 
 

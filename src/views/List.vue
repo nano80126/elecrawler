@@ -328,7 +328,6 @@ export default class List extends Vue {
 		const routeData = this.$router.resolve({ path: '/panel.html', append: true });
 		// window.open(routeData.location.path, 'editPanel', qs);
 		window.open(routeData.location.path, 'editPanel', qs);
-		console.log(routeData);
 	}
 }
 </script>

@@ -83,7 +83,6 @@ export default class Edit extends Vue {
 
 	/**設定拖動後陣列 */
 	set draggableArray(val) {
-		console.log(val);
 		this.$emit('update:urlObjArray', val);
 	}
 }

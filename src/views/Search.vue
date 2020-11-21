@@ -76,7 +76,7 @@
 								v-for="(words, key) in keywords"
 								:key="`keywords${key}`"
 								small
-								class="ml-2 mt-1"
+								class="ml-2"
 								color="light-blue lighten-1"
 								style="cursor: pointer;"
 								@click="historySearch(words.artist, words.title)"

@@ -31,6 +31,8 @@
 	"save": "Save",
 	"dragAndDrop": "",
 	"cover": "Cover",
+	"noImage" : "No image in clipboard",
+	"invalidImage": "Invalid image",
 
 	"search_alt": "Search",
 	"delete": "Delete",

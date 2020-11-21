@@ -1,6 +1,5 @@
 'use strict';
 
-// /* global __static */
 declare const __static: string;
 
 import { app, protocol, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
@@ -32,13 +31,12 @@ import { Iconfig, IchannelLyricsObj } from './types/main-process';
 // let win: BrowserWindow | null = null;
 let tray: Tray | null = null;
 
+// windows
 let win: BrowserWindow | null = null;
 let child: BrowserWindow | null = null;
 let childCloseTimer: NodeJS.Timeout | null = null;
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
-
-// console.log(process.env);
 
 // const mainMenu = Menu.buildFromTemplate([
 // 	{
@@ -76,8 +74,8 @@ function createWindow() {
 		resizable: true,
 		show: false,
 		webPreferences: {
-			nodeIntegration: true,
-			enableRemoteModule: true
+			nodeIntegration: true
+			// enableRemoteModule: true
 		}
 	});
 	if (process.env.NODE_ENV == 'production') win.removeMenu();
@@ -141,18 +139,11 @@ function createWindow() {
 				if (childCloseTimer) clearTimeout(childCloseTimer);
 			});
 
-			// child.on('focus', () => {
-			// 	console.log(Menu.getApplicationMenu());
-			// });
-
 			child.on('close', () => {
 				child = null;
 			});
 		}
 	});
-	// win.webContents.op
-
-	console.log(process.env.WEBPACK_DEV_SERVER_URL, process.env.NODE_ENV);
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
 		// Load the url of the dev server if in development mode
@@ -218,7 +209,7 @@ app.on('ready', () => {
 			click: () => win?.close()
 		}
 	]);
-	tray.setToolTip('This is my application.');
+	tray.setToolTip('EleCrawler');
 	tray.setContextMenu(contextMenu);
 
 	tray.on('double-click', () => {
@@ -323,4 +314,4 @@ if (isDevelopment) {
 	}
 }
 
-export { win, child };
+export { win, child, tray };

@@ -404,10 +404,10 @@ export default class Media extends Vue {
 		this.loadLyricsObj();
 	}
 
-	@Watch('canPaste')
-	onCanPasteChanged(bool: boolean) {
-		console.log(bool);
-	}
+	// @Watch('canPaste')
+	// onCanPasteChanged(bool: boolean) {
+	// 	console.log(bool);
+	// }
 
 	mounted() {
 		this.loadLyricsObj();
@@ -422,11 +422,6 @@ export default class Media extends Vue {
 					this.$ipcRenderer
 						.invoke('loadBuffer', { path: doc.imagePath })
 						.then((res: { data: Buffer; info: OutputInfo }) => {
-							// if (res.Error) {
-							// 	this.$store.commit('snackbar', { text: res.message, color: 'error' });
-							// 	return;
-							// }
-
 							this.imgBuffer = Buffer.from(res.data);
 
 							this.$nextTick(() => {
@@ -540,8 +535,9 @@ export default class Media extends Vue {
 		e.stopPropagation();
 
 		const items = e.clipboardData?.files;
-		if (items == undefined || !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
-			console.error('no image or not image');
+		if (items == undefined || items.length == 0) {
+			// no items
+			AppModule.snackbar({ text: this.$t('noImage') as string, color: Colors.Warning });
 			return;
 		}
 
@@ -564,7 +560,6 @@ export default class Media extends Vue {
 				})
 				.catch(err => {
 					AppModule.snackbar({ text: err, color: Colors.Error });
-					// console.log(err);
 				});
 		});
 		reader.readAsArrayBuffer(file);
@@ -576,9 +571,8 @@ export default class Media extends Vue {
 		e.stopPropagation();
 		// const items = ((e.target as HTMLInputElement).files || e.dataTransfer.files) as File[];
 		const items = (e.target as HTMLInputElement).files;
-		// if (items?.length == 0 || (items && !/^image\/(bmp|jpeg|png)/.test(items[0].type))) {
 		if (items && !/^image\/(bmp|jpeg|png)/.test(items[0].type)) {
-			AppModule.snackbar({ text: '無効なイメージ', color: Colors.Warning });
+			AppModule.snackbar({ text: this.$t('invalidImage') as string, color: Colors.Warning });
 			return;
 		}
 
@@ -750,10 +744,6 @@ export default class Media extends Vue {
 	private crossMove(e: MouseEvent): void {
 		if (!this.imgBuffer || !this.onRect) return;
 
-		console.log(e);
-		console.log((this.$refs.img as Vue).$el.clientWidth);
-		console.log((this.$refs.imgCard as Vue).$el.clientWidth);
-
 		const x = e.offsetX - 2 < 0 ? 0 : e.offsetX - 2;
 		const y = e.offsetY - 2 < 0 ? 0 : e.offsetY - 2;
 		(this.$refs.hairV as HTMLLIElement).style.left = `${e.offsetX}px`; // crosshairV pos
@@ -763,7 +753,6 @@ export default class Media extends Vue {
 		if (this.onRectStart) {
 			const w = (this.$refs.img as Vue).$el.clientWidth;
 			const h = (this.$refs.img as Vue).$el.clientHeight;
-			// console.log(w, h);
 
 			const region = this.$refs.region as HTMLDivElement;
 
@@ -839,7 +828,6 @@ export default class Media extends Vue {
 
 			this.$nextTick(() => {
 				const region = this.$refs.region as HTMLDivElement;
-				// console.log(region);
 
 				this.rectPercent.x = parseFloat(this.$lodash.trimEnd(region.style.left, '%'));
 				this.rectPercent.y = parseFloat(this.$lodash.trimEnd(region.style.top, '%'));
