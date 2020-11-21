@@ -160,21 +160,27 @@ export default class Display extends Vue {
 	@Watch('mainColor')
 	changeMainColor(val: string) {
 		this.$ipcRenderer.invoke('writeConfig', { mainColor: val }).then(res => {
-			console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
+			if (process.env.NODE_ENV == 'development') {
+				console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
+			}
 		});
 	}
 
 	@Watch('subColor')
 	changeSubColor(val: string) {
 		this.$ipcRenderer.invoke('writeConfig', { subColor: val }).then(res => {
-			console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
+			if (process.env.NODE_ENV == 'development') {
+				console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
+			}
 		});
 	}
 
 	@Watch('textAlign')
 	changeTextAlign(val: string) {
 		this.$ipcRenderer.invoke('writeConfig', { textAlign: val }).then(res => {
-			console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
+			if (process.env.NODE_ENV == 'development') {
+				console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
+			}
 		});
 	}
 
@@ -189,9 +195,6 @@ export default class Display extends Vue {
 		if (this.lyricsObj?.imagePath) {
 			this.backimgLoad();
 		}
-
-		console.log(this.lyricsObj);
-		console.log(LyModule.lyricText);
 	}
 
 	beforeDestroy() {

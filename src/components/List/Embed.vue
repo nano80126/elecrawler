@@ -200,7 +200,6 @@ export default class Embed extends Vue {
 	}
 
 	set volume(value) {
-		console.log(value);
 		PlayerModule.videoSetVolume(value);
 	}
 

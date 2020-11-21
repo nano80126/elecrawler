@@ -1509,6 +1509,24 @@
   optionalDependencies:
     vue-loader-v16 "npm:vue-loader@^16.0.0-beta.7"
 
+"@vue/cli-shared-utils@^4.5.6":
+  version "4.5.9"
+  resolved "https://registry.yarnpkg.com/@vue/cli-shared-utils/-/cli-shared-utils-4.5.9.tgz#487cea4b4282f4dff907ee7d8abba8dd0dd03ccd"
+  integrity sha512-anvsrv+rkQC+hgxaT2nQQxnSWSsIzyysZ36LO7qPjXvDRBvcvKLAAviFlUkYbZ+ntbV8puzJ3zw+gUhQw4SEVA==
+  dependencies:
+    "@hapi/joi" "^15.0.1"
+    chalk "^2.4.2"
+    execa "^1.0.0"
+    launch-editor "^2.2.1"
+    lru-cache "^5.1.1"
+    node-ipc "^9.1.1"
+    open "^6.3.0"
+    ora "^3.4.0"
+    read-pkg "^5.1.1"
+    request "^2.88.2"
+    semver "^6.1.0"
+    strip-ansi "^6.0.0"
+
 "@vue/cli-shared-utils@^4.5.7":
   version "4.5.7"
   resolved "https://registry.yarnpkg.com/@vue/cli-shared-utils/-/cli-shared-utils-4.5.7.tgz#b8e911c2f9b6b77123f5d26988b9613d92dcda95"
@@ -3911,10 +3929,10 @@ electron-to-chromium@^1.3.571:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.578.tgz#e6671936f4571a874eb26e2e833aa0b2c0b776e0"
   integrity sha512-z4gU6dA1CbBJsAErW5swTGAaU2TBzc2mPAonJb00zqW1rOraDo2zfBMDRvaz9cVic+0JEZiYbHWPw/fTaZlG2Q==
 
-electron@^9.3.1:
-  version "9.3.2"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-9.3.2.tgz#afa2942e2642ee25b422b90f1497f7d9bbeec550"
-  integrity sha512-0lleEf9msAXGDi2GukAuiGdw3VDgSTlONOnJgqDEz1fuSEVsXz5RX+hNPKDsVDerLTFg/C34RuJf4LwHvkKcBA==
+electron@9.3.4:
+  version "9.3.4"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-9.3.4.tgz#d62dd9f8abc93c009878714de9e60db030361a05"
+  integrity sha512-OHP8qMKgW8D8GtH+altB22WJw/lBOyyVdoz5e8D0/iPBmJU3Jm93vO4z4Eh/9DvdSXlH8bMHUCMLL9PVW6f+tw==
   dependencies:
     "@electron/get" "^1.0.1"
     "@types/node" "^12.0.12"
@@ -9948,11 +9966,12 @@ vue-class-component@^7.2.6:
   resolved "https://registry.yarnpkg.com/vue-class-component/-/vue-class-component-7.2.6.tgz#8471e037b8e4762f5a464686e19e5afc708502e4"
   integrity sha512-+eaQXVrAm/LldalI272PpDe3+i4mPis0ORiMYxF6Ae4hyuCh15W8Idet7wPUEs4N4YptgFHGys4UrgNQOMyO6w==
 
-vue-cli-plugin-electron-builder@^2.0.0-rc.4:
-  version "2.0.0-rc.4"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-electron-builder/-/vue-cli-plugin-electron-builder-2.0.0-rc.4.tgz#c819279e00fe6771912f5f0468ee26f279750a5b"
-  integrity sha512-yA/MUY8t/OiCnNea0zyVhFuewd+g/mGTc7MNbE/e/sb9XjBsEW517CD5KhLIu5/uItmvmMOpjLSTDILqE2RJFA==
+vue-cli-plugin-electron-builder@2.0.0-rc.5:
+  version "2.0.0-rc.5"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-electron-builder/-/vue-cli-plugin-electron-builder-2.0.0-rc.5.tgz#87cd8d09877f5f3ae339abc0bedc47d7d2b733ac"
+  integrity sha512-l1/BkwxMDgDSz3fW+KPM3mdVu6ItR6jGhqR6xGhTHxre3dH9XCEfpT+esZp6wxex9trUJzlL+wMmzm79dYKl0A==
   dependencies:
+    "@vue/cli-shared-utils" "^4.5.6"
     chokidar "^3.0.2"
     electron-builder "^22.2.0"
     execa "^4.0.0"
@@ -10239,11 +10258,6 @@ webpack-merge@^4.2.2:
   integrity sha512-TUE1UGoTX2Cd42j3krGYqObZbOD+xF7u28WB7tfUordytSjbWTIjK/8V0amkBfTYN4/pB/GIDlJZZ657BGG19g==
   dependencies:
     lodash "^4.17.15"
-
-webpack-node-externals@^2.5.2:
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/webpack-node-externals/-/webpack-node-externals-2.5.2.tgz#178e017a24fec6015bc9e672c77958a6afac861d"
-  integrity sha512-aHdl/y2N7PW2Sx7K+r3AxpJO+aDMcYzMQd60Qxefq3+EwhewSbTBqNumOsCE1JsCUNoyfGj5465N0sSf6hc/5w==
 
 webpack-sources@^1.1.0, webpack-sources@^1.4.0, webpack-sources@^1.4.1, webpack-sources@^1.4.3:
   version "1.4.3"

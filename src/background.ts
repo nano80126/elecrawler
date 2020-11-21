@@ -80,8 +80,7 @@ function createWindow() {
 			enableRemoteModule: true
 		}
 	});
-
-	// if (process.env.NODE_ENV == 'production') win.removeMenu();
+	if (process.env.NODE_ENV == 'production') win.removeMenu();
 	// win.setMenu(mainMenu);
 	// Menu.setApplicationMenu(mainMenu);
 
@@ -110,9 +109,8 @@ function createWindow() {
 						nodeIntegration: true
 					}
 				});
-				// child.removeMenu(); // 移除 menu
+				if (process.env.NODE_ENV == 'production') child.removeMenu(); // 移除 menu
 				child.loadURL(url);
-				console.log(url);
 
 				// if (process.env.WEBPACK_DEV_SERVER_URL) {
 				// 	child.loadURL(url.replace(/(#\/)/, ''));
