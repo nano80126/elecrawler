@@ -317,7 +317,7 @@ export default class App extends Vue {
 		en: 'English',
 		jp: '日本語'
 	});
-	/**Language used now */
+	/**當前使用語言 */
 	private language = this.$i18n.locale;
 
 	/**deprecated */
@@ -342,10 +342,13 @@ export default class App extends Vue {
 		if (value == 0) AppModule.emptySnackbars();
 	}
 
+	/**當language變更，改變語系 */
 	@Watch('language')
 	onLanguageChange(value: string) {
 		this.$i18n.locale = value;
 		this.menu = false;
+
+		this.$ipcRenderer.send('syncLanguage', { locale: value });
 	}
 
 	// life cycle

@@ -35,6 +35,9 @@ let tray: Tray | null = null;
 let win: BrowserWindow | null = null;
 let child: BrowserWindow | null = null;
 let childCloseTimer: NodeJS.Timeout | null = null;
+//
+let locale: string | undefined = process.env.VUE_APP_I18N_LOCALE;
+
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
 
@@ -123,6 +126,8 @@ function createWindow() {
 					url: lyricsUrl,
 					delay: 500
 				});
+				/**同步語言 */
+				child.webContents.send('syncLanguage', locale);
 				if (!child.isVisible()) child.show();
 				if (childCloseTimer) clearTimeout(childCloseTimer);
 			}
@@ -135,7 +140,10 @@ function createWindow() {
 					url: lyricsUrl,
 					delay: 0
 				});
+				/**同步語言 */
+				child?.webContents.send('syncLanguage', locale);
 				child?.show();
+				/**重置timer */
 				if (childCloseTimer) clearTimeout(childCloseTimer);
 			});
 
@@ -297,6 +305,14 @@ ipcMain.on('windowClose', () => {
 ipcMain.handle('isMaxmized', () => {
 	return win?.isMaximized();
 });
+// // // // // // // // // // // // // // // // // // //
+
+/**同步語言 */
+ipcMain.on('syncLanguage', (e, args) => {
+	locale = args.locale;
+	child?.webContents.send('syncLanguage', locale);
+});
+
 // // // // // // // // // // // // // // // // // // //
 
 // Exit cleanly on request from parent process in development mode.

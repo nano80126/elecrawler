@@ -57,9 +57,10 @@ import { IlyricsObjSearched } from '@/types/renderer';
 export default class App extends Vue {
 	/**show after mounted */
 	private SHOW = false;
-
 	/**歌詞物件 */
 	private lyricsObj: IlyricsObjSearched | null = null;
+	/**當前使用語言 */
+	private language = this.$i18n.locale;
 
 	get snackbars() {
 		return AppModule.snackbars;
@@ -72,6 +73,11 @@ export default class App extends Vue {
 	@Watch('$store.getters.barsVisible')
 	onBarsVisibleChange(value: number) {
 		if (value == 0) AppModule.emptySnackbars();
+	}
+
+	@Watch('language')
+	onLanguageChange(value: string) {
+		this.$i18n.locale = value;
 	}
 
 	created() {
@@ -91,6 +97,10 @@ export default class App extends Vue {
 					};
 				}, args.delay);
 			});
+		});
+
+		this.$ipcRenderer.on('syncLanguage', (e, locale) => {
+			this.language = locale;
 		});
 	}
 

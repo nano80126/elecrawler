@@ -268,7 +268,7 @@
 				</v-col>
 			</v-row>
 
-			<template v-if="true">
+			<template v-if="false">
 				<div>
 					abs: {{ rectAbs }}
 					<br />
@@ -471,7 +471,6 @@ export default class Media extends Vue {
 		// this.urlObj = this.urlObj.filter(o => {
 		// 	return o.url && o.url.length > 0;
 		// });
-		// this.urlObj.filter(o => o.url != null);
 		this.urlObj.forEach((item, itemKey: number) => {
 			if (item.videoUrl.length > 0) {
 				const id = item.videoUrl.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
@@ -491,6 +490,9 @@ export default class Media extends Vue {
 							AppModule.snackbar({ text: err, color: Colors.Error });
 						});
 				}
+			} else {
+				// 若URL為空，清空title
+				this.$set(this.urlObj, itemKey, Object.assign(item, { videoID: undefined, videoTitle: undefined }));
 			}
 		});
 	}
@@ -681,6 +683,7 @@ export default class Media extends Vue {
 		} else {
 			const { obj } = this.lyricsObj;
 
+			this.urlIndex = 0;
 			// 移除url為空
 			this.urlObj = this.urlObj.filter(e => e.videoUrl && e.videoUrl.length > 0);
 			// 去頭尾空白

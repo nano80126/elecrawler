@@ -6,7 +6,7 @@ const app = express();
 const router = express.Router();
 
 // import crypto from crypto
-const port = process.env.port || 4000;
+const port = process.env.EXPRESS_PORT || 4000;
 
 app.use('/', router);
 // externals js and css need this, in this project is iframe_api.js
