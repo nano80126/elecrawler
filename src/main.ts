@@ -245,6 +245,16 @@ new Vue({
 					PlayerModule.videoMinusVolume(5);
 				}
 			});
+
+			this.$ipcRenderer.on('videoLoop', (e, args) => {
+				console.log(args);
+				PlayerModule.videoLoop(args.loop);
+			});
+
+			this.$ipcRenderer.on('videoShuffle', (e, args) => {
+				console.log(args);
+				PlayerModule.videoShuffle(args.shuffle);
+			});
 		}
 	}
 }).$mount('#app');

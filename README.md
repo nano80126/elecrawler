@@ -50,6 +50,10 @@ This is a music player application with lyric crawler build by electron.
     * fix bug of bug and image
 * [x] List.vue refresh wrong set lyrics object
 * [x] Child i18n async with win 
+* [ ] Express add CORS settings 
+* [ ] Add loop and shuffle in tray menu
+* [ ] Add volume to tray menu mute, 25%, 50%, 75%, 100%
+* [ ] Fileter bug of English name
 
 ### Known bug 
 
