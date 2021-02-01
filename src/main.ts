@@ -246,14 +246,25 @@ new Vue({
 				}
 			});
 
-			this.$ipcRenderer.on('videoLoop', (e, args) => {
-				console.log(args);
-				PlayerModule.videoLoop(args.loop);
+			this.$ipcRenderer.on('volumeSet', (e, args) => {
+				if (PlayerModule.player) {
+					PlayerModule.videoSetVolume(args.vol);
+				}
 			});
 
-			this.$ipcRenderer.on('videoShuffle', (e, args) => {
-				console.log(args);
-				PlayerModule.videoShuffle(args.shuffle);
+			this.$ipcRenderer.on('videoSingle', () => {
+				PlayerModule.videoLoop(false);
+				PlayerModule.videoShuffle(false);
+			});
+
+			this.$ipcRenderer.on('videoLoop', () => {
+				PlayerModule.videoLoop(true);
+				PlayerModule.videoShuffle(false);
+			});
+
+			this.$ipcRenderer.on('videoShuffle', () => {
+				PlayerModule.videoLoop(false);
+				PlayerModule.videoShuffle(true);
 			});
 		}
 	}

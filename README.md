@@ -51,9 +51,9 @@ This is a music player application with lyric crawler build by electron.
 * [x] List.vue refresh wrong set lyrics object
 * [x] Child i18n async with win 
 * [ ] Express add CORS settings 
-* [ ] Add loop and shuffle in tray menu
-* [ ] Add volume to tray menu mute, 25%, 50%, 75%, 100%
-* [ ] Fileter bug of English name
+* [x] Add loop and shuffle in tray menu
+* [x] Add volume to tray menu mute, 25%, 50%, 75%, 100%
+* [ ] Fileter bug of English name ?
 * [ ]  Fix bugs not find out song name when clawler. ex. eternal blue
 
 ### Known bug 

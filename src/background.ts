@@ -209,8 +209,34 @@ app.on('ready', () => {
 			click: () => win?.show()
 		},
 		{ type: 'separator' },
+		{
+			type: 'submenu',
+			label: 'Mode',
+			submenu: [
+				{ type: 'radio', label: 'Single', checked: true, click: () => win?.webContents.send('videoSingle') },
+				{ type: 'radio', label: 'Loop', click: () => win?.webContents.send('videoLoop') },
+				{ type: 'radio', label: 'Shuffle', click: () => win?.webContents.send('videoShuffle') }
+			]
+		},
+		{
+			type: 'submenu',
+			label: 'Volumn',
+			submenu: [
+				{
+					type: 'radio',
+					label: 'Mute',
+					checked: true,
+					click: () => win?.webContents.send('volumeSet', { vol: 0 })
+				},
+				{ type: 'radio', label: '25%', click: () => win?.webContents.send('volumeSet', { vol: 25 }) },
+				{ type: 'radio', label: '50%', click: () => win?.webContents.send('volumeSet', { vol: 50 }) },
+				{ type: 'radio', label: '75%', click: () => win?.webContents.send('volumeSet', { vol: 75 }) },
+				{ type: 'radio', label: '100%', click: () => win?.webContents.send('volumeSet', { vol: 100 }) }
+			]
+		},
 		// { label: 'Item2', type: 'radio' },
 		// { label: 'Item3', type: 'radio', cheked: true },
+		{ type: 'separator' },
 		{
 			label: 'Close',
 			type: 'normal',

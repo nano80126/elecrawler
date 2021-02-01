@@ -349,19 +349,19 @@ export default class Embed extends Vue {
 	// }
 
 	/**開始播放 */
-	private videoStart() {
+	private videoStart(): void {
 		PlayerModule.playVideo();
 	}
 	/**暫停播放 */
-	private videoPause() {
+	private videoPause(): void {
 		PlayerModule.pauseVideo();
 	}
 	/**倒退10sec */
-	private backward10() {
+	private backward10(): void {
 		PlayerModule.backward10();
 	}
 	/**快進10sec */
-	private forward10() {
+	private forward10(): void {
 		PlayerModule.forward10();
 	}
 	/**切換Loop */
