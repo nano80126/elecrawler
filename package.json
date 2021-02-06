@@ -21,6 +21,7 @@
 		"cheerio": "^1.0.0-rc.5",
 		"core-js": "^3.6.5",
 		"es-abstract": "^1.17.7",
+		"ini": "^2.0.0",
 		"lodash": "^4.17.20",
 		"moment": "^2.29.1",
 		"mongodb": "^3.6.2",
@@ -69,5 +70,8 @@
 		"vue-template-compiler": "^2.6.11",
 		"vuetify-loader": "^1.6.0",
 		"vuex-module-decorators": "^1.0.1"
+	},
+	"resolutions": {
+		"ini": "^2.0.0"
 	}
 }

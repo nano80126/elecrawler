@@ -58,6 +58,7 @@ This is a music player application with lyric crawler build by electron.
 
 ### Known bug 
 
+* [ ] ini prototype pollution and fixed using resolution in package.json
 * [ ] Mongodb bundle warning in production environment
 
 ### Vuex
