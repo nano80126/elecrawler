@@ -88,16 +88,45 @@ async function lyricsCrawl(subUrl: string): Promise<{}> {
 			const $ = cheerio.load(res.data);
 			const main = $('body div#container > div#contents > main');
 
-			const title = main.find('h1.movieTtl');
-			const mainTxt = title
-				.children('span.movieTtl_mainTxt')
-				.text()
-				.replace(/^「|」$/g, '')
-				.replace(/\s?\(.*\)$/, '');
-			const artist = title
-				.children('a.boxArea_artists_move_top')
-				.text()
-				.replace(/^\s+|\s+$/g, '');
+			let mainTxt: string | undefined = undefined;
+			let artist: string | undefined = undefined;
+
+			// UtaTen 更新
+			// two different title and artist classes
+			let title = main.find('h1.movieTtl'); // old class
+			if (title.length < 1) {
+				// 若old class不存在
+				title = main.find('div.newIyricTitle'); // 使用新的 class 尋找
+				const newMainTxt = title
+					.children('h1.newIyricTitle__main')
+					.text()
+					.match(/「.+」/);
+				if (newMainTxt) mainTxt = newMainTxt[0].replace(/^「|」$/g, '');
+
+				const newArtist = main
+					.find('div.lyricData')
+					.children('div.lyricData__main')
+					.children('dl.newIyricWork')
+					.children('dt.newIyricWork__name')
+					.children('a')
+					.text()
+					.replace(/^\s+|\s+$/g, '');
+				artist = newArtist;
+			} else {
+				//
+				const oldMainTxt = title
+					.children('span.movieTtl_mainTxt')
+					.text()
+					.replace(/^「|」$/g, '') // 刪除 「」
+					.replace(/\s?\(.*\)$/, ''); // 刪除 (...) 與內部文字
+				mainTxt = oldMainTxt;
+
+				const oldArtist = title
+					.children('a.boxArea_artists_move_top')
+					.text()
+					.replace(/^\s+|\s+$/g, ''); // 刪除前後空白(\s)
+				artist = oldArtist;
+			}
 
 			const lyricBody = main.find('div.lyricBody');
 			const lyricContent = lyricBody
@@ -145,7 +174,9 @@ ipcMain.on('getLyrics', async (e, args: { url: string; exist: boolean }) => {
 ipcMain.handle('getLyrics', async (e, args: { url: string; exist: boolean }) => {
 	console.log(args);
 	const { url, exist } = args;
+	// console.log(url, exist);
 	const ret = await lyricsCrawl(url);
+	// console.log(ret);
 	Object.assign(ret, { exist });
 
 	return ret;

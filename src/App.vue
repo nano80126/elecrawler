@@ -35,7 +35,7 @@
 				</v-btn>
 			</v-app-bar>
 
-			<v-navigation-drawer app dark permanent mini-variant mini-variant-width="64" class="teal lighten-2">
+			<v-navigation-drawer app dark permanent mini-variant mini-variant-width="64" class="brown darken-2">
 				<div class="window-drag left" />
 				<!--  -->
 				<v-list flat class="no-drag">
@@ -303,7 +303,7 @@ export default class App extends Vue {
 	private playerState = Object.freeze({
 		'-1': 'grey darken-2',
 		0: 'lime',
-		1: 'light-green',
+		1: 'light-green darken-1',
 		2: 'warning',
 		3: 'pink',
 		5: 'info'
