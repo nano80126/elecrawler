@@ -6,7 +6,7 @@ const app = express();
 const router = express.Router();
 
 // import crypto from crypto
-const port = process.env.EXPRESS_PORT || 4000;
+const port = ((process.env.EXPRESS_PORT as unknown) as number) || 4000;
 
 app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Origin', '*');
@@ -29,6 +29,6 @@ router.get('/panel', (req, res) => {
 	res.sendFile(path.resolve(__dirname, 'panel.html'));
 });
 
-app.listen(4000, 'localhost', () => {
+app.listen(port, 'localhost', () => {
 	console.log(`Http and WebSocket Server Started On Port ${port} :)`);
 });
