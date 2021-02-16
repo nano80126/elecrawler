@@ -9,7 +9,6 @@ const picPath = path.resolve(app.getPath('pictures'), 'EleCrawler');
 // 	: path.resolve(app.getPath('exe'), '../pictures');
 
 const jsonPath = path.resolve(app.getPath('userData'), 'config.json');
-console.log(jsonPath);
 
 let config: Iconfig | {} = {};
 
@@ -47,7 +46,6 @@ ipcMain.handle('emptyDir', () => {
 	// const { dirPath } = args;
 	const files = fs.readdirSync(picPath);
 
-	console.log(files);
 	files.forEach((file: string) => {
 		const f = path.resolve(picPath, file);
 		fs.unlinkSync(f);
@@ -61,7 +59,7 @@ ipcMain.on('removeFile', (e, args: { files: string[] }) => {
 
 	files.forEach((file: string) => {
 		const f = path.resolve(picPath, file);
-		console.log(f);
+
 		if (fs.existsSync(f)) {
 			fs.unlinkSync(f);
 		}

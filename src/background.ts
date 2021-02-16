@@ -161,7 +161,7 @@ function createWindow() {
 		createProtocol('app');
 		// Load the index.html when not in development
 		// win.loadURL('app://./index.html');
-		win.loadURL('http://localhost:4000/');
+		win.loadURL(`http://localhost:${process.env.EXPRESS_PORT}/`);
 	}
 
 	win.on('ready-to-show', () => {

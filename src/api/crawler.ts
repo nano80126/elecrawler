@@ -172,7 +172,6 @@ ipcMain.on('getLyrics', async (e, args: { url: string; exist: boolean }) => {
 });
 
 ipcMain.handle('getLyrics', async (e, args: { url: string; exist: boolean }) => {
-	console.log(args);
 	const { url, exist } = args;
 	// console.log(url, exist);
 	const ret = await lyricsCrawl(url);
