@@ -22,6 +22,9 @@ This is a music player application with lyric crawler build by electron.
 * [ ] Design an icon (lightning + spider)
 * [ ] vue i18n
 
+
+### Update to electron v11
+
 ### Onprogress
 
 * [x] Animation for panel window if lyricsKey Changed
@@ -58,6 +61,8 @@ This is a music player application with lyric crawler build by electron.
 * [ ] Asyc volume and play mode between embed and tray 
 * [ ] Algorithm for shuffle reduce frequency for playing the same song in a short time
 * [ ] Check if video is exist in web worker 
+* [*] Register Alt + F12 local hotkey 
+* [ ] Search artist use ellipsis css
 
 ### Known bug 
 

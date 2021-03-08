@@ -35,12 +35,20 @@ export function registerHotkey() {
 		win?.hide();
 	});
 
-	globalShortcut.register('Alt+F12', () => {
-		win?.webContents.openDevTools();
+	// globalShortcut.register('Alt+F12', () => {
+	// 	win?.webContents.openDevTools();
+	// });
+
+	win?.webContents.on('before-input-event', (e, input) => {
+		if (input.alt && input.key.toLocaleLowerCase() == 'f12') {
+			win?.webContents.openDevTools();
+			e.preventDefault();
+		}
 	});
 }
 
 /** 反註冊 global 快捷鍵 */
 export function unregisterAllHotKey() {
 	globalShortcut.unregisterAll();
+	win?.webContents.removeAllListeners('before-input-event');
 }
