@@ -40,7 +40,9 @@ export default class Board extends Vue {
 	@Prop({ required: true, type: Boolean }) exist!: boolean;
 
 	mounted() {
-		console.info(`%c${this.lyricsObj.obj.title} / ${this.lyricsObj.obj.artist}`, 'color: #03A9F4;');
+		if (process.env.NODE_ENV == 'development') {
+			console.info(`%c${this.lyricsObj.obj.title} / ${this.lyricsObj.obj.artist}`, 'color: #03A9F4;');
+		}
 	}
 
 	/**加入清單 */

@@ -96,18 +96,21 @@ async function lyricsCrawl(subUrl: string): Promise<{}> {
 			let title = main.find('h1.movieTtl'); // old class
 			if (title.length < 1) {
 				// 若old class不存在
-				title = main.find('div.newIyricTitle'); // 使用新的 class 尋找
+				title = main.find('div.newLyricTitle'); // 使用新的 class 尋找
 				const newMainTxt = title
-					.children('h1.newIyricTitle__main')
+					.children('h1.newLyricTitle__main')
 					.text()
 					.match(/「.+」/);
 				if (newMainTxt) mainTxt = newMainTxt[0].replace(/^「|」$/g, '');
 
+				console.log(newMainTxt);
+				console.log(mainTxt);
+
 				const newArtist = main
 					.find('div.lyricData')
 					.children('div.lyricData__main')
-					.children('dl.newIyricWork')
-					.children('dt.newIyricWork__name')
+					.children('dl.newLyricWork')
+					.children('dt.newLyricWork__name')
 					.children('a')
 					.text()
 					.replace(/^\s+|\s+$/g, '');

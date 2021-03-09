@@ -63,6 +63,13 @@ This is a music player application with lyric crawler build by electron.
 * [ ] Check if video is exist in web worker 
 * [*] Register Alt + F12 local hotkey 
 * [ ] Search artist use ellipsis css
+* [ ] Title and artist lost (search and display)
+* [ ] Keywords looks odd
+* [ ] fix edit panel
+    * nodeintegration = false
+    * enableRemoteModule = false
+    * contextIsolation = true
+
 
 ### Known bug 
 

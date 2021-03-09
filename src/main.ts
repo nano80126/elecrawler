@@ -11,6 +11,7 @@ import i18n from '@/plugins/i18n';
 // import * as fs from 'fs';
 // import { remote, IpcRenderer, Shell } from 'electron';
 import { IpcRenderer, Shell } from 'electron';
+
 // const { /*remote,*/ /*IpcRenderer,*/ ipcRenderer, shell } = window.require('electron');
 
 import moment, { Moment, MomentInput } from 'moment';
@@ -37,10 +38,10 @@ Object.defineProperties(Vue.prototype, {
 		value: qs
 	},
 	$shell: {
-		value: process.env.IS_ELECTRON ? window.require('electron').shell : undefined
+		value: process.env.IS_ELECTRON ? window.shell : undefined
 	},
 	$ipcRenderer: {
-		value: process.env.IS_ELECTRON ? window.require('electron').ipcRenderer : undefined
+		value: process.env.IS_ELECTRON ? window.ipcRenderer : undefined
 	}
 });
 
@@ -48,6 +49,10 @@ declare global {
 	/**window add YT interface */
 	interface Window {
 		YT: YT.Player;
+		ipcRenderer: IpcRenderer;
+		shell: Shell;
+		// api: any;
+		// test: any;
 	}
 }
 
@@ -170,6 +175,8 @@ new Vue({
 		this.readConfig();
 		//
 		this.registerGlobalHotkey();
+
+		// window.test();
 	},
 
 	mounted() {

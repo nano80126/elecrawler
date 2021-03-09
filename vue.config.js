@@ -76,6 +76,8 @@ module.exports = {
 	},
 	pluginOptions: {
 		electronBuilder: {
+			preload: "src/preload.ts",
+
 			chainWebpackMainProcess: config => {
 				// Chain webpack config for electron main process only
 				// config.target = 'node';

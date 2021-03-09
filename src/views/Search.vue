@@ -449,6 +449,8 @@ export default class Search extends Vue {
 						}),
 						exist: exist
 					};
+
+					console.log(this.lyricsObj);
 				});
 			})
 			.catch(err => {

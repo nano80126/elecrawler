@@ -1,3 +1,4 @@
+import { ipcMain } from 'electron';
 import express from 'express';
 import path from 'path';
 // import { app as electron } from 'electron';
@@ -31,4 +32,8 @@ router.get('/panel', (req, res) => {
 
 app.listen(port, 'localhost', () => {
 	console.log(`Http and WebSocket Server Started On Port ${port} :)`);
+});
+
+ipcMain.on('data', (e, data) => {
+	console.log(data);
 });

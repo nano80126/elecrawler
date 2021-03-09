@@ -77,8 +77,11 @@ function createWindow() {
 		resizable: true,
 		show: false,
 		webPreferences: {
-			nodeIntegration: true
-			// enableRemoteModule: true
+			// preload: path.resolve(app.getAppPath(), 'preload.ts'),
+			preload: path.resolve(__dirname, 'preload.js'),
+			nodeIntegration: false,
+			enableRemoteModule: false,
+			contextIsolation: true
 		}
 	});
 	if (process.env.NODE_ENV == 'production') win.removeMenu();
