@@ -25,12 +25,12 @@
 		"lodash": "^4.17.20",
 		"moment": "^2.29.1",
 		"mongodb": "^3.6.2",
-		"sharp": "^0.27.0",
+		"sharp": "^0.27.2",
 		"vue": "^2.6.11",
 		"vue-i18n": "^8.21.1",
 		"vue-router": "^3.4.5",
 		"vuedraggable": "^2.24.2",
-		"vuetify": "^2.3.17",
+		"vuetify": "^2.4.6",
 		"vuex": "^3.5.1"
 	},
 	"devDependencies": {
@@ -68,10 +68,7 @@
 		"vue-cli-plugin-vuetify": "^2.0.7",
 		"vue-property-decorator": "^9.0.2",
 		"vue-template-compiler": "^2.6.11",
-		"vuetify-loader": "^1.6.0",
+		"vuetify-loader": "^1.7.2",
 		"vuex-module-decorators": "^1.0.1"
-	},
-	"resolutions": {
-		"ini": "^2.0.0"
 	}
 }

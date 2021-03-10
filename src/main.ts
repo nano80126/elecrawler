@@ -64,13 +64,9 @@ declare module 'vue/types/vue' {
 		$lodash: LoDashStatic;
 		$qs: { stringify: typeof stringify };
 
-		// $sharp(input: Buffer | string): Sharp;
-		// $sharpFit: FitEnum;
-		$fs: { readdirSync: Function; unlink: Function; exists: Function; mkdir: Function };
-
+		// $fs: { readdirSync: Function; unlink: Function; exists: Function; mkdir: Function };
 		$ipcRenderer: IpcRenderer;
 		$shell: Shell;
-		// $picPath: string;
 
 		_events: { getLyricByID: [Function] };
 	}

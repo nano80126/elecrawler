@@ -14,7 +14,7 @@
 				</v-tooltip>
 			</v-card-title>
 			<v-card-subtitle>
-				<span v-text="lyricsObj.obj.artist" />
+				<span class="limited-width-artist" v-text="lyricsObj.obj.artist" />
 			</v-card-subtitle>
 			<v-divider />
 
@@ -82,6 +82,11 @@ export default class Board extends Vue {
 
 .limited-width {
 	max-width: calc(100% - 68px);
+	overflow-x: hidden;
+}
+
+.limited-width-artist {
+	max-width: calc(100% - 24px);
 	overflow-x: hidden;
 }
 </style>

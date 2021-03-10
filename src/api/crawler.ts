@@ -103,9 +103,6 @@ async function lyricsCrawl(subUrl: string): Promise<{}> {
 					.match(/「.+」/);
 				if (newMainTxt) mainTxt = newMainTxt[0].replace(/^「|」$/g, '');
 
-				console.log(newMainTxt);
-				console.log(mainTxt);
-
 				const newArtist = main
 					.find('div.lyricData')
 					.children('div.lyricData__main')

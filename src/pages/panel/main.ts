@@ -29,10 +29,10 @@ Object.defineProperties(Vue.prototype, {
 		value: axios
 	},
 	$shell: {
-		value: process.env.IS_ELECTRON ? window.require('electron').shell : undefined
+		value: process.env.IS_ELECTRON ? window.shell : undefined
 	},
 	$ipcRenderer: {
-		value: process.env.IS_ELECTRON ? window.require('electron').ipcRenderer : undefined
+		value: process.env.IS_ELECTRON ? window.ipcRenderer : undefined
 	}
 });
 

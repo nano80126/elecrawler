@@ -70,7 +70,7 @@
 								<span class="ml-1 white--text">{{ $t('keyWord') }}</span>
 							</v-chip>
 						</v-col>
-						<v-col cols class="px-3 ellipsis" style="width:100%;">
+						<v-col cols class="ellipsis red">
 							<!-- <div style="overflow-x:auto; white-space:nowrap;"> -->
 							<v-chip
 								v-for="(words, key) in keywords"
@@ -78,7 +78,7 @@
 								small
 								class="ml-2"
 								color="light-blue lighten-1"
-								style="cursor: pointer;"
+								style="cursor: pointer; position:relative;"
 								@click="historySearch(words.artist, words.title)"
 							>
 								{{ words.title || words.artist }}
