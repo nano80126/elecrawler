@@ -61,7 +61,7 @@
 						</v-btn>
 					</v-col>
 
-					<template v-if="keywords.length > 0">
+					<template v-if="keywordsExist">
 						<v-col cols="12" class="mt-3" />
 						<!-- reserved for change line -->
 						<v-col cols="auto">
@@ -70,19 +70,23 @@
 								<span class="ml-1 white--text">{{ $t('keyWord') }}</span>
 							</v-chip>
 						</v-col>
-						<v-col cols class="ellipsis red">
+						<v-col cols class="pl-3 keyword">
 							<!-- <div style="overflow-x:auto; white-space:nowrap;"> -->
-							<v-chip
-								v-for="(words, key) in keywords"
-								:key="`keywords${key}`"
-								small
-								class="ml-2"
-								color="light-blue lighten-1"
-								style="cursor: pointer; position:relative;"
-								@click="historySearch(words.artist, words.title)"
-							>
-								{{ words.title || words.artist }}
-							</v-chip>
+							<transition-group name="slideIn" mode="out-in">
+								<!-- <template v-if="keywords.length > 0"> -->
+								<v-chip
+									v-for="(words, key) in keywords"
+									:key="`keywords${key}`"
+									small
+									class="ml-2"
+									color="light-blue lighten-1"
+									style="cursor: pointer;"
+									@click="historySearch(words.artist, words.title)"
+								>
+									{{ words.title || words.artist }}
+								</v-chip>
+								<!-- </template> -->
+							</transition-group>
 						</v-col>
 					</template>
 
@@ -283,6 +287,8 @@ export default class Search extends Vue {
 	private extendImage = false;
 	/**關鍵字紀錄 */
 	private keywords: Ikeywords[] = [];
+	/**關鍵字是否存在 */
+	private keywordsExist = false;
 
 	/**是否可以搜尋 */
 	get canSearch(): boolean {
@@ -308,8 +314,16 @@ export default class Search extends Vue {
 	created() {
 		this.$ipcRenderer
 			.invoke('historyFind', { query: {} })
-			.then(res => {
-				this.keywords = res;
+			.then((res: Ikeywords[]) => {
+				// forEach + setTimeout for animation load
+				if (res.length > 0) {
+					this.keywordsExist = true;
+					res.forEach((item, i: number) => {
+						setTimeout(() => {
+							this.keywords.push(item);
+						}, 100 * (i + 1));
+					});
+				}
 			})
 			.catch(err => {
 				AppModule.snackbar({ text: err, color: Colors.Error });
@@ -449,8 +463,6 @@ export default class Search extends Vue {
 						}),
 						exist: exist
 					};
-
-					console.log(this.lyricsObj);
 				});
 			})
 			.catch(err => {
@@ -477,9 +489,14 @@ export default class Search extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.keyword {
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .ellipsis {
-	width: calc(100% - 64px);
-	// 12 + 16 + 36
+	width: calc(100% - 64px); // 12 + 16 + 36
 	overflow-x: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -491,6 +508,16 @@ export default class Search extends Vue {
 	&:not(:hover)::before {
 		background-color: transparent;
 	}
+}
+
+.slideIn-enter-active,
+.slideIn-leave-active {
+	transition: all 0.5s;
+}
+
+.slideIn-enter {
+	opacity: 0.12;
+	transform: translateX(200%);
 }
 
 .cardList-enter-active,

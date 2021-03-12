@@ -1,9 +1,10 @@
-/** proload.js  */
+/** proload.ts  */
 /** if no this file and directly bind the method with vue prototype */
 /** may cause some security problems  */
 
 import { contextBridge, ipcRenderer, shell } from 'electron';
 
+// window.addEventListener('load', () => {
 contextBridge.exposeInMainWorld('ipcRenderer', {
 	invoke: (channel: string, data: unknown) => {
 		return ipcRenderer.invoke(channel, data);
@@ -30,3 +31,4 @@ contextBridge.exposeInMainWorld('shell', {
 		shell.openExternal(url);
 	}
 });
+// });

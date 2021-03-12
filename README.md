@@ -64,12 +64,14 @@ This is a music player application with lyric crawler build by electron.
 * [*] Register Alt + F12 local hotkey 
 * [ ] Search artist use ellipsis css
 * [x] Title and artist lost (search and display) (utaten class changed)
-* [ ] Keywords looks odd (v-chip)
-* [ ] Keywords use slide in animation
+* [x] Keywords looks odd (v-chip)
+* [x] Keywords use slide in animation
 * [x] fix edit panel
     * nodeintegration = false
     * enableRemoteModule = false
     * contextIsolation = true
+* [x] Preload not work in production env
+* [x] Can't build in production
 
 
 ### Known bug 

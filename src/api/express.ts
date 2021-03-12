@@ -7,7 +7,7 @@ const app = express();
 const router = express.Router();
 
 // import crypto from crypto
-const port = ((process.env.EXPRESS_PORT as unknown) as number) || 4000;
+const port = ((process.env.VUE_APP_PORT as unknown) as number) || 4000;
 
 app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Origin', '*');

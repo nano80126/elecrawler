@@ -77,7 +77,6 @@ function createWindow() {
 		resizable: true,
 		show: false,
 		webPreferences: {
-			// preload: path.resolve(app.getAppPath(), 'preload.ts'),
 			preload: path.resolve(__dirname, 'preload.js'),
 			nodeIntegration: false,
 			enableRemoteModule: false,
@@ -167,7 +166,7 @@ function createWindow() {
 		createProtocol('app');
 		// Load the index.html when not in development
 		// win.loadURL('app://./index.html');
-		win.loadURL(`http://localhost:${process.env.EXPRESS_PORT}/`);
+		win.loadURL(`http://localhost:${process.env.VUE_APP_PORT}/`);
 	}
 
 	win.on('ready-to-show', () => {
