@@ -45,7 +45,7 @@ This is a music player application with lyric crawler build by electron.
     * Or use the same directory
 * [x] Move overlay to v-main component
 * [x] Hot key for play, pause, volume
-* [ ] Test volume include hotkey
+* [x] Test volume include hotkey
 * [x] Add shortcut hide/show window
 * [x] Rewrite rect capture method
 * [x] Media.vue mouseleave bug 
@@ -56,9 +56,8 @@ This is a music player application with lyric crawler build by electron.
 * [ ] Express add CORS settings 
 * [x] Add loop and shuffle in tray menu
 * [x] Add volume to tray menu mute, 25%, 50%, 75%, 100%
-* [ ] Fileter bug of English name ?
+* [x] Fileter bug of English name ?
 * [x] Fix bugs not find out song name when clawler. ex. eternal blue
-* [ ] Asyc volume and play mode between embed and tray 
 * [ ] Algorithm for shuffle reduce frequency for playing the same song in a short time
 * [ ] Check if video is exist in web worker 
 * [*] Register Alt + F12 local hotkey 
@@ -72,6 +71,10 @@ This is a music player application with lyric crawler build by electron.
     * contextIsolation = true
 * [x] Preload not work in production env
 * [x] Can't build in production
+* [ ] Asyc volume and play mode between embed and tray 
+* [ ] ipcMain evnet for tray 
+* [ ] Debounce search event
+* [ ] Disable onRect when pushing 'esc' in media.vue
 
 
 ### Known bug 

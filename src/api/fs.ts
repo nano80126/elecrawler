@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { app, ipcMain } from 'electron';
-import { Iconfig } from '@/types/main-process';
+import { Iconfig } from '@/types/main';
 
 const picPath = path.resolve(app.getPath('pictures'), 'EleCrawler');
 // process.env.NODE_ENV == 'development'

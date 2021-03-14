@@ -125,31 +125,31 @@
 							<!-- <v-lazy> -->
 							<template v-slot="{ item }">
 								<v-card :key="item.id" class="mx-auto mr-3" outlined min-height="130">
-									<v-card-title style="position:relative;">
-										<span class="dummy" />
-										<span class="ellipsis" style="position: absolute;">
-											{{ item.title }}
-										</span>
-
-										<v-btn
+									<v-card-title style="position:relative; white-space: nowrap;">
+										<span class="ellipsis-title">{{ item.title }}</span>
+										<!-- <v-chip
 											icon
 											v-if="item.exist"
 											class="ml-auto mr-n2 no-active"
 											@click.prevent
 											:ripple="false"
-										>
+										> -->
+										<span v-if="item.exist" class="ml-auto">
 											<v-icon small color="grey">fas fa-list</v-icon>
 											<v-icon
 												size="16"
 												color="success darken-1"
-												class="mt-n2 mr-n1"
+												class="mr-1"
 												style="position:absolute; right:0;"
 											>
 												fas fa-check
 											</v-icon>
-										</v-btn>
+										</span>
+										<!-- </v-chip> -->
 									</v-card-title>
-									<v-card-subtitle>{{ item.artist }}</v-card-subtitle>
+									<v-card-subtitle>
+										<span class="ellipsis-artist">{{ item.artist }}</span>
+									</v-card-subtitle>
 
 									<v-divider />
 									<v-card-actions>
@@ -495,8 +495,17 @@ export default class Search extends Vue {
 	white-space: nowrap;
 }
 
-.ellipsis {
-	width: calc(100% - 64px); // 12 + 16 + 36
+.ellipsis-title {
+	display: block;
+	width: calc(100% - 48px); // 12 + 16 + 36
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ellipsis-artist {
+	display: block;
+	width: 100%; // 12 + 16 + 36
 	overflow-x: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

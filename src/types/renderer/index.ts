@@ -1,4 +1,4 @@
-import { ItextConfig, IlistCrawled, IlyricsObjCrawled } from './main-process';
+import { ItextConfig, IlistCrawled, IlyricsObjCrawled } from '../main';
 
 export type IdisplayTxt = ItextConfig;
 
@@ -66,4 +66,10 @@ export interface IsongList {
 /**interface for list.vue with icon */
 export interface IsongListWithIcon extends IsongList {
 	icon: Buffer;
+}
+
+/**enumerater of ipcRenderer.Send event for tray control */
+export enum EtraySend {
+	MODE = 'tray-mode',
+	VOLUME = 'tray-volume'
 }

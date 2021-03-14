@@ -200,8 +200,9 @@ export default class List extends Vue {
 
 	/**過濾後清單 */
 	get filterList() {
+		const filterTxt = this.filterStr.toLowerCase();
 		return this.$lodash.filter(this.list, o => {
-			return o.title.toLowerCase().match(this.filterStr) || o.artist.toLowerCase().match(this.filterStr);
+			return o.title.toLowerCase().match(filterTxt) || o.artist.toLowerCase().match(filterTxt);
 		});
 	}
 

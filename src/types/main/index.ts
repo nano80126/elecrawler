@@ -36,3 +36,9 @@ export interface IchannelLyricsObj {
 	lyricsKey: string;
 	lyricsUrl: string;
 }
+
+/**enumerater of ipcMain.On event for tray control */
+export enum EtrayOn {
+	MODE = 'tray-mode',
+	VOLUME = 'tray-volume'
+}

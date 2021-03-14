@@ -23,7 +23,7 @@ import { config, saveConfig } from './api/fs';
 import { mongoCLient } from './api/mongo';
 
 // custom types
-import { Iconfig, IchannelLyricsObj } from './types/main-process';
+import { Iconfig, IchannelLyricsObj, EtrayOn } from './types/main';
 // import './api/mongo';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -202,10 +202,7 @@ app.on('window-all-closed', () => {
 // app.disableHardwareAcceleration();
 
 app.on('ready', () => {
-	// const iconPath = path.resolve(__dirname, 'trayicon.ico');
-	// const trayIcon = nativeImage.createFromPath(iconPath);
 	// trayIcon.resize({ width: 16, height: 16 });
-	// console.log(iconPath);
 	tray = new Tray(path.resolve(__static, 'icons/trayicon.ico'));
 	const contextMenu = Menu.buildFromTemplate([
 		{
@@ -236,11 +233,10 @@ app.on('ready', () => {
 				{ type: 'radio', label: '25%', click: () => win?.webContents.send('volumeSet', { vol: 25 }) },
 				{ type: 'radio', label: '50%', click: () => win?.webContents.send('volumeSet', { vol: 50 }) },
 				{ type: 'radio', label: '75%', click: () => win?.webContents.send('volumeSet', { vol: 75 }) },
+				{ type: 'radio', label: '100%', click: () => win?.webContents.send('volumeSet', { vol: 100 }) },
 				{ type: 'radio', label: '100%', click: () => win?.webContents.send('volumeSet', { vol: 100 }) }
 			]
 		},
-		// { label: 'Item2', type: 'radio' },
-		// { label: 'Item3', type: 'radio', cheked: true },
 		{ type: 'separator' },
 		{
 			label: 'Close',
@@ -254,7 +250,16 @@ app.on('ready', () => {
 	tray.on('double-click', () => {
 		win?.show();
 	});
-	// tray.ball
+
+	ipcMain.on(EtrayOn.MODE, () => {
+		//
+	});
+
+	ipcMain.on(EtrayOn.VOLUME, () => {
+		console.log(contextMenu);
+		console.log(contextMenu.items[0]);
+		console.log(contextMenu.items[1]);
+	});
 });
 
 app.on('activate', () => {

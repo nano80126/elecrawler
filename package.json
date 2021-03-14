@@ -1,8 +1,8 @@
 {
 	"name": "electron-lyrics-crawler",
-	"version": "2.3.0",
+	"version": "3.0.1",
 	"private": true,
-	"description": "mim sintering furnace electron-app",
+	"description": "YouTube music play with lyrics and scrawler",
 	"author": "keliduan",
 	"scripts": {
 		"serve": "vue-cli-service serve",

@@ -6,7 +6,7 @@ import cheerio from 'cheerio';
 // const cheerio = require('cheerio');
 
 import { ipcMain } from 'electron';
-import { IlistCrawled, IlyricsObjCrawled } from '@/types/main-process';
+import { IlistCrawled, IlyricsObjCrawled } from '@/types/main';
 
 // const axios = require('axios');
 // const { ipcMain } = require('electron');

@@ -1,7 +1,7 @@
 import { Module, Mutation, VuexModule, getModule } from 'vuex-module-decorators';
 import store from '@/store/index';
 import { IlyricsDisplayObj } from '@/types/renderer';
-import { ItextConfig } from '@/types/main-process';
+import { ItextConfig } from '@/types/main';
 
 type LyricsObject = IlyricsDisplayObj;
 
