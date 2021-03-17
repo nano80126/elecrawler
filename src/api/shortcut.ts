@@ -1,17 +1,18 @@
 import { globalShortcut } from 'electron';
 import { win } from '@/background';
+import { EvolumeSend } from '@/types/main';
 
 /** 註冊 global 快捷鍵 */
 export function registerHotkey() {
 	globalShortcut.register('Alt+-', () => {
 		if (win) {
-			win.webContents.send('volumeMinus');
+			win.webContents.send(EvolumeSend.VOLUMEMINUS);
 		}
 	});
 
 	globalShortcut.register('Alt+=', () => {
 		if (win) {
-			win.webContents.send('volumePlus');
+			win.webContents.send(EvolumeSend.VOLUMEPLUS);
 		}
 	});
 

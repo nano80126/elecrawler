@@ -84,7 +84,8 @@ module.exports = {
 				// config.target = 'node';
 
 				const exts = {
-					sharp: 'commonjs2 sharp'
+					sharp: 'commonjs2 sharp',
+					// mongodb: "commonjs mongodb"
 				};
 
 				Object.assign(

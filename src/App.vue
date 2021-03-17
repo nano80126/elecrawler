@@ -281,6 +281,7 @@ import Embed from '@/components/List/Embed.vue';
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { AppModule, Colors } from '@/store/modules/app';
+import { EwindowSend } from './types/renderer';
 
 @Component({
 	components: {
@@ -365,19 +366,19 @@ export default class App extends Vue {
 
 	// methods
 	private windowMin() {
-		this.$ipcRenderer.send('windowMin');
+		this.$ipcRenderer.send(EwindowSend.WINDOWMIN);
 	}
 
 	private windowMax() {
-		this.$ipcRenderer.send('windowMax');
+		this.$ipcRenderer.send(EwindowSend.WINDOWMAX);
 	}
 
 	private windowRestore() {
-		this.$ipcRenderer.send('windowRestore');
+		this.$ipcRenderer.send(EwindowSend.WINDOWRESTORE);
 	}
 
 	private windowHide() {
-		this.$ipcRenderer.send('windowHide');
+		this.$ipcRenderer.send(EwindowSend.WINDOWHIDE);
 	}
 
 	private appClose() {

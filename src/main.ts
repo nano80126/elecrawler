@@ -20,7 +20,7 @@ import axios, { AxiosStatic } from 'axios';
 import qs, { stringify } from 'qs';
 
 import { LyModule } from '@/store/modules/lyrics';
-import { IdisplayTxt, IlyricsDisplayObj, IlyricsObj, IsongList } from '@/types/renderer';
+import { EmodeOn, EvolumeOn, IdisplayTxt, IlyricsDisplayObj, IlyricsObj, IsongList } from '@/types/renderer';
 import '@/style.scss';
 
 /// ///
@@ -237,35 +237,35 @@ new Vue({
 				}
 			});
 
-			this.$ipcRenderer.on('volumePlus', () => {
+			this.$ipcRenderer.on(EvolumeOn.VOLUMEPLUS, () => {
 				if (PlayerModule.player) {
 					PlayerModule.videoPlusVolume(5);
 				}
 			});
 
-			this.$ipcRenderer.on('volumeMinus', () => {
+			this.$ipcRenderer.on(EvolumeOn.VOLUMEMINUS, () => {
 				if (PlayerModule.player) {
 					PlayerModule.videoMinusVolume(5);
 				}
 			});
 
-			this.$ipcRenderer.on('volumeSet', (e, args) => {
-				if (PlayerModule.player) {
-					PlayerModule.videoSetVolume(args.vol);
-				}
+			this.$ipcRenderer.on(EvolumeOn.VOLUMESET, (e, args) => {
+				// if (PlayerModule.player) {
+				PlayerModule.videoSetVolume(args.vol);
+				// }
 			});
 
-			this.$ipcRenderer.on('videoSingle', () => {
+			this.$ipcRenderer.on(EmodeOn.MODESINGLE, () => {
 				PlayerModule.videoLoop(false);
 				PlayerModule.videoShuffle(false);
 			});
 
-			this.$ipcRenderer.on('videoLoop', () => {
+			this.$ipcRenderer.on(EmodeOn.MODELOOP, () => {
 				PlayerModule.videoLoop(true);
 				PlayerModule.videoShuffle(false);
 			});
 
-			this.$ipcRenderer.on('videoShuffle', () => {
+			this.$ipcRenderer.on(EmodeOn.MODESHUFFLE, () => {
 				PlayerModule.videoLoop(false);
 				PlayerModule.videoShuffle(true);
 			});

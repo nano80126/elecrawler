@@ -2,6 +2,7 @@ import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators'
 import store from '@/store/index';
 import { AppModule } from './app';
 import { LyModule } from './lyrics'; // for destroy lyrics obj
+import { EtraySend } from '@/types/renderer';
 
 export interface PlayerState {
 	intervalArray: NodeJS.Timeout[];
@@ -142,6 +143,7 @@ export default class Player extends VuexModule implements PlayerState {
 	videoSetVolume(value: number) {
 		this.playerVolume = value;
 		this.player?.setVolume(value);
+		window.ipcRenderer.send(EtraySend.VOLUME, { volume: value });
 	}
 
 	/**音量 + */
@@ -151,6 +153,7 @@ export default class Player extends VuexModule implements PlayerState {
 		else this.playerVolume += value;
 
 		this.player?.setVolume(this.playerVolume);
+		window.ipcRenderer.send(EtraySend.VOLUME, { volume: this.playerVolume });
 	}
 
 	/**音量 - */
@@ -160,18 +163,21 @@ export default class Player extends VuexModule implements PlayerState {
 		else this.playerVolume -= value;
 
 		this.player?.setVolume(this.playerVolume);
+		window.ipcRenderer.send(EtraySend.VOLUME, { volume: this.playerVolume });
 	}
 
 	/**變更 loop */
 	@Mutation
 	videoLoop(bool: boolean) {
 		this.playerLoop = bool;
+		window.ipcRenderer.send(EtraySend.MODE, { loop: bool });
 	}
 
 	/**變更 shffle */
 	@Mutation
 	videoShuffle(bool: boolean) {
 		this.playerShuffle = bool;
+		window.ipcRenderer.send(EtraySend.MODE, { shuffle: bool });
 	}
 }
 

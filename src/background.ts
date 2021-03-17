@@ -2,7 +2,7 @@
 
 declare const __static: string;
 
-import { app, protocol, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
+import { app, protocol, BrowserWindow, ipcMain, Tray, Menu, MenuItem } from 'electron';
 import path from 'path';
 
 import {
@@ -23,7 +23,7 @@ import { config, saveConfig } from './api/fs';
 import { mongoCLient } from './api/mongo';
 
 // custom types
-import { Iconfig, IchannelLyricsObj, EtrayOn } from './types/main';
+import { Iconfig, IchannelLyricsObj, EtrayOn, EwindowOn, EmodeSend, EvolumeSend } from './types/main';
 // import './api/mongo';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -215,26 +215,35 @@ app.on('ready', () => {
 			type: 'submenu',
 			label: 'Mode',
 			submenu: [
-				{ type: 'radio', label: 'Single', checked: true, click: () => win?.webContents.send('videoSingle') },
-				{ type: 'radio', label: 'Loop', click: () => win?.webContents.send('videoLoop') },
-				{ type: 'radio', label: 'Shuffle', click: () => win?.webContents.send('videoShuffle') }
+				{
+					type: 'radio',
+					label: 'Single',
+					checked: true,
+					click: () => win?.webContents.send(EmodeSend.MODESINGLE)
+				},
+				{ type: 'radio', label: 'Loop', click: () => win?.webContents.send(EmodeSend.MODELOOP) },
+				{ type: 'radio', label: 'Shuffle', click: () => win?.webContents.send(EmodeSend.MODESHUFFLE) }
 			]
 		},
 		{
 			type: 'submenu',
 			label: 'Volumn',
 			submenu: [
+				{ type: 'radio', label: 'Mute', click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 0 }) },
+				{ type: 'radio', label: '25%', click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 25 }) },
+				{ type: 'radio', label: '50%', click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 50 }) },
+				{
+					checked: true,
+					type: 'radio',
+					label: '75%',
+					click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 75 })
+				},
 				{
 					type: 'radio',
-					label: 'Mute',
-					checked: true,
-					click: () => win?.webContents.send('volumeSet', { vol: 0 })
+					label: '100%',
+					click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 100 })
 				},
-				{ type: 'radio', label: '25%', click: () => win?.webContents.send('volumeSet', { vol: 25 }) },
-				{ type: 'radio', label: '50%', click: () => win?.webContents.send('volumeSet', { vol: 50 }) },
-				{ type: 'radio', label: '75%', click: () => win?.webContents.send('volumeSet', { vol: 75 }) },
-				{ type: 'radio', label: '100%', click: () => win?.webContents.send('volumeSet', { vol: 100 }) },
-				{ type: 'radio', label: '100%', click: () => win?.webContents.send('volumeSet', { vol: 100 }) }
+				{ type: 'radio', label: 'Custom', enabled: false }
 			]
 		},
 		{ type: 'separator' },
@@ -251,14 +260,43 @@ app.on('ready', () => {
 		win?.show();
 	});
 
-	ipcMain.on(EtrayOn.MODE, () => {
-		//
+	ipcMain.on(EtrayOn.MODE, (e, args: { loop: boolean; shuffle: boolean }) => {
+		const { loop, shuffle } = args;
+		// first items means mode, second items means mode selections
+		if (loop) {
+			(contextMenu.items[2].submenu?.items[1] as MenuItem).checked = true;
+		} else if (shuffle) {
+			(contextMenu.items[2].submenu?.items[2] as MenuItem).checked = true;
+		} else {
+			(contextMenu.items[2].submenu?.items[0] as MenuItem).checked = true;
+		}
+		tray?.setContextMenu(contextMenu);
 	});
 
-	ipcMain.on(EtrayOn.VOLUME, () => {
-		console.log(contextMenu);
-		console.log(contextMenu.items[0]);
-		console.log(contextMenu.items[1]);
+	ipcMain.on(EtrayOn.VOLUME, (e, args: { volume: number }) => {
+		const { volume } = args;
+		// first items means volume, second items means volume selections
+		switch (volume) {
+			case 0:
+				(contextMenu.items[3].submenu?.items[0] as MenuItem).checked = true;
+				break;
+			case 25:
+				(contextMenu.items[3].submenu?.items[1] as MenuItem).checked = true;
+				break;
+			case 50:
+				(contextMenu.items[3].submenu?.items[2] as MenuItem).checked = true;
+				break;
+			case 75:
+				(contextMenu.items[3].submenu?.items[3] as MenuItem).checked = true;
+				break;
+			case 100:
+				(contextMenu.items[3].submenu?.items[4] as MenuItem).checked = true;
+				break;
+			default:
+				(contextMenu.items[3].submenu?.items[5] as MenuItem).checked = true;
+				break;
+		}
+		tray?.setContextMenu(contextMenu);
 	});
 });
 
@@ -305,19 +343,19 @@ app.whenReady().then(() => {
 });
 
 // // // // // // // // // // // // // // // // // // //
-ipcMain.on('windowMin', () => {
+ipcMain.on(EwindowOn.WINDOWMIN, () => {
 	win?.minimize();
 });
 
-ipcMain.on('windowMax', () => {
+ipcMain.on(EwindowOn.WINDOWMAX, () => {
 	win?.maximize();
 });
 
-ipcMain.on('windowRestore', () => {
+ipcMain.on(EwindowOn.WINDOWRESTORE, () => {
 	win?.restore();
 });
 
-ipcMain.on('windowHide', () => {
+ipcMain.on(EwindowOn.WINDOWHIDE, () => {
 	win?.hide();
 });
 

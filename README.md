@@ -71,10 +71,11 @@ This is a music player application with lyric crawler build by electron.
     * contextIsolation = true
 * [x] Preload not work in production env
 * [x] Can't build in production
-* [ ] Asyc volume and play mode between embed and tray 
-* [ ] ipcMain evnet for tray 
+* [x] Asyc volume and play mode between embed and tray 
+* [x] ipcMain evnet for tray 
 * [ ] Debounce search event
 * [ ] Disable onRect when pushing 'esc' in media.vue
+* [ ] Add worker plugin preparing something to do
 
 
 ### Known bug 

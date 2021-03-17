@@ -68,8 +68,30 @@ export interface IsongListWithIcon extends IsongList {
 	icon: Buffer;
 }
 
-/**enumerater of ipcRenderer.Send event for tray control */
+/**enumerater of ipcMain.Send event for window control */
+export enum EwindowSend {
+	WINDOWMIN = 'window-min',
+	WINDOWMAX = 'window-max',
+	WINDOWRESTORE = 'window-restore',
+	WINDOWHIDE = 'window-hide'
+}
+
+/**enumerater of ipcRenderer.send event for tray control */
 export enum EtraySend {
 	MODE = 'tray-mode',
 	VOLUME = 'tray-volume'
+}
+
+/**enumerator of ipcRenderer.on in main.ts */
+export enum EmodeOn {
+	MODESINGLE = 'mode-single',
+	MODELOOP = 'mode-loop',
+	MODESHUFFLE = 'mode-shuffle'
+}
+
+/**enumerator of ipcRenderer.on in main.ts */
+export enum EvolumeOn {
+	VOLUMEPLUS = 'volume-plus',
+	VOLUMEMINUS = 'volume-minus',
+	VOLUMESET = 'volume-set'
 }
