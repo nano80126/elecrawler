@@ -404,6 +404,24 @@ export default class Media extends Vue {
 		this.loadLyricsObj();
 	}
 
+	@Watch('onRect')
+	onOnRectChanged(bool: boolean) {
+		if (bool) {
+			const keyon = (e: KeyboardEvent) => {
+				if (e.key == 'Escape') {
+					this.onRect = false;
+					this.onRectStart = false;
+					this.showMenu = false;
+
+					this.$nextTick(() => {
+						window.removeEventListener('keyup', keyon);
+					});
+				}
+			};
+			window.addEventListener('keyup', keyon);
+		}
+	}
+
 	// @Watch('canPaste')
 	// onCanPasteChanged(bool: boolean) {
 	// 	console.log(bool);
