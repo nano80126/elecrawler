@@ -59,9 +59,8 @@ This is a music player application with lyric crawler build by electron.
 * [x] Fileter bug of English name ?
 * [x] Fix bugs not find out song name when clawler. ex. eternal blue
 * [ ] Algorithm for shuffle reduce frequency for playing the same song in a short time
-* [ ] Check if video is exist in web worker 
 * [*] Register Alt + F12 local hotkey 
-* [ ] Search artist use ellipsis css
+* [x] Search artist use ellipsis css
 * [x] Title and artist lost (search and display) (utaten class changed)
 * [x] Keywords looks odd (v-chip)
 * [x] Keywords use slide in animation
@@ -73,9 +72,10 @@ This is a music player application with lyric crawler build by electron.
 * [x] Can't build in production
 * [x] Asyc volume and play mode between embed and tray 
 * [x] ipcMain evnet for tray 
-* [ ] Debounce search event
-* [ ] Disable onRect when pushing 'esc' in media.vue
+* [x] Debounce search event
+* [x] Disable onRect when pushing 'esc' in media.vue
 * [ ] Add worker plugin preparing something to do
+* [ ] Check if video is exist in web worker 
 
 
 ### Known bug 

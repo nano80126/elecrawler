@@ -289,6 +289,8 @@ export default class Search extends Vue {
 	private keywords: Ikeywords[] = [];
 	/**關鍵字是否存在 */
 	private keywordsExist = false;
+	/**防抖動計時器 */
+	private debounceTimer: NodeJS.Timeout | null = null;
 
 	/**是否可以搜尋 */
 	get canSearch(): boolean {
@@ -351,28 +353,32 @@ export default class Search extends Vue {
 	}
 	/**搜尋 */
 	private lyricsSearch() {
-		if (!this.canSearch) return;
-		AppModule.changeOverlay(true);
+		clearTimeout(this.debounceTimer as NodeJS.Timeout);
+		this.debounceTimer = setTimeout(() => {
+			if (!this.canSearch) return;
+			AppModule.changeOverlay(true);
 
-		this.extendImage = false;
-		this.lyricsObj = null;
-		this.searchList = [];
-		this.$ipcRenderer
-			.invoke('searchReq', {
-				artist: this.artist,
-				title: this.title
-			})
-			.then(res => {
-				this.searchRes(res);
-			})
-			.catch((err: Error) => {
-				AppModule.snackbar({ text: err.message, color: Colors.Error });
-			})
-			.finally(() => {
-				this.keywordSave(this.artist, this.title);
-			});
-		///
+			this.extendImage = false;
+			this.lyricsObj = null;
+			this.searchList = [];
+			this.$ipcRenderer
+				.invoke('searchReq', {
+					artist: this.artist,
+					title: this.title
+				})
+				.then(res => {
+					this.searchRes(res);
+				})
+				.catch((err: Error) => {
+					AppModule.snackbar({ text: err.message, color: Colors.Error });
+				})
+				.finally(() => {
+					this.keywordSave(this.artist, this.title);
+				});
+			///
+		}, 250);
 	}
+
 	/**歷史紀錄搜尋 */
 	private historySearch(artist: string, title: string) {
 		AppModule.changeOverlay(true);
