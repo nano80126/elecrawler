@@ -37,5 +37,5 @@ yarn-error.log*
 *deprecated*
 
 # icon 
-*.png
+# *.png
 # *.ico

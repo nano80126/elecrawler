@@ -123,7 +123,7 @@ module.exports = {
 				// 	}
 				// ],
 				win: {
-					icon: 'build/crawler.png',
+					icon: 'build/icon.png',
 					target: [
 						{
 							target: 'nsis',

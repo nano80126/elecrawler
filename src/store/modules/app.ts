@@ -2,6 +2,7 @@ import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators'
 import store from '@/store/index';
 
 export interface AppState {
+	subWindow: Window | null;
 	overlay: boolean;
 	snackbars: { show: boolean; color: Colors | string; text: string; timeout: number }[];
 	isElectron: boolean;
@@ -23,6 +24,9 @@ export enum Colors {
 
 @Module({ dynamic: true, store, name: 'app' })
 class Common extends VuexModule implements AppState {
+	/**子視窗 Window */
+	public subWindow: Window | null = null;
+	/**是否覆蓋overlay */
 	public overlay = false;
 	//
 	public snackbars: { show: boolean; color: Colors | string; text: string; timeout: number }[] = [];
@@ -46,6 +50,11 @@ class Common extends VuexModule implements AppState {
 
 	get barsVisible(): number {
 		return this.snackbars.filter(x => x.show).length;
+	}
+
+	@Mutation
+	setSubWindow(window: Window | null) {
+		this.subWindow = window;
 	}
 
 	@Mutation

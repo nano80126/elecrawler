@@ -165,7 +165,7 @@ import player from '@/components/List/Embed.vue';
 import { AppModule, Colors } from '@/store/modules/app';
 import { LyModule } from '@/store/modules/lyrics';
 import { PlayerModule } from '@/store/modules/player';
-import { IlyricsDisplayObj, IlyricsObj, IsongList, IsongListWithIcon } from '@/types/renderer';
+import { EpanelSend, IlyricsDisplayObj, IlyricsObj, IsongList, IsongListWithIcon } from '@/types/renderer';
 import { OutputInfo } from 'sharp';
 
 import { Component, Vue } from 'vue-property-decorator';
@@ -324,11 +324,27 @@ export default class List extends Vue {
 			lyricsKey: obj.lyricsKey,
 			lyricsUrl: obj.lyricsUrl
 		};
-		const qs = this.$qs.stringify(lyricObj, { delimiter: ',' });
 
-		const routeData = this.$router.resolve({ path: '/panel.html', append: true });
-		// window.open(routeData.location.path, 'editPanel', qs);
-		window.open(routeData.location.path, 'editPanel', qs);
+		if (AppModule.subWindow) {
+			this.$ipcRenderer.invoke(EpanelSend.PANELSHOW).then((exist: boolean) => {
+				if (exist) {
+					const data = Object.assign(lyricObj, { delay: 500 });
+					AppModule.subWindow?.postMessage({ type: 'lyricsObj', data }, '*');
+				} else {
+					const qs = this.$qs.stringify(lyricObj, { delimiter: ',' });
+					const routeData = this.$router.resolve({ path: '/panel.html', append: true });
+
+					const subWindow = window.open(routeData.location.path, 'editPanel', qs);
+					AppModule.setSubWindow(subWindow);
+				}
+			});
+		} else {
+			const qs = this.$qs.stringify(lyricObj, { delimiter: ',' });
+			const routeData = this.$router.resolve({ path: '/panel.html', append: true });
+
+			const subWindow = window.open(routeData.location.path, 'editPanel', qs);
+			AppModule.setSubWindow(subWindow);
+		}
 	}
 }
 </script>

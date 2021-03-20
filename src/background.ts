@@ -4,6 +4,7 @@ declare const __static: string;
 
 import { app, protocol, BrowserWindow, ipcMain, Tray, Menu, MenuItem } from 'electron';
 import path from 'path';
+import qs from 'qs';
 
 import {
 	createProtocol
@@ -23,7 +24,7 @@ import { config, saveConfig } from './api/fs';
 import { mongoCLient } from './api/mongo';
 
 // custom types
-import { Iconfig, IchannelLyricsObj, EtrayOn, EwindowOn, EmodeSend, EvolumeSend } from './types/main';
+import { Iconfig, IchannelLyricsObj, EtrayOn, EwindowOn, EmodeSend, EvolumeSend, EpanelOn } from './types/main';
 // import './api/mongo';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -80,24 +81,48 @@ function createWindow() {
 			preload: path.resolve(__dirname, 'preload.js'),
 			nodeIntegration: false,
 			enableRemoteModule: false,
-			contextIsolation: true
+			contextIsolation: true,
+			nativeWindowOpen: true
 		}
 	});
 	if (process.env.NODE_ENV == 'production') win.removeMenu();
 	// win.setMenu(mainMenu);
 	// Menu.setApplicationMenu(mainMenu);
-
-	win.webContents.on('new-window', (event, url, frameName, disposition, options) => {
-		event.preventDefault();
+	win.webContents.setWindowOpenHandler(handler => {
+		const { frameName, features } = handler;
 
 		if (frameName === 'editPanel') {
-			const { artist, title, lyricsKey, lyricsUrl } = options as IchannelLyricsObj;
+			const { artist, title, lyricsKey, lyricsUrl } = (qs.parse(features, {
+				delimiter: ','
+			}) as unknown) as IchannelLyricsObj;
 
-			if (!child) {
-				child = new BrowserWindow({
+			win?.webContents.on('did-create-window', subWindow => {
+				child = subWindow;
+				subWindow.once('ready-to-show', () => {
+					subWindow.show();
+					subWindow.webContents.send('lyricObj', {
+						artist: artist,
+						song: title,
+						key: lyricsKey,
+						url: lyricsUrl,
+						delay: 0
+					});
+					subWindow.webContents.send('syncLanguage', locale);
+				});
+
+				subWindow.on('closed', () => {
+					child = null;
+				});
+			});
+
+			return {
+				action: 'allow',
+				overrideBrowserWindowOptions: {
 					title: 'Panel',
 					backgroundColor: '#212121',
 					///
+					x: undefined,
+					y: undefined,
 					width: 640,
 					height: 840,
 					///
@@ -107,56 +132,85 @@ function createWindow() {
 					show: false,
 					autoHideMenuBar: true,
 					frame: false,
-					resizable: false,
-					webPreferences: {
-						preload: path.resolve(__dirname, 'preload.js'),
-						nodeIntegration: false,
-						enableRemoteModule: false,
-						contextIsolation: true
-					}
-				});
-				if (process.env.NODE_ENV == 'production') child.removeMenu(); // 移除 menu
-				child.loadURL(url);
-
-				// if (process.env.WEBPACK_DEV_SERVER_URL) {
-				// 	child.loadURL(url.replace(/(#\/)/, ''));
-				// } else {
-				// 	child.loadURL('http://localhost:4000' + url);
-				// }
-			} else {
-				child.webContents.send('lyricObj', {
-					artist: artist,
-					song: title,
-					key: lyricsKey,
-					url: lyricsUrl,
-					delay: 500
-				});
-				/**同步語言 */
-				child.webContents.send('syncLanguage', locale);
-				if (!child.isVisible()) child.show();
-				if (childCloseTimer) clearTimeout(childCloseTimer);
-			}
-
-			child.on('ready-to-show', () => {
-				child?.webContents.send('lyricObj', {
-					artist: artist,
-					song: title,
-					key: lyricsKey,
-					url: lyricsUrl,
-					delay: 0
-				});
-				/**同步語言 */
-				child?.webContents.send('syncLanguage', locale);
-				child?.show();
-				/**重置timer */
-				if (childCloseTimer) clearTimeout(childCloseTimer);
-			});
-
-			child.on('close', () => {
-				child = null;
-			});
+					resizable: false
+				}
+			};
+		} else {
+			return { action: 'deny' };
 		}
 	});
+
+	/** 保留 保留 保留 保留 待刪 待刪 待刪 待刪 */
+	// win.webContents.on('new-window', (event, url, frameName, disposition, options) => {
+	// 	event.preventDefault();
+
+	// 	if (frameName === 'editPanel') {
+	// 		const { artist, title, lyricsKey, lyricsUrl } = options as IchannelLyricsObj;
+
+	// 		if (!child) {
+	// 			child = new BrowserWindow({
+	// 				title: 'Panel',
+	// 				backgroundColor: '#212121',
+	// 				///
+	// 				width: 640,
+	// 				height: 840,
+	// 				///
+	// 				parent: win as BrowserWindow,
+	// 				center: true,
+	// 				modal: true,
+	// 				show: false,
+	// 				autoHideMenuBar: true,
+	// 				frame: false,
+	// 				resizable: false,
+	// 				webPreferences: {
+	// 					preload: path.resolve(__dirname, 'preload.js'),
+	// 					nodeIntegration: false,
+	// 					enableRemoteModule: false,
+	// 					contextIsolation: true
+	// 				}
+	// 			});
+	// 			if (process.env.NODE_ENV == 'production') child.removeMenu(); // 移除 menu
+	// 			child.loadURL(url);
+
+	// 			// if (process.env.WEBPACK_DEV_SERVER_URL) {
+	// 			// 	child.loadURL(url.replace(/(#\/)/, ''));
+	// 			// } else {
+	// 			// 	child.loadURL('http://localhost:4000' + url);
+	// 			// }
+	// 		} else {
+	// 			child.webContents.send('lyricObj', {
+	// 				artist: artist,
+	// 				song: title,
+	// 				key: lyricsKey,
+	// 				url: lyricsUrl,
+	// 				delay: 500
+	// 			});
+	// 			/**同步語言 */
+	// 			child.webContents.send('syncLanguage', locale);
+	// 			if (!child.isVisible()) child.show();
+	// 			if (childCloseTimer) clearTimeout(childCloseTimer);
+	// 		}
+
+	// 		child.on('ready-to-show', () => {
+	// 			child?.webContents.send('lyricObj', {
+	// 				artist: artist,
+	// 				song: title,
+	// 				key: lyricsKey,
+	// 				url: lyricsUrl,
+	// 				delay: 0
+	// 			});
+	// 			/**同步語言 */
+	// 			child?.webContents.send('syncLanguage', locale);
+	// 			child?.show();
+	// 			/**重置timer */
+	// 			if (childCloseTimer) clearTimeout(childCloseTimer);
+	// 		});
+
+	// 		child.on('close', () => {
+	// 			child = null;
+	// 		});
+	// 	}
+	// });
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
 		// Load the url of the dev server if in development mode
@@ -169,7 +223,7 @@ function createWindow() {
 		win.loadURL(`http://localhost:${process.env.VUE_APP_PORT}/`);
 	}
 
-	win.on('ready-to-show', () => {
+	win.once('ready-to-show', () => {
 		win?.show();
 	});
 
@@ -359,12 +413,22 @@ ipcMain.on(EwindowOn.WINDOWHIDE, () => {
 	win?.hide();
 });
 
-ipcMain.on('panelHide', () => {
+ipcMain.handle(EpanelOn.PANELSHOW, () => {
+	if (child) {
+		clearTimeout(childCloseTimer as NodeJS.Timeout);
+		child.show();
+		return true;
+	} else return false;
+});
+
+ipcMain.on(EpanelOn.PANELHIDE, () => {
 	child?.hide();
+
 	// 10 分鐘後關閉 child
 	childCloseTimer = setTimeout(() => {
 		child?.close();
-	}, 1000 * 60 * 10);
+		// child = null;
+	}, 1000 * 60 * 3);
 });
 
 ipcMain.on('windowWidth', (e, args) => {

@@ -76,7 +76,7 @@ This is a music player application with lyric crawler build by electron.
 * [x] Disable onRect when pushing 'esc' in media.vue
 * [ ] Add worker plugin preparing something to do
 * [ ] Check if video is exist in web worker 
-
+* [ ] Replace on new-window event use setWindowHandler
 
 ### Known bug 
 

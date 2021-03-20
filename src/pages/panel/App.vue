@@ -47,7 +47,7 @@ import media from '@/components/Search/Media.vue';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { AppModule } from '@/store/modules/app';
 
-import { IlyricsObjSearched } from '@/types/renderer';
+import { EpanelSend, IlyricsObjSearched } from '@/types/renderer';
 
 @Component({
 	components: {
@@ -99,6 +99,28 @@ export default class App extends Vue {
 			});
 		});
 
+		window.addEventListener('message', msg => {
+			if (msg.data.type == 'lyricsObj') {
+				//
+				const { data } = msg.data;
+				this.lyricsObj = null;
+				this.$nextTick(() => {
+					setTimeout(() => {
+						this.lyricsObj = {
+							obj: Object.freeze({
+								artist: data.artist,
+								title: data.title,
+								lyricsKey: data.lyricsKey,
+								lyricsUrl: data.lyricsUrl,
+								lyrics: ''
+							}),
+							exist: true
+						};
+					}, data.delay);
+				});
+			}
+		});
+
 		this.$ipcRenderer.on('syncLanguage', (e, locale) => {
 			this.language = locale;
 		});
@@ -109,7 +131,7 @@ export default class App extends Vue {
 	}
 
 	private windowHide() {
-		this.$ipcRenderer.send('panelHide');
+		this.$ipcRenderer.send(EpanelSend.PANELHIDE);
 	}
 }
 </script>

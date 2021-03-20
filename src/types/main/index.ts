@@ -45,6 +45,12 @@ export enum EwindowOn {
 	WINDOWHIDE = 'window-hide'
 }
 
+/**enumerater of ipcMain.on event for window control */
+export enum EpanelOn {
+	PANELSHOW = 'panel-show',
+	PANELHIDE = 'panel-hide'
+}
+
 /**enumerater of ipcMain.on event for tray control */
 export enum EtrayOn {
 	MODE = 'tray-mode',

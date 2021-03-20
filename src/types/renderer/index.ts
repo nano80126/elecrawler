@@ -76,6 +76,12 @@ export enum EwindowSend {
 	WINDOWHIDE = 'window-hide'
 }
 
+/**enumerater of ipcMain.Send event for panel control */
+export enum EpanelSend {
+	PANELSHOW = 'panel-show',
+	PANELHIDE = 'panel-hide'
+}
+
 /**enumerater of ipcRenderer.send event for tray control */
 export enum EtraySend {
 	MODE = 'tray-mode',
