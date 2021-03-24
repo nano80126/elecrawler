@@ -9,6 +9,7 @@
 	"imageDir": "Image directory",
 	"clearData": "Clear data",
 	"exit": "Exit",
+	"close": "Close",
 
 	"singer": "Singer",
 	"song": "Song",
@@ -28,10 +29,11 @@
 	"selectImage": "Select image",
 	"avatarImage": "Capture a region for avatar",
 	"removeImage": "Remove image",
+	"notEmbeddable": "This video is not embeddable",
 	"save": "Save",
 	"dragAndDrop": "",
 	"cover": "Cover",
-	"noImage" : "No image in clipboard",
+	"noImage": "No image in clipboard",
 	"invalidImage": "Invalid image",
 
 	"search_alt": "Search",

@@ -10,6 +10,7 @@
 	"clearData": "データをクリア",
 	"clearDone": "データを削除した",
 	"exit": "終了",
+	"close": "閉じる",
 
 	"singer": "歌手名",
 	"song": "曲名",
@@ -29,10 +30,11 @@
 	"selectImage": "画像選択",
 	"avatarImage": "アバターキャプチャ",
 	"removeImage": "画像を削除する",
+	"notEmbeddable": "この動画は埋め込みができない",
 	"save": "保存",
 	"dragAndDrop": "ドラッグ & ドロップ",
 	"cover": "カバー",
-	"noImage" : "クリップボードに画像がない",
+	"noImage": "クリップボードに画像がない",
 	"invalidImage": "無効なイメージ",
 
 	"search_alt": "サーチ",

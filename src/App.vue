@@ -226,7 +226,7 @@
 					>
 						{{ n.text }}
 						<template v-slot:action="{ attrs }">
-							<v-btn text v-bind="attrs" @click="n.show = false">閉じる</v-btn>
+							<v-btn text v-bind="attrs" @click="n.show = false">{{ $t('close') }}</v-btn>
 						</template>
 					</v-snackbar>
 				</template>

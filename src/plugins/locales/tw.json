@@ -9,6 +9,7 @@
 	"imageDir": "圖片路徑",
 	"clearData": "資料清除",
 	"exit": "結束",
+	"close": "關閉",
 
 	"singer": "歌手名",
 	"song": "曲名",
@@ -28,10 +29,11 @@
 	"selectImage": "圖片選擇",
 	"avatarImage": "預覽圖截取",
 	"removeImage": "刪除圖片",
+	"notEmbeddable": "該影片無法嵌入",
 	"save": "儲存",
 	"dragAndDrop": "拖放圖片於此",
 	"cover": "翻唱",
-	"noImage" : "剪貼簿中沒有圖片",
+	"noImage": "剪貼簿中沒有圖片",
 	"invalidImage": "無效的圖片",
 
 	"search_alt": "尋找",

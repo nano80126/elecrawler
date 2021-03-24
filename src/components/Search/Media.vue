@@ -476,7 +476,7 @@ export default class Media extends Vue {
 	}
 
 	/**切換顯示之YouTube URL */
-	private mouseWheel(e: MouseWheelEvent): void {
+	private mouseWheel(e: WheelEvent): void {
 		if (e.deltaY > 0) {
 			this.urlIndex = this.urlIndex + 1 > this.urlObj.length - 1 ? this.urlObj.length - 1 : this.urlIndex + 1;
 		} else {
@@ -495,14 +495,23 @@ export default class Media extends Vue {
 				if (id && id[0].length == 11 && item.videoID !== id[0]) {
 					this.$axios
 						.get('https://www.googleapis.com/youtube/v3/videos', {
-							params: { part: 'snippet', id: id[0], key: process.env.VUE_APP_YOUTUBE_DATA_API_KEY }
+							params: {
+								part: 'snippet, status',
+								id: id[0],
+								key: process.env.VUE_APP_YOUTUBE_DATA_API_KEY
+							}
 						})
 						.then(res => {
-							this.$set(
-								this.urlObj,
-								itemKey,
-								Object.assign(item, { videoID: id[0], videoTitle: res.data.items[0].snippet.title })
-							);
+							if (res.data.items[0].status.embeddable) {
+								this.$set(
+									this.urlObj,
+									itemKey,
+									Object.assign(item, { videoID: id[0], videoTitle: res.data.items[0].snippet.title })
+								);
+							} else {
+								AppModule.snackbar({ text: this.$t('notEmbeddable') as string, color: Colors.Info });
+								this.urlIndex = itemKey;
+							}
 						})
 						.catch(err => {
 							AppModule.snackbar({ text: err, color: Colors.Error });

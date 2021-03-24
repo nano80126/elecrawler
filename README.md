@@ -76,7 +76,11 @@ This is a music player application with lyric crawler build by electron.
 * [x] Disable onRect when pushing 'esc' in media.vue
 * [ ] Add worker plugin preparing something to do
 * [ ] Check if video is exist in web worker 
-* [ ] Replace on new-window event use setWindowHandler
+* [x] Replace on new-window event use setWindowHandler
+* [ ] Try to change window size use animation
+* [x] Some video only allow to be play in Youtube (ex. 白日 / King Gnu [Covered by GARNiDELiA])
+    * Youtube data API part status embedable can fix this problem
+    * Jump to the url whitch can be embedded
 
 ### Known bug 
 
