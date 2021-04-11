@@ -362,6 +362,12 @@ export default class App extends Vue {
 	mounted() {
 		this.SHOW = true;
 		this.bottomSheet = false;
+
+		// const worker = new Worker('@/worker/index.js', { type: 'module' });
+		// worker.addEventListener('message', msg => {
+		// 	console.log(msg);
+		// });
+		// worker.postMessage('123');
 	}
 
 	// methods

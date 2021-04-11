@@ -1,5 +1,6 @@
 /* eslint-disable */
 const webpack = require('webpack');
+const WorkerPlugin = require('worker-plugin');
 
 module.exports = {
 	transpileDependencies: ['vuetify'],
@@ -21,16 +22,16 @@ module.exports = {
 	},
 	pages: {
 		main: {
-			entry: "src/main.ts",
-			template: "public/index.html",
-			filename: "index.html",
-			chunks: ["chunk-common", "chunk-main-vendors", "main"]
+			entry: 'src/main.ts',
+			template: 'public/index.html',
+			filename: 'index.html',
+			chunks: ['chunk-common', 'chunk-main-vendors', 'main']
 		},
 		panel: {
-			entry: "src/pages/panel/main.ts",
-			template: "public/panel.html",
-			filename: "panel.html",
-			chunks: ["chunk-common", "chunk-panel-vendors", "panel"]
+			entry: 'src/pages/panel/main.ts',
+			template: 'public/panel.html',
+			filename: 'panel.html',
+			chunks: ['chunk-common', 'chunk-panel-vendors', 'panel']
 		}
 	},
 	chainWebpack: config => {
@@ -47,21 +48,21 @@ module.exports = {
 				main: {
 					name: 'chunk-main-vendors',
 					priority: -10,
-					chunks: chunk => chunk.name === "main",
+					chunks: chunk => chunk.name === 'main',
 					test: /[\\/]node_modules[\\/]/,
 					enforce: true
 				},
 				panel: {
 					name: 'chunk-panel-vendors',
 					priority: -11,
-					chunks: chunk => chunk.name === "panel",
+					chunks: chunk => chunk.name === 'panel',
 					test: /[\\/]node_modules[\\/]/,
 					enforce: true
 				},
 				common: {
 					name: 'chunk-common',
 					priority: -20,
-					chunks: "initial",
+					chunks: 'initial',
 					minChunks: 2,
 					reuseExistingChunk: true,
 					enforce: true
@@ -69,6 +70,12 @@ module.exports = {
 			}
 		});
 	},
+	// configureWebpack: {
+	// 	plugins: [
+	// 		new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-tw$/)
+	// 		// new WorkerPlugin()
+	// 	]
+	// },
 	configureWebpack: () => {
 		return {
 			plugins: [new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-tw$/)]
@@ -76,7 +83,7 @@ module.exports = {
 	},
 	pluginOptions: {
 		electronBuilder: {
-			preload: "src/preload.ts",
+			preload: 'src/preload.ts',
 			// {mainPreload: "src/preload.ts",panelPreload: "src/preload2.ts"},
 
 			chainWebpackMainProcess: config => {
@@ -84,7 +91,7 @@ module.exports = {
 				// config.target = 'node';
 
 				const exts = {
-					sharp: 'commonjs2 sharp',
+					sharp: 'commonjs2 sharp'
 					// mongodb: "commonjs mongodb"
 				};
 
@@ -116,12 +123,17 @@ module.exports = {
 				productName: 'EleCrawler',
 				copyright: 'Copyright © 2020',
 				// extends: null,
-				// files: [
-				// 	{
-				// 		from: 'build',
-				// 		filter: '**/*.js'
-				// 	}
-				// ],
+				directories: {
+					// buildResources: ['src/try.js']
+				},
+				asar: false,
+				files: [],
+				extraResources: [
+					// {
+					// 	from: 'src/worker.js',
+					// 	to: './app/worker.js'
+					// }
+				],
 				win: {
 					icon: 'build/icon.png',
 					target: [

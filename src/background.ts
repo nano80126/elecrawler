@@ -3,6 +3,8 @@
 declare const __static: string;
 
 import { app, protocol, BrowserWindow, ipcMain, Tray, Menu, MenuItem } from 'electron';
+// import { Worker, isMainThread } from 'worker_threads';
+// import { execFile, fork, spawn } from 'child_process';
 import path from 'path';
 import qs from 'qs';
 
@@ -12,6 +14,17 @@ import {
 } from 'vue-cli-plugin-electron-builder/lib';
 // import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
+// const worker = new Worker(path.join(__dirname, './api/express.js'), { workerData: null });
+// const workerPath = path.join(__dirname, 'worker.js');
+// const worker = new Worker(workerPath, {
+// 	workerData: {
+// 		path: './api/express.ts'
+// 	}
+// });
+// worker.addListener('message', msg => {
+// 	console.log(msg);
+// });
 
 // import crawler
 // import './api/fastify';

@@ -76,9 +76,10 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (
 	// 		console.log(err);
 	// 	});
 
-	ipcMain.on('mongoDisc', () => {
-		client.close();
-	});
+	/**處理關閉資料庫命令 */
+	// ipcMain.on('mongoDisc', () => {
+	// 	client.close();
+	// });
 });
 
 export { mongoCLient };

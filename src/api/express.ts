@@ -1,6 +1,7 @@
-import { ipcMain } from 'electron';
+// import { ipcMain } from 'electron';
 import express from 'express';
 import path from 'path';
+// import { parentPort, isMainThread } from 'worker_threads';
 // import { app as electron } from 'electron';
 
 const app = express();
@@ -30,10 +31,14 @@ router.get('/panel', (req, res) => {
 	res.sendFile(path.resolve(__dirname, 'panel.html'));
 });
 
+router.get('/test', (req, res) => {
+	res.send('This is as test message');
+});
+
 app.listen(port, 'localhost', () => {
 	console.log(`Http and WebSocket Server Started On Port ${port} :)`);
 });
 
-ipcMain.on('data', (e, data) => {
-	console.log(data);
-});
+// ipcMain.on('data', (e, data) => {
+// 	console.log(data);
+// });
