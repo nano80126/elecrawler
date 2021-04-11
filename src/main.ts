@@ -186,6 +186,13 @@ new Vue({
 		};
 
 		this.loadUrlInList();
+
+		/**web worker test */
+		// const worker = new Worker('./worker/index.ts', { type: 'module' });
+		// worker.addEventListener('message', msg => {
+		// 	console.log(msg);
+		// });
+		// worker.postMessage('test');
 	},
 
 	methods: {

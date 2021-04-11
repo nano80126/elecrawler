@@ -70,17 +70,18 @@ module.exports = {
 			}
 		});
 	},
-	// configureWebpack: {
-	// 	plugins: [
-	// 		new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-tw$/)
-	// 		// new WorkerPlugin()
-	// 	]
-	// },
-	configureWebpack: () => {
-		return {
-			plugins: [new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-tw$/)]
-		};
+	configureWebpack: {
+		plugins: [
+			new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-tw$/),
+			//
+			new WorkerPlugin()
+		]
 	},
+	// configureWebpack: () => {
+	// 	return {
+	// 		plugins: [new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-tw$/)]
+	// 	};
+	// },
 	pluginOptions: {
 		electronBuilder: {
 			preload: 'src/preload.ts',
