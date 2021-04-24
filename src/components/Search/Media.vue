@@ -631,13 +631,15 @@ export default class Media extends Vue {
 		this.$ipcRenderer
 			.invoke('dialogImage')
 			.then((res: { data: Buffer; info: OutputInfo }) => {
-				this.imgBuffer = Buffer.from(res.data);
+				if (res.data !== null) {
+					this.imgBuffer = Buffer.from(res.data);
 
-				const { width, height } = res.info;
-				this.$nextTick(() => {
-					this.$set(this.imgSize, 'width', width);
-					this.$set(this.imgSize, 'height', height);
-				});
+					const { width, height } = res.info;
+					this.$nextTick(() => {
+						this.$set(this.imgSize, 'width', width);
+						this.$set(this.imgSize, 'height', height);
+					});
+				}
 			})
 			.catch(err => {
 				AppModule.snackbar({ text: err, color: Colors.Error });

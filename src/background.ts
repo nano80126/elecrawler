@@ -28,13 +28,15 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // import crawler
 // import './api/fastify';
-import './api/express';
-import './api/crawler';
-import './api/sharp';
+/******************************************************************************************************* */
+import { initializeExpress } from './api/express';
+import { crawlerRegister } from './api/crawler';
+import { sharpRegister } from './api/sharp';
 
-import { registerHotkey, unregisterAllHotKey } from './api/shortcut';
-import { config, saveConfig } from './api/fs';
-import { mongoCLient } from './api/mongo';
+import { globalHotkeyRegister, winHotkeyRegister, unregisterAllHotKey } from './api/shortcut';
+import { fileSysRegister, config, loadConfig, saveConfig } from './api/fs';
+import { createMongoConnection, mongoCLient } from './api/mongo';
+/******************************************************************************************************* */
 
 // custom types
 import { Iconfig, IchannelLyricsObj, EtrayOn, EwindowOn, EmodeSend, EvolumeSend, EpanelOn } from './types/main';
@@ -43,49 +45,98 @@ import { Iconfig, IchannelLyricsObj, EtrayOn, EwindowOn, EmodeSend, EvolumeSend,
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 // let win: BrowserWindow | null = null;
-let tray: Tray | null = null;
 
 // windows
+let splash: BrowserWindow | null = null;
 let win: BrowserWindow | null = null;
 let child: BrowserWindow | null = null;
 let childCloseTimer: NodeJS.Timeout | null = null;
 //
 let locale: string | undefined = process.env.VUE_APP_I18N_LOCALE;
+//
+let tray: Tray | null = null;
+let contextMenu: Menu | null = null;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
 
-// const mainMenu = Menu.buildFromTemplate([
-// 	{
-// 		label: 'File',
-// 		type: 'submenu',
-// 		submenu: [{ role: 'close' }]
-// 	},
-// 	{
-// 		label: 'Window',
-// 		type: 'submenu',
-// 		submenu: [{ role: 'toggleDevTools' }]
-// 	}
-// ]);
+/**Create Tray and Menu */
+function createTrayMenu() {
+	tray = new Tray(path.resolve(__static, 'icons/trayicon.ico'));
+	contextMenu = Menu.buildFromTemplate([
+		{
+			label: 'Open',
+			type: 'normal',
+			click: () => win?.show()
+		},
+		{ type: 'separator' },
+		{
+			type: 'submenu',
+			label: 'Mode',
+			submenu: [
+				{
+					type: 'radio',
+					label: 'Single',
+					checked: true,
+					click: () => win?.webContents.send(EmodeSend.MODESINGLE)
+				},
+				{ type: 'radio', label: 'Loop', click: () => win?.webContents.send(EmodeSend.MODELOOP) },
+				{ type: 'radio', label: 'Shuffle', click: () => win?.webContents.send(EmodeSend.MODESHUFFLE) }
+			]
+		},
+		{
+			type: 'submenu',
+			label: 'Volumn',
+			submenu: [
+				{ type: 'radio', label: 'Mute', click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 0 }) },
+				{ type: 'radio', label: '25%', click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 25 }) },
+				{ type: 'radio', label: '50%', click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 50 }) },
+				{
+					checked: true,
+					type: 'radio',
+					label: '75%',
+					click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 75 })
+				},
+				{
+					type: 'radio',
+					label: '100%',
+					click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 100 })
+				},
+				{ type: 'radio', label: 'Custom', enabled: false }
+			]
+		},
+		{ type: 'separator' },
+		{
+			label: 'Close',
+			type: 'normal',
+			click: () => {
+				win?.close();
+				splash?.close();
+			}
+		}
+	]);
+	tray.setToolTip('EleCrawler');
+	tray.setContextMenu(contextMenu);
 
+	tray.on('double-click', () => {
+		win?.show();
+	});
+}
+
+/**Create main screen */
 function createWindow() {
 	// Create the browser window.
 	win = new BrowserWindow({
 		title: 'EleCrawler',
 		backgroundColor: '#212121',
-		// backgroundColor: 'transparent',
 		minWidth: 480,
 		width: 480,
-		// maxWidth: 720,
 		minHeight: 720,
 		height: 960,
 		///
 		x: (config as Iconfig).x || 30,
 		y: (config as Iconfig).y || 40,
 		// frame: false,
-		// opacity: 0.5,
-		// autoHideMenuBar: true,
-		// transparent: true,
 		autoHideMenuBar: true,
 		frame: false,
 		resizable: true,
@@ -153,6 +204,7 @@ function createWindow() {
 		}
 	});
 
+	//#region 暫時保留
 	/** 保留 保留 保留 保留 待刪 待刪 待刪 待刪 */
 	// win.webContents.on('new-window', (event, url, frameName, disposition, options) => {
 	// 	event.preventDefault();
@@ -224,6 +276,7 @@ function createWindow() {
 	// 		});
 	// 	}
 	// });
+	//#endregion
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
 		// Load the url of the dev server if in development mode
@@ -237,7 +290,10 @@ function createWindow() {
 	}
 
 	win.once('ready-to-show', () => {
+		splash?.close();
+
 		win?.show();
+		winHotkeyRegister();
 	});
 
 	win.on('close', () => {
@@ -251,6 +307,90 @@ function createWindow() {
 	});
 }
 
+/**Create splash screen */
+function createSplash() {
+	// console.log('create splash', new Date() - d);
+	// Create the splash window
+	splash = new BrowserWindow({
+		// backgroundColor: '#212121',
+		width: 480,
+		height: 120,
+		center: true,
+		resizable: false,
+		show: false,
+		transparent: true,
+		autoHideMenuBar: true,
+		frame: false,
+		skipTaskbar: true,
+		webPreferences: {
+			nodeIntegration: false,
+			enableRemoteModule: false
+		}
+	});
+
+	if (process.env.WEBPACK_DEV_SERVER_URL) {
+		// Load the url of the dev server if in development mode
+		splash.loadURL(`${process.env.WEBPACK_DEV_SERVER_URL}/splash.html`);
+		// if (!process.env.IS_TEST) splash.webContents.openDevTools();
+	} else {
+		createProtocol('app');
+		// Load the index.html when not in development
+		splash.loadURL('app://./splash.html');
+		// splash.loadURL(`http://localhost:${process.env.VUE_APP_PORT}/splash`);
+	}
+
+	splash.once('ready-to-show', async () => {
+		splash?.show();
+		// console.log('created splash', new Date() - d);
+
+		createTrayMenu();
+		globalHotkeyRegister();
+		loadConfig();
+		initializeExpress();
+		crawlerRegister();
+		sharpRegister();
+		fileSysRegister();
+		createMongoConnection();
+
+		setTimeout(() => {
+			createWindow();
+		}, 3000);
+	});
+
+	splash.on('closed', () => {
+		splash = null;
+	});
+}
+
+app.on('ready', () => {
+	// createTrayMenu();
+	// loadConfig();
+});
+
+app.whenReady().then(() => {
+	createSplash();
+	// createWindow();
+
+	// hotkeyRegister();
+
+	// installExtension(VUEJS_DEVTOOLS)
+	// 	.then(name => {
+	// 		console.log(`Add Extension: ${name}`);
+	// 	})
+	// 	.catch(err => {
+	// 		console.log('An error occurred', err);
+	// 	});
+});
+
+// app.disableHardwareAcceleration();
+
+app.on('activate', () => {
+	// On macOS it's common to re-create a window in the app when the
+	// dock icon is clicked and there are no other windows open.
+	if (splash === null) createSplash();
+	// if (win === null) createWindow();
+});
+
 app.on('before-quit', () => {
 	if (tray) tray.destroy();
 	if (mongoCLient) mongoCLient.close();
@@ -263,115 +403,6 @@ app.on('window-all-closed', () => {
 	// to stay active until the user quits explicitly with Cmd + Q
 	if (process.platform !== 'darwin') {
 		app.quit();
-	}
-});
-
-// app.disableHardwareAcceleration();
-
-app.on('ready', () => {
-	// trayIcon.resize({ width: 16, height: 16 });
-	tray = new Tray(path.resolve(__static, 'icons/trayicon.ico'));
-	const contextMenu = Menu.buildFromTemplate([
-		{
-			label: 'Open',
-			type: 'normal',
-			click: () => win?.show()
-		},
-		{ type: 'separator' },
-		{
-			type: 'submenu',
-			label: 'Mode',
-			submenu: [
-				{
-					type: 'radio',
-					label: 'Single',
-					checked: true,
-					click: () => win?.webContents.send(EmodeSend.MODESINGLE)
-				},
-				{ type: 'radio', label: 'Loop', click: () => win?.webContents.send(EmodeSend.MODELOOP) },
-				{ type: 'radio', label: 'Shuffle', click: () => win?.webContents.send(EmodeSend.MODESHUFFLE) }
-			]
-		},
-		{
-			type: 'submenu',
-			label: 'Volumn',
-			submenu: [
-				{ type: 'radio', label: 'Mute', click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 0 }) },
-				{ type: 'radio', label: '25%', click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 25 }) },
-				{ type: 'radio', label: '50%', click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 50 }) },
-				{
-					checked: true,
-					type: 'radio',
-					label: '75%',
-					click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 75 })
-				},
-				{
-					type: 'radio',
-					label: '100%',
-					click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 100 })
-				},
-				{ type: 'radio', label: 'Custom', enabled: false }
-			]
-		},
-		{ type: 'separator' },
-		{
-			label: 'Close',
-			type: 'normal',
-			click: () => win?.close()
-		}
-	]);
-	tray.setToolTip('EleCrawler');
-	tray.setContextMenu(contextMenu);
-
-	tray.on('double-click', () => {
-		win?.show();
-	});
-
-	ipcMain.on(EtrayOn.MODE, (e, args: { loop: boolean; shuffle: boolean }) => {
-		const { loop, shuffle } = args;
-		// first items means mode, second items means mode selections
-		if (loop) {
-			(contextMenu.items[2].submenu?.items[1] as MenuItem).checked = true;
-		} else if (shuffle) {
-			(contextMenu.items[2].submenu?.items[2] as MenuItem).checked = true;
-		} else {
-			(contextMenu.items[2].submenu?.items[0] as MenuItem).checked = true;
-		}
-		tray?.setContextMenu(contextMenu);
-	});
-
-	ipcMain.on(EtrayOn.VOLUME, (e, args: { volume: number }) => {
-		const { volume } = args;
-		// first items means volume, second items means volume selections
-		switch (volume) {
-			case 0:
-				(contextMenu.items[3].submenu?.items[0] as MenuItem).checked = true;
-				break;
-			case 25:
-				(contextMenu.items[3].submenu?.items[1] as MenuItem).checked = true;
-				break;
-			case 50:
-				(contextMenu.items[3].submenu?.items[2] as MenuItem).checked = true;
-				break;
-			case 75:
-				(contextMenu.items[3].submenu?.items[3] as MenuItem).checked = true;
-				break;
-			case 100:
-				(contextMenu.items[3].submenu?.items[4] as MenuItem).checked = true;
-				break;
-			default:
-				(contextMenu.items[3].submenu?.items[5] as MenuItem).checked = true;
-				break;
-		}
-		tray?.setContextMenu(contextMenu);
-	});
-});
-
-app.on('activate', () => {
-	// On macOS it's common to re-create a window in the app when the
-	// dock icon is clicked and there are no other windows open.
-	if (win === null) {
-		createWindow();
 	}
 });
 
@@ -395,20 +426,6 @@ app.on('activate', () => {
 // 	createWindow();
 // });
 
-app.whenReady().then(() => {
-	createWindow();
-
-	registerHotkey();
-
-	// installExtension(VUEJS_DEVTOOLS)
-	// 	.then(name => {
-	// 		console.log(`Add Extension: ${name}`);
-	// 	})
-	// 	.catch(err => {
-	// 		console.log('An error occurred', err);
-	// 	});
-});
-
 // // // // // // // // // // // // // // // // // // //
 ipcMain.on(EwindowOn.WINDOWMIN, () => {
 	win?.minimize();
@@ -426,6 +443,11 @@ ipcMain.on(EwindowOn.WINDOWHIDE, () => {
 	win?.hide();
 });
 
+ipcMain.on(EwindowOn.WINDOWCLOSE, () => {
+	win?.close();
+});
+//
+
 ipcMain.handle(EpanelOn.PANELSHOW, () => {
 	if (child) {
 		clearTimeout(childCloseTimer as NodeJS.Timeout);
@@ -434,6 +456,7 @@ ipcMain.handle(EpanelOn.PANELSHOW, () => {
 	} else return false;
 });
 
+/**隱藏panel，且3分鐘關閉 */
 ipcMain.on(EpanelOn.PANELHIDE, () => {
 	child?.hide();
 
@@ -449,12 +472,53 @@ ipcMain.on('windowWidth', (e, args) => {
 	win?.setSize(args.width, win?.getSize()[1], true);
 });
 
-ipcMain.on('windowClose', () => {
-	win?.close();
-});
-
 ipcMain.handle('isMaxmized', () => {
 	return win?.isMaximized();
+});
+// // // // // // // // // // // // // // // // // // //
+
+// // // // // // // // // // // // // // // // // // //
+ipcMain.on(EtrayOn.MODE, (e, args: { loop: boolean; shuffle: boolean }) => {
+	if (contextMenu) {
+		const { loop, shuffle } = args;
+		// first items means mode, second items means mode selections
+		if (loop) {
+			(contextMenu.items[2].submenu?.items[1] as MenuItem).checked = true;
+		} else if (shuffle) {
+			(contextMenu.items[2].submenu?.items[2] as MenuItem).checked = true;
+		} else {
+			(contextMenu.items[2].submenu?.items[0] as MenuItem).checked = true;
+		}
+		tray?.setContextMenu(contextMenu);
+	}
+});
+
+ipcMain.on(EtrayOn.VOLUME, (e, args: { volume: number }) => {
+	if (contextMenu) {
+		const { volume } = args;
+		// first items means volume, second items means volume selections
+		switch (volume) {
+			case 0:
+				(contextMenu.items[3].submenu?.items[0] as MenuItem).checked = true;
+				break;
+			case 25:
+				(contextMenu.items[3].submenu?.items[1] as MenuItem).checked = true;
+				break;
+			case 50:
+				(contextMenu.items[3].submenu?.items[2] as MenuItem).checked = true;
+				break;
+			case 75:
+				(contextMenu.items[3].submenu?.items[3] as MenuItem).checked = true;
+				break;
+			case 100:
+				(contextMenu.items[3].submenu?.items[4] as MenuItem).checked = true;
+				break;
+			default:
+				(contextMenu.items[3].submenu?.items[5] as MenuItem).checked = true;
+				break;
+		}
+		tray?.setContextMenu(contextMenu);
+	}
 });
 // // // // // // // // // // // // // // // // // // //
 

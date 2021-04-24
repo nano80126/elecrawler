@@ -151,35 +151,38 @@ async function lyricsCrawl(subUrl: string): Promise<{}> {
 	return data;
 }
 
-ipcMain.on('searchReq', async (e, args) => {
-	const { artist, title } = args;
-	const ret = await listCrawl(artist, title);
-	e.sender.send('searchRes', ret);
-});
+/**爬蟲事件註冊 */
+export function crawlerRegister() {
+	ipcMain.on('searchReq', async (e, args) => {
+		const { artist, title } = args;
+		const ret = await listCrawl(artist, title);
+		e.sender.send('searchRes', ret);
+	});
 
-ipcMain.handle('searchReq', async (e, args) => {
-	const { artist, title } = args;
-	const ret = await listCrawl(artist, title);
-	return ret;
-});
+	ipcMain.handle('searchReq', async (e, args) => {
+		const { artist, title } = args;
+		const ret = await listCrawl(artist, title);
+		return ret;
+	});
 
-ipcMain.on('getLyrics', async (e, args: { url: string; exist: boolean }) => {
-	const { url, exist } = args;
-	const ret = await lyricsCrawl(url);
-	Object.assign(ret, { exist });
+	ipcMain.on('getLyrics', async (e, args: { url: string; exist: boolean }) => {
+		const { url, exist } = args;
+		const ret = await lyricsCrawl(url);
+		Object.assign(ret, { exist });
 
-	e.sender.send('lyricRes', ret);
-});
+		e.sender.send('lyricRes', ret);
+	});
 
-ipcMain.handle('getLyrics', async (e, args: { url: string; exist: boolean }) => {
-	const { url, exist } = args;
-	// console.log(url, exist);
-	const ret = await lyricsCrawl(url);
-	// console.log(ret);
-	Object.assign(ret, { exist });
+	ipcMain.handle('getLyrics', async (e, args: { url: string; exist: boolean }) => {
+		const { url, exist } = args;
+		// console.log(url, exist);
+		const ret = await lyricsCrawl(url);
+		// console.log(ret);
+		Object.assign(ret, { exist });
 
-	return ret;
-});
+		return ret;
+	});
+}
 
 // // Print the full HTML
 // console.log(`Site HTML: ${$.html()}\n\n`);

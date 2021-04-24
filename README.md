@@ -83,6 +83,10 @@ This is a music player application with lyric crawler build by electron.
     * Jump to the url whitch can be embedded
 * [ ] Delete or comment no used code in background.ts
 * [ ] Add splash screen
+* [x] Fix load pictures bugs
+* [ ] Splash loading by file
+* [ ] Test all module initializing time
+* [ ] Add promise for each initialization functions
 
 ### Known bugs
 

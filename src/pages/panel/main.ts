@@ -55,8 +55,8 @@ new Vue({
 
 	data() {
 		return {
-			webWidth: window.innerWidth,
-			webHeight: window.innerHeight
+			// webWidth: window.innerWidth,
+			// webHeight: window.innerHeight
 		};
 	},
 	///
@@ -79,10 +79,10 @@ new Vue({
 	mounted() {
 		if (process.env.NODE_ENV == 'development') console.warn('env', process.env);
 		// // //
-		window.onresize = async () => {
-			this.webWidth = window.innerWidth;
-			this.webHeight = window.innerHeight;
-			// this.windowIsMax = await this.$ipcRenderer.invoke('isMaxmized');
-		};
+		// window.onresize = async () => {
+		// 	this.webWidth = window.innerWidth;
+		// 	this.webHeight = window.innerHeight;
+		// 	// this.windowIsMax = await this.$ipcRenderer.invoke('isMaxmized');
+		// };
 	}
 }).$mount('#app');

@@ -25,12 +25,21 @@ module.exports = {
 			entry: 'src/main.ts',
 			template: 'public/index.html',
 			filename: 'index.html',
+			title: 'main',
 			chunks: ['chunk-common', 'chunk-main-vendors', 'main']
+		},
+		splash: {
+			entry: 'src/pages/splash/main.ts',
+			template: 'public/splash.html',
+			filename: 'splash.html',
+			title: 'splash',
+			chunks: ['chunk-common', 'chunk-splash-vendors', 'splash']
 		},
 		panel: {
 			entry: 'src/pages/panel/main.ts',
-			template: 'public/panel.html',
+			template: 'public/splash.html',
 			filename: 'panel.html',
+			title: 'panel',
 			chunks: ['chunk-common', 'chunk-panel-vendors', 'panel']
 		}
 	},
@@ -52,9 +61,16 @@ module.exports = {
 					test: /[\\/]node_modules[\\/]/,
 					enforce: true
 				},
+				splash: {
+					name: 'chunk-splash-vendors',
+					priority: -11,
+					chunks: chunk => chunk.name === 'splash',
+					test: /[\\/]node_modules[\\/]/,
+					enforce: true
+				},
 				panel: {
 					name: 'chunk-panel-vendors',
-					priority: -11,
+					priority: -12,
 					chunks: chunk => chunk.name === 'panel',
 					test: /[\\/]node_modules[\\/]/,
 					enforce: true
@@ -122,12 +138,12 @@ module.exports = {
 			// mainProcessTypeChecking: false, // Manually enable type checking during webpck bundling for background file.
 			builderOptions: {
 				productName: 'EleCrawler',
-				copyright: 'Copyright © 2020',
+				copyright: 'Copyright © 2021',
 				// extends: null,
 				directories: {
 					// buildResources: ['src/try.js']
 				},
-				asar: false,
+				// asar: false,
 				files: [],
 				extraResources: [
 					// {

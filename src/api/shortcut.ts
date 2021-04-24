@@ -3,7 +3,7 @@ import { win } from '@/background';
 import { EvolumeSend } from '@/types/main';
 
 /** 註冊 global 快捷鍵 */
-export function registerHotkey() {
+export function globalHotkeyRegister() {
 	globalShortcut.register('Alt+-', () => {
 		if (win) {
 			win.webContents.send(EvolumeSend.VOLUMEMINUS);
@@ -39,7 +39,10 @@ export function registerHotkey() {
 	// globalShortcut.register('Alt+F12', () => {
 	// 	win?.webContents.openDevTools();
 	// });
+}
 
+/**註冊視窗快捷鍵 */
+export function winHotkeyRegister() {
 	win?.webContents.on('before-input-event', (e, input) => {
 		if (input.alt && input.key.toLocaleLowerCase() == 'f12') {
 			win?.webContents.openDevTools();
@@ -48,7 +51,7 @@ export function registerHotkey() {
 	});
 }
 
-/** 反註冊 global 快捷鍵 */
+/** 反註冊 所有快捷鍵 */
 export function unregisterAllHotKey() {
 	globalShortcut.unregisterAll();
 	win?.webContents.removeAllListeners('before-input-event');

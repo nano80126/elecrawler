@@ -73,7 +73,8 @@ export enum EwindowSend {
 	WINDOWMIN = 'window-min',
 	WINDOWMAX = 'window-max',
 	WINDOWRESTORE = 'window-restore',
-	WINDOWHIDE = 'window-hide'
+	WINDOWHIDE = 'window-hide',
+	WINDOWCLOSE = 'window-close'
 }
 
 /**enumerater of ipcMain.Send event for panel control */

@@ -4,41 +4,58 @@ import path from 'path';
 // import { parentPort, isMainThread } from 'worker_threads';
 // import { app as electron } from 'electron';
 
-const app = express();
-const router = express.Router();
+/**初始化express */
+export function initializeExpress() {
+	const app = express();
+	const router = express.Router();
 
-// import crypto from crypto
-const port = ((process.env.VUE_APP_PORT as unknown) as number) || 4000;
+	const port = ((process.env.VUE_APP_PORT as unknown) as number) || 4000;
 
-app.use((req, res, next) => {
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With');
-	// res.header("Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, OPTIONS");
-	res.header('Access-Control-Allow-Methods', 'POST, GET');
+	// for CORS(Cross-Origin Resource Sharing) settings
+	app.use((req, res, next) => {
+		res.header('Access-Control-Allow-Origin', '*');
+		res.header(
+			'Access-Control-Allow-Headers',
+			'Content-Type, Content-Length, Authorization, Accept, X-Requested-With'
+		);
+		// res.header("Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, OPTIONS");
+		res.header('Access-Control-Allow-Methods', 'POST, GET');
 
-	next();
-});
+		next();
+	});
 
-app.use('/', router);
-// externals js and css need this, in this project is iframe_api.js
-app.use('/', express.static(__dirname));
+	// for router and externals static js and css, meaning iframe_api.js in this project
+	app.use('/', router).use('/', express.static(__dirname));
+	// externals js and css need this, in this project is iframe_api.js
+	// app.use('/', express.static(__dirname));
 
-router.get('/', (req, res) => {
-	res.sendFile(path.resolve(__dirname, 'index.html'));
-});
+	router
+		.get('/', (req, res) => {
+			res.sendFile(path.resolve(__dirname, 'index.html'));
+		})
+		.get('/splash', (req, res) => {
+			res.sendFile(path.resolve(__dirname, 'splash.html'));
+		})
+		.get('/panel', (req, res) => {
+			res.sendFile(path.resolve(__filename, 'panel.html'));
+		})
+		.get('/test', (req, res) => {
+			res.send('This is an test message');
+		});
 
-router.get('/panel', (req, res) => {
-	res.sendFile(path.resolve(__dirname, 'panel.html'));
-});
+	// router.get('/splash', (req, res) => {
+	// 	res.sendFile(path.resolve(__dirname, 'splash.html'));
+	// });
 
-router.get('/test', (req, res) => {
-	res.send('This is as test message');
-});
+	// router.get('/panel', (req, res) => {
+	// 	res.sendFile(path.resolve(__dirname, 'panel.html'));
+	// });
 
-app.listen(port, 'localhost', () => {
-	console.log(`Http and WebSocket Server Started On Port ${port} :)`);
-});
+	// router.get('/test', (req, res) => {
+	// 	res.send('This is as test message');
+	// });
 
-// ipcMain.on('data', (e, data) => {
-// 	console.log(data);
-// });
+	app.listen(port, 'localhost', () => {
+		console.log(`Http and WebSocket Server Started On Port ${port} :)`);
+	});
+}

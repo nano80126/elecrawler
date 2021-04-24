@@ -389,7 +389,7 @@ export default class App extends Vue {
 
 	private appClose() {
 		// window close // if all window closed, then app will close too
-		this.$ipcRenderer.send('windowClose');
+		this.$ipcRenderer.send(EwindowSend.WINDOWCLOSE);
 	}
 
 	private openPicDir() {

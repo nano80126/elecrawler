@@ -42,7 +42,8 @@ export enum EwindowOn {
 	WINDOWMIN = 'window-min',
 	WINDOWMAX = 'window-max',
 	WINDOWRESTORE = 'window-restore',
-	WINDOWHIDE = 'window-hide'
+	WINDOWHIDE = 'window-hide',
+	WINDOWCLOSE = 'window-close'
 }
 
 /**enumerater of ipcMain.on event for window control */
