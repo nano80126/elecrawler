@@ -290,7 +290,7 @@ function createWindow() {
 	}
 
 	win.once('ready-to-show', () => {
-		splash?.close();
+		// splash?.close();
 
 		win?.show();
 		winHotkeyRegister();
@@ -314,7 +314,7 @@ function createSplash() {
 	splash = new BrowserWindow({
 		// backgroundColor: '#212121',
 		width: 480,
-		height: 120,
+		height: 350,
 		center: true,
 		resizable: false,
 		show: false,

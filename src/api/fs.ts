@@ -14,6 +14,7 @@ const jsonPath = path.resolve(app.getPath('userData'), 'config.json');
 let config: Iconfig | {} = {};
 
 export function fileSysRegister() {
+	console.time('fs');
 	// create picture directory
 	ipcMain.handle('mkPicDir', () => {
 		const exist = fs.existsSync(picPath);
@@ -63,6 +64,7 @@ export function fileSysRegister() {
 	ipcMain.handle('writeConfig', (e, args) => {
 		return Object.assign(config, args);
 	});
+	console.timeEnd('fs');
 }
 
 /**載入 config */

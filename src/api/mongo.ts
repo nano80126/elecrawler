@@ -7,6 +7,8 @@ import moment from 'moment';
 let mongoCLient: MongoClient;
 
 export function createMongoConnection() {
+	console.time('mongo');
+
 	MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (err, client) => {
 		if (err) throw err;
 		mongoCLient = client;
@@ -82,6 +84,8 @@ export function createMongoConnection() {
 		// ipcMain.on('mongoDisc', () => {
 		// 	client.close();
 		// });
+
+		console.timeEnd('mongo');
 	});
 }
 

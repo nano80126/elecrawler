@@ -1,18 +1,14 @@
 <template>
 	<div v-show="SHOW">
-		<!-- <div>123</div> -->
-
 		<v-app style="background: transparent;">
-			<v-row align="center" class="">
-				<v-col cols="12" class="">
-					<v-btn color="error" block>123</v-btn>
-
-					<v-alert border="bottom" color="" dark>
-						{{ loadingMsg }}
-					</v-alert>
-				</v-col>
-			</v-row>
-
+			<v-card class="mx-auto" outlined min-width="480" style="border-radius: 10%;">
+				<v-img class="align-end px-1" :src="require('@/assets/splash.png')">
+					<v-card-text class="d-flex font-weight-black subtitle-1 orange--text text--darken-4">
+						<span>Initializing...</span>
+						<span class="ml-auto">{{ loadingMsg }}</span>
+					</v-card-text>
+				</v-img>
+			</v-card>
 			<!-- <v-app>
 			<v-app-bar app height="32" color="blue-grey darken-4">
 				<div class="window-drag header ml-n4" />
@@ -44,7 +40,7 @@ export default class App extends Vue {
 	/**當前使用語言 */
 	private language = this.$i18n.locale;
 	/**載入中訊息 */
-	private loadingMsg = '';
+	private loadingMsg = '123';
 
 	@Watch('language')
 	onLanguageChange(value: string) {
@@ -53,8 +49,8 @@ export default class App extends Vue {
 
 	created() {
 		this.$ipcRenderer.on('InitializingMsg', (e, args) => {
-			// this.language = locale;
-			console.info(args);
+			// console.info(args);
+			this.loadingMsg = args.msg;
 		});
 	}
 

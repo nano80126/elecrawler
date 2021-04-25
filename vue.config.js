@@ -1,6 +1,6 @@
 /* eslint-disable */
 const webpack = require('webpack');
-const WorkerPlugin = require('worker-plugin');
+// const WorkerPlugin = require('worker-plugin');
 
 module.exports = {
 	transpileDependencies: ['vuetify'],
@@ -88,9 +88,9 @@ module.exports = {
 	},
 	configureWebpack: {
 		plugins: [
-			new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-tw$/),
+			new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-tw$/)
 			//
-			new WorkerPlugin()
+			// new WorkerPlugin()
 		]
 	},
 	// configureWebpack: () => {
@@ -140,17 +140,16 @@ module.exports = {
 				productName: 'EleCrawler',
 				copyright: 'Copyright © 2021',
 				// extends: null,
-				directories: {
-					// buildResources: ['src/try.js']
-				},
+				// directories: {
+				// 	// buildResources: ['src/try.js']
+				// },
 				// asar: false,
-				files: [],
-				extraResources: [
-					// {
-					// 	from: 'src/worker.js',
-					// 	to: './app/worker.js'
-					// }
-				],
+				// extraResources: [
+				// 	// {
+				// 	// 	from: 'src/worker.js',
+				// 	// 	to: './app/worker.js'
+				// 	// }
+				// ],
 				win: {
 					icon: 'build/icon.png',
 					target: [

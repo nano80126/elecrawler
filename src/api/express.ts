@@ -6,6 +6,8 @@ import path from 'path';
 
 /**初始化express */
 export function initializeExpress() {
+	console.time('express');
+
 	const app = express();
 	const router = express.Router();
 
@@ -57,5 +59,7 @@ export function initializeExpress() {
 
 	app.listen(port, 'localhost', () => {
 		console.log(`Http and WebSocket Server Started On Port ${port} :)`);
+
+		console.timeEnd('express');
 	});
 }

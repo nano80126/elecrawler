@@ -87,6 +87,8 @@ This is a music player application with lyric crawler build by electron.
 * [ ] Splash loading by file
 * [ ] Test all module initializing time
 * [ ] Add promise for each initialization functions
+* [ ] Save locale setting in config (background) 
+* [ ] Web worker for checking if video can be embeded
 
 ### Known bugs
 
