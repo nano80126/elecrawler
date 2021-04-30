@@ -5,61 +5,60 @@ import path from 'path';
 // import { app as electron } from 'electron';
 
 /**初始化express */
-export function initializeExpress() {
-	console.time('express');
+export function initializeExpress(): Promise<string> {
+	return new Promise(resolve => {
+		const app = express();
+		const router = express.Router();
 
-	const app = express();
-	const router = express.Router();
+		const port = ((process.env.VUE_APP_PORT as unknown) as number) || 4000;
 
-	const port = ((process.env.VUE_APP_PORT as unknown) as number) || 4000;
+		// for CORS(Cross-Origin Resource Sharing) settings
+		app.use((req, res, next) => {
+			res.header('Access-Control-Allow-Origin', '*');
+			res.header(
+				'Access-Control-Allow-Headers',
+				'Content-Type, Content-Length, Authorization, Accept, X-Requested-With'
+			);
+			// res.header("Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, OPTIONS");
+			res.header('Access-Control-Allow-Methods', 'POST, GET');
 
-	// for CORS(Cross-Origin Resource Sharing) settings
-	app.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', '*');
-		res.header(
-			'Access-Control-Allow-Headers',
-			'Content-Type, Content-Length, Authorization, Accept, X-Requested-With'
-		);
-		// res.header("Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, OPTIONS");
-		res.header('Access-Control-Allow-Methods', 'POST, GET');
-
-		next();
-	});
-
-	// for router and externals static js and css, meaning iframe_api.js in this project
-	app.use('/', router).use('/', express.static(__dirname));
-	// externals js and css need this, in this project is iframe_api.js
-	// app.use('/', express.static(__dirname));
-
-	router
-		.get('/', (req, res) => {
-			res.sendFile(path.resolve(__dirname, 'index.html'));
-		})
-		.get('/splash', (req, res) => {
-			res.sendFile(path.resolve(__dirname, 'splash.html'));
-		})
-		.get('/panel', (req, res) => {
-			res.sendFile(path.resolve(__filename, 'panel.html'));
-		})
-		.get('/test', (req, res) => {
-			res.send('This is an test message');
+			next();
 		});
 
-	// router.get('/splash', (req, res) => {
-	// 	res.sendFile(path.resolve(__dirname, 'splash.html'));
-	// });
+		// for router and externals static js and css, meaning iframe_api.js in this project
+		app.use('/', router).use('/', express.static(__dirname));
+		// externals js and css need this, in this project is iframe_api.js
+		// app.use('/', express.static(__dirname));
 
-	// router.get('/panel', (req, res) => {
-	// 	res.sendFile(path.resolve(__dirname, 'panel.html'));
-	// });
+		router
+			.get('/', (req, res) => {
+				res.sendFile(path.resolve(__dirname, 'index.html'));
+			})
+			.get('/splash', (req, res) => {
+				res.sendFile(path.resolve(__dirname, 'splash.html'));
+			})
+			.get('/panel', (req, res) => {
+				res.sendFile(path.resolve(__filename, 'panel.html'));
+			})
+			.get('/test', (req, res) => {
+				res.send('This is an test message');
+			});
 
-	// router.get('/test', (req, res) => {
-	// 	res.send('This is as test message');
-	// });
+		// router.get('/splash', (req, res) => {
+		// 	res.sendFile(path.resolve(__dirname, 'splash.html'));
+		// });
 
-	app.listen(port, 'localhost', () => {
-		console.log(`Http and WebSocket Server Started On Port ${port} :)`);
+		// router.get('/panel', (req, res) => {
+		// 	res.sendFile(path.resolve(__dirname, 'panel.html'));
+		// });
 
-		console.timeEnd('express');
+		// router.get('/test', (req, res) => {
+		// 	res.send('This is as test message');
+		// });
+
+		app.listen(port, 'localhost', () => {
+			console.log(`Http Server Started On Port ${port} :)`);
+			resolve('create express server successfully');
+		});
 	});
 }

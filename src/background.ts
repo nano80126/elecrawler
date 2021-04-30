@@ -31,15 +31,16 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 /******************************************************************************************************* */
 import { initializeExpress } from './api/express';
 import { crawlerRegister } from './api/crawler';
-import { sharpRegister } from './api/sharp';
+import { registerSharpHandler } from './api/sharp';
 
-import { globalHotkeyRegister, winHotkeyRegister, unregisterAllHotKey } from './api/shortcut';
-import { fileSysRegister, config, loadConfig, saveConfig } from './api/fs';
+import { globalRegisterHotkey, winRegisterHotkey, unregisterAllHotKey } from './api/shortcut';
+import { registerFileOperation, config, loadConfig, saveConfig } from './api/fs';
 import { createMongoConnection, mongoCLient } from './api/mongo';
 /******************************************************************************************************* */
 
 // custom types
 import { Iconfig, IchannelLyricsObj, EtrayOn, EwindowOn, EmodeSend, EvolumeSend, EpanelOn } from './types/main';
+import { exit } from 'process';
 // import './api/mongo';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -61,65 +62,81 @@ let contextMenu: Menu | null = null;
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
 
 /**Create Tray and Menu */
-function createTrayMenu() {
-	tray = new Tray(path.resolve(__static, 'icons/trayicon.ico'));
-	contextMenu = Menu.buildFromTemplate([
-		{
-			label: 'Open',
-			type: 'normal',
-			click: () => win?.show()
-		},
-		{ type: 'separator' },
-		{
-			type: 'submenu',
-			label: 'Mode',
-			submenu: [
-				{
-					type: 'radio',
-					label: 'Single',
-					checked: true,
-					click: () => win?.webContents.send(EmodeSend.MODESINGLE)
-				},
-				{ type: 'radio', label: 'Loop', click: () => win?.webContents.send(EmodeSend.MODELOOP) },
-				{ type: 'radio', label: 'Shuffle', click: () => win?.webContents.send(EmodeSend.MODESHUFFLE) }
-			]
-		},
-		{
-			type: 'submenu',
-			label: 'Volumn',
-			submenu: [
-				{ type: 'radio', label: 'Mute', click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 0 }) },
-				{ type: 'radio', label: '25%', click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 25 }) },
-				{ type: 'radio', label: '50%', click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 50 }) },
-				{
-					checked: true,
-					type: 'radio',
-					label: '75%',
-					click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 75 })
-				},
-				{
-					type: 'radio',
-					label: '100%',
-					click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 100 })
-				},
-				{ type: 'radio', label: 'Custom', enabled: false }
-			]
-		},
-		{ type: 'separator' },
-		{
-			label: 'Close',
-			type: 'normal',
-			click: () => {
-				win?.close();
-				splash?.close();
+function createTrayMenu(): Promise<string> {
+	return new Promise(resolve => {
+		tray = new Tray(path.resolve(__static, 'icons/trayicon.ico'));
+		contextMenu = Menu.buildFromTemplate([
+			{
+				label: 'Open',
+				type: 'normal',
+				click: () => win?.show()
+			},
+			{ type: 'separator' },
+			{
+				type: 'submenu',
+				label: 'Mode',
+				submenu: [
+					{
+						type: 'radio',
+						label: 'Single',
+						checked: true,
+						click: () => win?.webContents.send(EmodeSend.MODESINGLE)
+					},
+					{ type: 'radio', label: 'Loop', click: () => win?.webContents.send(EmodeSend.MODELOOP) },
+					{ type: 'radio', label: 'Shuffle', click: () => win?.webContents.send(EmodeSend.MODESHUFFLE) }
+				]
+			},
+			{
+				type: 'submenu',
+				label: 'Volumn',
+				submenu: [
+					{
+						type: 'radio',
+						label: 'Mute',
+						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 0 })
+					},
+					{
+						type: 'radio',
+						label: '25%',
+						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 25 })
+					},
+					{
+						type: 'radio',
+						label: '50%',
+						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 50 })
+					},
+					{
+						checked: true,
+						type: 'radio',
+						label: '75%',
+						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 75 })
+					},
+					{
+						type: 'radio',
+						label: '100%',
+						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 100 })
+					},
+					{ type: 'radio', label: 'Custom', enabled: false }
+				]
+			},
+			{ type: 'separator' },
+			{
+				label: 'Close',
+				type: 'normal',
+				click: () => {
+					win?.close();
+					splash?.close();
+				}
 			}
-		}
-	]);
-	tray.setToolTip('EleCrawler');
-	tray.setContextMenu(contextMenu);
+		]);
+		tray.setToolTip('EleCrawler');
+		tray.setContextMenu(contextMenu);
 
-	tray.on('double-click', () => {
-		win?.show();
+		tray.on('double-click', () => {
+			win?.show();
+		});
+
+		resolve('create tray menu successfully');
 	});
 }
 
@@ -290,10 +307,12 @@ function createWindow() {
 	}
 
 	win.once('ready-to-show', () => {
-		// splash?.close();
-
 		win?.show();
-		winHotkeyRegister();
+	});
+
+	win.once('show', () => {
+		splash?.close();
+		winRegisterHotkey();
 	});
 
 	win.on('close', () => {
@@ -323,8 +342,11 @@ function createSplash() {
 		frame: false,
 		skipTaskbar: true,
 		webPreferences: {
+			preload: path.resolve(__dirname, 'preload.js'),
 			nodeIntegration: false,
-			enableRemoteModule: false
+			enableRemoteModule: false,
+			contextIsolation: true,
+			nativeWindowOpen: true
 		}
 	});
 
@@ -340,21 +362,23 @@ function createSplash() {
 	}
 
 	splash.once('ready-to-show', async () => {
-		splash?.show();
-		// console.log('created splash', new Date() - d);
+		// splash?.webContents.send('InitializingMsg', await createTrayMenu());
+		if (splash) {
+			splash.show();
 
-		createTrayMenu();
-		globalHotkeyRegister();
-		loadConfig();
-		initializeExpress();
-		crawlerRegister();
-		sharpRegister();
-		fileSysRegister();
-		createMongoConnection();
+			splash.webContents.send('InitializingMsg', { msg: await createTrayMenu() });
+			splash.webContents.send('InitializingMsg', { msg: await globalRegisterHotkey() });
+			splash.webContents.send('InitializingMsg', { msg: await registerFileOperation() });
+			splash.webContents.send('InitializingMsg', { msg: await loadConfig() });
+			splash.webContents.send('InitializingMsg', { msg: await initializeExpress() });
+			splash.webContents.send('InitializingMsg', { msg: await crawlerRegister() });
+			splash.webContents.send('InitializingMsg', { msg: await registerSharpHandler() });
+			splash.webContents.send('InitializingMsg', { msg: await createMongoConnection() });
 
-		setTimeout(() => {
 			createWindow();
-		}, 3000);
+		} else {
+			exit(0);
+		}
 	});
 
 	splash.on('closed', () => {

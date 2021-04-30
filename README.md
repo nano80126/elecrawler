@@ -89,7 +89,7 @@ This is a music player application with lyric crawler build by electron.
 * [ ] Add promise for each initialization functions
 * [ ] Save locale setting in config (background) 
 * [ ] Web worker for checking if video can be embeded
-
+* [ ] Register ipcMain after win.show()
 ### Known bugs
 
 * [ ] ini prototype pollution and fixed using resolution in package.json

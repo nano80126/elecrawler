@@ -49,7 +49,7 @@ export default class App extends Vue {
 
 	created() {
 		this.$ipcRenderer.on('InitializingMsg', (e, args) => {
-			// console.info(args);
+			console.info(args);
 			this.loadingMsg = args.msg;
 		});
 	}
