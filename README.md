@@ -81,11 +81,11 @@ This is a music player application with lyric crawler build by electron.
 * [x] Some video only allow to be play in Youtube (ex. 白日 / King Gnu [Covered by GARNiDELiA])
     * Youtube data API part status embedable can fix this problem
     * Jump to the url whitch can be embedded
-* [ ] Delete or comment no used code in background.ts
-* [ ] Add splash screen
+* [*] Delete or comment no used code in background.ts
+* [*] Add splash screen
 * [x] Fix load pictures bugs
-* [ ] Splash loading by file
-* [ ] Test all module initializing time
+* [*] Splash loading by file
+* [*] Test all module initializing time
 * [ ] Add promise for each initialization functions
 * [ ] Save locale setting in config (background) 
 * [ ] Web worker for checking if video can be embeded

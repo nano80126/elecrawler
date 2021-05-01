@@ -283,6 +283,9 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import { AppModule, Colors } from '@/store/modules/app';
 import { EwindowSend } from './types/renderer';
 
+import Woker from '@/worker';
+// import Worker from 'http://localhost:4000/123';
+
 @Component({
 	components: {
 		EmbedPlayer: Embed
@@ -368,6 +371,9 @@ export default class App extends Vue {
 		// 	console.log(msg);
 		// });
 		// worker.postMessage('123');
+		Woker.runWorker().then(res => {
+			console.info(res);
+		});
 	}
 
 	// methods

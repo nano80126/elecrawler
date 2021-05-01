@@ -1,17 +1,29 @@
-// const i = 0;
+import PromiseWorker from 'promise-worker';
+import Worker from 'worker-loader!./worker.ts';
+// import VtechWorker from 'worker-loader!./vtech/';
 
-self.addEventListener('message', event => {
-	console.log(event);
+// const promiseWorker = new PromiseWorker(worker);
 
-	// let index;
-	let a = 0;
-	// const start = new Date().valueOf();
-	for (let index = 0; index < 1000; index++) {
-		//
-		a += index;
-	}
-	// const end = new Date().valueOf();
-	// const span: number = end - start;
+const worker = new Worker();
+const promiseWorker = new PromiseWorker(worker);
 
-	self.postMessage({ span: a }, null);
-});
+// const vtechWorker = new VtechWorker();
+// const vtechPromiseWorker = new PromiseWorker2(vtechWorker);
+
+// Leave for example
+// const send = (msg: string) => {
+// 	return promiseWorker.postMessage({
+// 		type: 'message',
+// 		message: msg
+// 	});
+// };
+
+// // const analyzeCSV = async (file: File) => {
+const runWorker = () => {
+	return promiseWorker.postMessage({
+		type: 'csv',
+		data: 10
+	});
+};
+
+export default { runWorker };

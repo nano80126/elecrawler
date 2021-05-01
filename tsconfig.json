@@ -45,7 +45,6 @@
 		"node_modules",
 		"public",
 		"src/**/*_old.ts",
-		"src/worker/*.ts"
 		// "src/background.ts",
 		// "src/crawler.ts",
 	]

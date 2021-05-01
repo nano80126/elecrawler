@@ -52,6 +52,16 @@ module.exports = {
 				args.compilerOptions.whitespace = 'preserve';
 			});
 
+		// config.module
+		// 	.rule('worker')
+		// 	.test(/\.worker\.js$/)
+		// 	.use('worker-loader')
+		// 	.loader('worker-loader')
+		// 	.options({
+		// 		esModule: false
+		// 	})
+		// 	.end();
+
 		config.optimization.splitChunks({
 			cacheGroups: {
 				main: {
