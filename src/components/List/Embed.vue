@@ -269,8 +269,8 @@ export default class Embed extends Vue {
 		// new youtube.Player(,)
 
 		const py = new youtube.Player('youtube-audio', {
-			// height: 500,
-			// width: 500,
+			height: 500,
+			width: 500,
 			videoId: id,
 			playerVars: {
 				enablejsapi: 1,

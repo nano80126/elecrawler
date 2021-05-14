@@ -1,4 +1,5 @@
 /* eslint-disable */
+const { config } = require('vuex-module-decorators');
 const webpack = require('webpack');
 // const WorkerPlugin = require('worker-plugin');
 
@@ -51,16 +52,6 @@ module.exports = {
 			.tap(args => {
 				args.compilerOptions.whitespace = 'preserve';
 			});
-
-		// config.module
-		// 	.rule('worker')
-		// 	.test(/\.worker\.js$/)
-		// 	.use('worker-loader')
-		// 	.loader('worker-loader')
-		// 	.options({
-		// 		esModule: false
-		// 	})
-		// 	.end();
 
 		config.optimization.splitChunks({
 			cacheGroups: {

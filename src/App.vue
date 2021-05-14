@@ -257,6 +257,7 @@
 				</v-card>
 			</v-dialog>
 
+			<!-- style="position:absolute; top: 20%; left: 20%;" -->
 			<div id="youtube-audio" class="d-none" />
 
 			<!-- <v-overlay v-model="dialogOverlay" opacity="0.3">
@@ -285,6 +286,8 @@ import { EwindowSend } from './types/renderer';
 
 import Woker from '@/worker';
 // import Worker from 'http://localhost:4000/123';
+
+// const blob = new Blob(['importScripts("http://localhost:4000")'], {});
 
 @Component({
 	components: {
