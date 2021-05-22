@@ -1,7 +1,7 @@
 import { Module, Mutation, VuexModule, getModule } from 'vuex-module-decorators';
 import store from '@/store/index';
 import { IlyricsDisplayObj } from '@/types/renderer';
-import { ItextConfig } from '@/types/main';
+import { IcongiText } from '@/types/main';
 
 type LyricsObject = IlyricsDisplayObj;
 
@@ -15,7 +15,7 @@ type LyricsObject = IlyricsDisplayObj;
 // 	imageSize?: { width: number; height: number };
 // }
 
-export type LyricsTxtConf = ItextConfig;
+export type LyricsTxtConf = IcongiText;
 
 // export interface LyricsTxtConf {
 // 	main: string;

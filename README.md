@@ -87,10 +87,13 @@ This is a music player application with lyric crawler build by electron.
 * [*] Splash loading by file
 * [*] Test all module initializing time
 * [ ] Add promise for each initialization functions
-* [ ] Save locale setting in config (background) 
+    * recover this, not a significant way
+* [x] Save locale setting in config (background) 
 * [ ] ~Web worker for checking if video can be embeded~
 * [ ] use axios recheck if video can be embeded
+    * create a background worker
 * [ ] Register ipcMain after win.show()
+* [ ] Clean interface between main and renderer
 
 
 ### Known bugs

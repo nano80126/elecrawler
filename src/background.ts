@@ -313,6 +313,13 @@ function createWindow() {
 	win.once('show', () => {
 		splash?.close();
 		winRegisterHotkey();
+
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		windowOn();
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		panelOn();
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		trayOn();
 	});
 
 	win.on('close', () => {
@@ -370,7 +377,9 @@ function createSplash() {
 			splash.webContents.send('InitializingMsg', { msg: await globalRegisterHotkey() });
 			splash.webContents.send('InitializingMsg', { msg: await registerFileOperation() });
 			splash.webContents.send('InitializingMsg', { msg: await loadConfig() });
+			console.time('express');
 			splash.webContents.send('InitializingMsg', { msg: await initializeExpress() });
+			console.timeEnd('express');
 			splash.webContents.send('InitializingMsg', { msg: await crawlerRegister() });
 			splash.webContents.send('InitializingMsg', { msg: await registerSharpHandler() });
 			splash.webContents.send('InitializingMsg', { msg: await createMongoConnection() });
@@ -450,105 +459,112 @@ app.on('window-all-closed', () => {
 // 	createWindow();
 // });
 
-// // // // // // // // // // // // // // // // // // //
-ipcMain.on(EwindowOn.WINDOWMIN, () => {
-	win?.minimize();
-});
+// // // // // // // // // // // // // // // // // // // 主視窗 操作
+function windowOn() {
+	ipcMain.on(EwindowOn.WINDOWMIN, () => {
+		win?.minimize();
+	});
 
-ipcMain.on(EwindowOn.WINDOWMAX, () => {
-	win?.maximize();
-});
+	ipcMain.on(EwindowOn.WINDOWMAX, () => {
+		win?.maximize();
+	});
 
-ipcMain.on(EwindowOn.WINDOWRESTORE, () => {
-	win?.restore();
-});
+	ipcMain.on(EwindowOn.WINDOWRESTORE, () => {
+		win?.restore();
+	});
 
-ipcMain.on(EwindowOn.WINDOWHIDE, () => {
-	win?.hide();
-});
+	ipcMain.on(EwindowOn.WINDOWHIDE, () => {
+		win?.hide();
+	});
 
-ipcMain.on(EwindowOn.WINDOWCLOSE, () => {
-	win?.close();
-});
-//
+	ipcMain.on(EwindowOn.WINDOWCLOSE, () => {
+		win?.close();
+	});
 
-ipcMain.handle(EpanelOn.PANELSHOW, () => {
-	if (child) {
-		clearTimeout(childCloseTimer as NodeJS.Timeout);
-		child.show();
-		return true;
-	} else return false;
-});
+	ipcMain.on(EwindowOn.WINDOWWIDTH, (e, args) => {
+		if (win?.isMaximized()) win?.restore();
+		win?.setSize(args.width, win?.getSize()[1], true);
+	});
 
-/**隱藏panel，且3分鐘關閉 */
-ipcMain.on(EpanelOn.PANELHIDE, () => {
-	child?.hide();
+	ipcMain.handle('isMaxmized', () => {
+		return win?.isMaximized();
+	});
+}
 
-	// 10 分鐘後關閉 child
-	childCloseTimer = setTimeout(() => {
-		child?.close();
-		// child = null;
-	}, 1000 * 60 * 3);
-});
+// // // // // // // // // // // // // // // // // // // 副視窗 操作
+function panelOn() {
+	ipcMain.handle(EpanelOn.PANELSHOW, () => {
+		if (child) {
+			clearTimeout(childCloseTimer as NodeJS.Timeout);
+			child.show();
+			return true;
+		} else return false;
+	});
 
-ipcMain.on('windowWidth', (e, args) => {
-	if (win?.isMaximized()) win?.restore();
-	win?.setSize(args.width, win?.getSize()[1], true);
-});
+	/**隱藏panel，且3分鐘關閉 */
+	ipcMain.on(EpanelOn.PANELHIDE, () => {
+		child?.hide();
 
-ipcMain.handle('isMaxmized', () => {
-	return win?.isMaximized();
-});
-// // // // // // // // // // // // // // // // // // //
+		// 10 分鐘後關閉 child
+		childCloseTimer = setTimeout(() => {
+			child?.close();
+			// child = null;
+		}, 1000 * 60 * 3);
+	});
+}
 
-// // // // // // // // // // // // // // // // // // //
-ipcMain.on(EtrayOn.MODE, (e, args: { loop: boolean; shuffle: boolean }) => {
-	if (contextMenu) {
-		const { loop, shuffle } = args;
-		// first items means mode, second items means mode selections
-		if (loop) {
-			(contextMenu.items[2].submenu?.items[1] as MenuItem).checked = true;
-		} else if (shuffle) {
-			(contextMenu.items[2].submenu?.items[2] as MenuItem).checked = true;
-		} else {
-			(contextMenu.items[2].submenu?.items[0] as MenuItem).checked = true;
+// // // // // // // // // // // // // // // // // // // Tray 操作
+
+function trayOn() {
+	ipcMain.on(EtrayOn.MODE, (e, args: { loop: boolean; shuffle: boolean }) => {
+		if (contextMenu) {
+			const { loop, shuffle } = args;
+			// first items means mode, second items means mode selections
+			if (loop) {
+				(contextMenu.items[2].submenu?.items[1] as MenuItem).checked = true;
+			} else if (shuffle) {
+				(contextMenu.items[2].submenu?.items[2] as MenuItem).checked = true;
+			} else {
+				(contextMenu.items[2].submenu?.items[0] as MenuItem).checked = true;
+			}
+			tray?.setContextMenu(contextMenu);
 		}
-		tray?.setContextMenu(contextMenu);
-	}
-});
+	});
 
-ipcMain.on(EtrayOn.VOLUME, (e, args: { volume: number }) => {
-	if (contextMenu) {
-		const { volume } = args;
-		// first items means volume, second items means volume selections
-		switch (volume) {
-			case 0:
-				(contextMenu.items[3].submenu?.items[0] as MenuItem).checked = true;
-				break;
-			case 25:
-				(contextMenu.items[3].submenu?.items[1] as MenuItem).checked = true;
-				break;
-			case 50:
-				(contextMenu.items[3].submenu?.items[2] as MenuItem).checked = true;
-				break;
-			case 75:
-				(contextMenu.items[3].submenu?.items[3] as MenuItem).checked = true;
-				break;
-			case 100:
-				(contextMenu.items[3].submenu?.items[4] as MenuItem).checked = true;
-				break;
-			default:
-				(contextMenu.items[3].submenu?.items[5] as MenuItem).checked = true;
-				break;
+	ipcMain.on(EtrayOn.VOLUME, (e, args: { volume: number }) => {
+		if (contextMenu) {
+			const { volume } = args;
+			// first items means volume, second items means volume selections
+			switch (volume) {
+				case 0:
+					(contextMenu.items[3].submenu?.items[0] as MenuItem).checked = true;
+					break;
+				case 25:
+					(contextMenu.items[3].submenu?.items[1] as MenuItem).checked = true;
+					break;
+				case 50:
+					(contextMenu.items[3].submenu?.items[2] as MenuItem).checked = true;
+					break;
+				case 75:
+					(contextMenu.items[3].submenu?.items[3] as MenuItem).checked = true;
+					break;
+				case 100:
+					(contextMenu.items[3].submenu?.items[4] as MenuItem).checked = true;
+					break;
+				default:
+					(contextMenu.items[3].submenu?.items[5] as MenuItem).checked = true;
+					break;
+			}
+			tray?.setContextMenu(contextMenu);
 		}
-		tray?.setContextMenu(contextMenu);
-	}
-});
+	});
+}
 // // // // // // // // // // // // // // // // // // //
 
 /**同步語言 */
 ipcMain.on('syncLanguage', (e, args) => {
 	locale = args.locale;
+	Object.assign(config, { locale: locale }); // assign config 以紀錄 locale
 	child?.webContents.send('syncLanguage', locale);
 });
 

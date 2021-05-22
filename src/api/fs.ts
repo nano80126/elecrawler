@@ -89,7 +89,16 @@ export function loadConfig() {
 /**儲存config */
 export function saveConfig(args = {}): void {
 	Object.assign(config, args);
-	fs.writeFile(jsonPath, JSON.stringify(config), err => {
+
+	// 排序 config
+	const newCfg: { [key: string]: string | number } = {};
+	Object.keys(config)
+		.sort((a, b) => a.length - b.length)
+		.forEach(key => {
+			newCfg[key] = (config as { [key: string]: string })[key];
+		});
+	// 儲存 config
+	fs.writeFile(jsonPath, JSON.stringify(newCfg), err => {
 		//
 		if (err) console.log(err);
 	});

@@ -150,7 +150,7 @@
 										</v-list-item>
 									</template>
 									<v-list>
-										<v-list-item-group v-model="language" color="grey">
+										<v-list-item-group v-model="$i18n.locale" color="grey">
 											<v-list-item
 												v-for="(name, idx) in languages"
 												:key="`lang${idx}`"
@@ -284,7 +284,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import { AppModule, Colors } from '@/store/modules/app';
 import { EwindowSend } from './types/renderer';
 
-import Woker from '@/worker';
+// import Woker from '@/worker';
 // import Worker from 'http://localhost:4000/123';
 
 // const blob = new Blob(['importScripts("http://localhost:4000")'], {});
@@ -324,8 +324,8 @@ export default class App extends Vue {
 		en: 'English',
 		jp: '日本語'
 	});
-	/**當前使用語言 */
-	private language = this.$i18n.locale;
+	/**當前使用語言 (待刪)*/
+	// private language = this.$i18n.locale;
 
 	/**deprecated */
 	// get contentHeight(): string {
@@ -349,13 +349,12 @@ export default class App extends Vue {
 		if (value == 0) AppModule.emptySnackbars();
 	}
 
-	/**當language變更，改變語系 */
-	@Watch('language')
+	/**Watch Locale */
+	@Watch('$i18n.locale')
 	onLanguageChange(value: string) {
-		this.$i18n.locale = value;
-		this.menu = false;
-
-		this.$ipcRenderer.send('syncLanguage', { locale: value });
+		// this.$i18n.locale = value;
+		this.menu = false; // 關閉 menu
+		this.$ipcRenderer.send('syncLanguage', { locale: value }); // 同步所有視窗
 	}
 
 	// life cycle
@@ -369,14 +368,17 @@ export default class App extends Vue {
 		this.SHOW = true;
 		this.bottomSheet = false;
 
+		// this.$root.$on('localeChange', (locale: string) => {
+		// 	this.language = locale;
+		// });
 		// const worker = new Worker('@/worker/index.js', { type: 'module' });
 		// worker.addEventListener('message', msg => {
 		// 	console.log(msg);
 		// });
 		// worker.postMessage('123');
-		Woker.runWorker().then(res => {
-			console.info(res);
-		});
+		// Woker.runWorker().then(res => {
+		// 	console.info(res);
+		// });
 	}
 
 	// methods
@@ -427,12 +429,6 @@ export default class App extends Vue {
 	}
 
 	private TestFunc() {
-		// this
-		// console.log(this.$i18n.locale);
-		// console.log(this.$i18n);
-		// if (this.$i18n.locale == 'en') this.$i18n.locale = 'tw';
-		// else if (this.$i18n.locale == 'tw') this.$i18n.locale = 'jp';
-		// else this.$i18n.locale = 'en';
 		AppModule.snackbar({ text: 'test' });
 	}
 }

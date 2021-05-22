@@ -209,7 +209,9 @@ new Vue({
 			this.$ipcRenderer
 				.invoke('readConfig')
 				.then((res: IdisplayTxt) => {
-					const { mainColor, subColor, textAlign } = res;
+					const { mainColor, subColor, textAlign, locale } = res;
+
+					if (locale) this.$i18n.locale = locale;
 					LyModule.saveText({ mainColor, subColor, textAlign });
 				})
 				.catch(err => {

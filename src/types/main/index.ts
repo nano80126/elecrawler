@@ -1,12 +1,16 @@
 /**interface of text config  */
-export interface ItextConfig {
+export interface IcongiText {
 	mainColor: string;
 	subColor: string;
 	textAlign: string;
 }
 
+export interface IconfigLocale {
+	locale: string;
+}
+
 /**interface of text config and start window position */
-export interface Iconfig {
+export interface Iconfig extends IcongiText, IconfigLocale {
 	x?: number;
 	y?: number;
 }
@@ -43,7 +47,8 @@ export enum EwindowOn {
 	WINDOWMAX = 'window-max',
 	WINDOWRESTORE = 'window-restore',
 	WINDOWHIDE = 'window-hide',
-	WINDOWCLOSE = 'window-close'
+	WINDOWCLOSE = 'window-close',
+	WINDOWWIDTH = 'window-width'
 }
 
 /**enumerater of ipcMain.on event for window control */

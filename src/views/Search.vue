@@ -264,7 +264,7 @@ import media from '@/components/Search/Media.vue';
 import { AppModule, Colors } from '@/store/modules/app';
 
 import { Component, Vue } from 'vue-property-decorator';
-import { Ikeywords, IlistSearched, IlyricsObjSearched } from '@/types/renderer';
+import { EwindowSend, Ikeywords, IlistSearched, IlyricsObjSearched } from '@/types/renderer';
 
 @Component({
 	components: {
@@ -483,11 +483,11 @@ export default class Search extends Vue {
 	/**展開寬度，三段 */
 	private expandWidth() {
 		if (this.$root.$data.webWidth < 960) {
-			this.$ipcRenderer.send('windowWidth', { width: 960, height: this.windowHeight });
+			this.$ipcRenderer.send(EwindowSend.WINDOWWIDTH, { width: 960, height: this.windowHeight });
 		} else if (this.$root.$data.webWidth < 1440) {
-			this.$ipcRenderer.send('windowWidth', { width: 1680, height: this.windowHeight });
+			this.$ipcRenderer.send(EwindowSend.WINDOWWIDTH, { width: 1680, height: this.windowHeight });
 		} else {
-			this.$ipcRenderer.send('windowWidth', { width: 480, height: this.windowHeight });
+			this.$ipcRenderer.send(EwindowSend.WINDOWWIDTH, { width: 480, height: this.windowHeight });
 			this.extendImage = false;
 		}
 	}

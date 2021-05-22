@@ -1,6 +1,7 @@
-import { ItextConfig, IlistCrawled, IlyricsObjCrawled } from '../main';
+import { IconfigLocale, IcongiText, IlistCrawled, IlyricsObjCrawled } from '../main';
 
-export type IdisplayTxt = ItextConfig;
+/**exten from config text and locale // 歌詞主顏色、副顏色、對齊 // 語系 */
+export interface IdisplayTxt extends IcongiText, IconfigLocale {}
 
 /**extend from list crawled add exist */
 export interface IlistSearched extends IlistCrawled {
@@ -74,7 +75,8 @@ export enum EwindowSend {
 	WINDOWMAX = 'window-max',
 	WINDOWRESTORE = 'window-restore',
 	WINDOWHIDE = 'window-hide',
-	WINDOWCLOSE = 'window-close'
+	WINDOWCLOSE = 'window-close',
+	WINDOWWIDTH = 'window-width'
 }
 
 /**enumerater of ipcMain.Send event for panel control */

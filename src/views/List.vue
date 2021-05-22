@@ -165,7 +165,7 @@ import player from '@/components/List/Embed.vue';
 import { AppModule, Colors } from '@/store/modules/app';
 import { LyModule } from '@/store/modules/lyrics';
 import { PlayerModule } from '@/store/modules/player';
-import { EpanelSend, IlyricsDisplayObj, IlyricsObj, IsongList, IsongListWithIcon } from '@/types/renderer';
+import { EpanelSend, EwindowSend, IlyricsDisplayObj, IlyricsObj, IsongList, IsongListWithIcon } from '@/types/renderer';
 import { OutputInfo } from 'sharp';
 
 import { Component, Vue } from 'vue-property-decorator';
@@ -227,7 +227,7 @@ export default class List extends Vue {
 
 	/**展開視窗 */
 	private expandWidth() {
-		if (!this.isTwoColumn) this.$ipcRenderer.send('windowWidth', { width: 1680 });
+		if (!this.isTwoColumn) this.$ipcRenderer.send(EwindowSend.WINDOWWIDTH, { width: 1680 });
 	}
 
 	/**刷新列表 */

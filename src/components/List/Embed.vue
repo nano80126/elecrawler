@@ -90,15 +90,19 @@
 							</template>
 							<v-list width="250px" flat class="py-0 grey darken-2">
 								<v-list-item @click.prevent="toggleLoop">
+									<v-list-item-icon>
+										<v-icon small>fas fa-retweet</v-icon>
+									</v-list-item-icon>
 									<v-list-item-title class="d-flex">
-										<v-icon small class="mr-3">fas fa-retweet</v-icon>
 										<span>{{ $t('loop') }}</span>
 										<v-icon v-show="loop" class="ml-auto" small>fas fa-check</v-icon>
 									</v-list-item-title>
 								</v-list-item>
 								<v-list-item @click.prevent="toggleShuffle">
+									<v-list-item-icon>
+										<v-icon small>fas fa-random</v-icon>
+									</v-list-item-icon>
 									<v-list-item-title class="d-flex">
-										<v-icon small class="mr-3">fas fa-random</v-icon>
 										<span>{{ $t('shuffle') }}</span>
 										<v-icon v-show="shuffle" class="ml-auto" small>fas fa-check</v-icon>
 									</v-list-item-title>
