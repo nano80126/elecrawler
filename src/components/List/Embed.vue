@@ -32,6 +32,7 @@
 
 					<v-list-item-icon class="mr-3 align-center">
 						<v-menu
+							v-model="volumeMenu"
 							open-on-hover
 							top
 							offset-y
@@ -84,7 +85,7 @@
 
 						<v-menu top left offset-y nudge-top="10">
 							<template v-slot:activator="{ attrs, on }">
-								<v-btn icon v-bind="attrs" v-on="on" :disabled="!player">
+								<v-btn icon v-bind="attrs" v-on="on" :disabled="!player" @click="volumeMenu = false">
 									<v-icon small> fas fa-ellipsis-h</v-icon>
 								</v-btn>
 							</template>
@@ -139,6 +140,9 @@ export default class Embed extends Vue {
 	private progressCurr = 0;
 	/**音樂最大播放時間 */
 	private progressMax = 0;
+
+	/**Volume Menu */
+	private volumeMenu = false;
 
 	/**音量 */
 	// private volume = 75;

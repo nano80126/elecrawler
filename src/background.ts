@@ -302,8 +302,8 @@ function createWindow() {
 	} else {
 		createProtocol('app');
 		// Load the index.html when not in development
-		win.loadURL('app://./index.html');
-		// win.loadURL(`http://localhost:${process.env.VUE_APP_PORT}/`);
+		// win.loadURL('app://./index.html');
+		win.loadURL(`http://localhost:${process.env.VUE_APP_PORT}/`);
 	}
 
 	win.once('ready-to-show', () => {
