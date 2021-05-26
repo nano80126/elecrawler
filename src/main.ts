@@ -224,7 +224,10 @@ new Vue({
 			this.$ipcRenderer
 				.invoke('listFind', { query: {}, sort: { datetime: 1 } })
 				.then((doc: IsongList[]) => {
+					console.log(doc);
 					const urlList = doc.map(item => item.lyricsUrl);
+					// this.$lodash.map(doc, item => item.lyricsUrl);
+					//
 					AppModule.setUrlList(urlList);
 				})
 				.catch(err => {
