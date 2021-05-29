@@ -20,20 +20,20 @@ import '@/style.scss';
 
 Object.defineProperties(Vue.prototype, {
 	$moment: {
-		value: moment
+		value: moment,
 	},
 	$lodash: {
-		value: lodash
+		value: lodash,
 	},
 	$axios: {
-		value: axios
+		value: axios,
 	},
 	$shell: {
-		value: process.env.IS_ELECTRON ? window.shell : undefined
+		value: process.env.IS_ELECTRON ? window.shell : undefined,
 	},
 	$ipcRenderer: {
-		value: process.env.IS_ELECTRON ? window.ipcRenderer : undefined
-	}
+		value: process.env.IS_ELECTRON ? window.ipcRenderer : undefined,
+	},
 });
 
 declare module 'vue/types/vue' {
@@ -51,7 +51,7 @@ new Vue({
 	store,
 	vuetify,
 	i18n,
-	render: h => h(App),
+	render: (h) => h(App),
 
 	data() {
 		return {
@@ -84,5 +84,5 @@ new Vue({
 		// 	this.webHeight = window.innerHeight;
 		// 	// this.windowIsMax = await this.$ipcRenderer.invoke('isMaxmized');
 		// };
-	}
+	},
 }).$mount('#app');

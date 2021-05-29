@@ -45,7 +45,7 @@
 										v-if="item.icon != undefined"
 										:src="`data:image/jpeg;base64,${item.icon.toString('base64')}`"
 									/>
-									<v-icon v-else style="transform: rotate(135deg);">fas fa-tag</v-icon>
+									<v-icon v-else style="transform: rotate(135deg)">fas fa-tag</v-icon>
 									<!-- {{ toBase64(item.avatarPath).length }} -->
 								</v-list-item-avatar>
 
@@ -121,7 +121,7 @@
 				</v-list>
 			</v-col>
 
-			<v-col v-if="isTwoColumn" cols class="px-3" style="border-left:1px solid rgba(150, 150, 150, 0.5);">
+			<v-col v-if="isTwoColumn" cols class="px-3" style="border-left: 1px solid rgba(150, 150, 150, 0.5)">
 				<!-- <div class="d-flex align-center" style="height:100%;"> -->
 				<transition name="fadeIn" mode="out-in">
 					<template v-if="lyricsObj">
@@ -132,14 +132,15 @@
 						</v-card>
 					</template>
 					<template v-else>
-						<div class="d-flex align-center" style="height:100%">
+						<div class="d-flex align-center" style="height: 100%">
 							<v-card flat shaped width="100%">
 								<v-card-subtitle class="text-center">
 									<v-icon size="128">fas fa-spider</v-icon>
-									<span class="mx-auto logo-text" style="">
-										EleCrawler
-									</span>
+									<span class="mx-auto logo-text" style=""> EleCrawler </span>
 								</v-card-subtitle>
+								<!-- <v-card-text>
+									{{ filterList }}
+								</v-card-text> -->
 							</v-card>
 						</div>
 					</template>
@@ -177,8 +178,8 @@ import { Component, Vue } from 'vue-property-decorator';
 @Component({
 	components: {
 		LyricDisplay: display,
-		EmbedPlayer: player
-	}
+		EmbedPlayer: player,
+	},
 })
 export default class List extends Vue {
 	/**過濾字串 */
@@ -199,27 +200,27 @@ export default class List extends Vue {
 	}
 
 	/**過濾後清單 */
-	get filterList() {
+	get filterList(): Array<IsongListWithIcon> {
 		const filterTxt = this.filterStr.toLowerCase();
-		return this.$lodash.filter(this.list, o => {
+		return this.$lodash.filter(this.list, (o) => {
 			return o.title.toLowerCase().match(filterTxt) || o.artist.toLowerCase().match(filterTxt);
-		});
+		}) as Array<IsongListWithIcon>;
 	}
 
 	// life cycle
-	created() {
-		if (!this.$root._events.getLyricByID) {
+	created(): void {
+		if (!this.$root.$eventNames().includes('getLyricByID')) {
 			this.$root.$on('getLyricByID', (obj: IlyricsDisplayObj) => {
 				this.lyricsObj = obj;
 			});
 		}
 	}
 
-	mounted() {
+	mounted(): void {
 		this.loadList();
 	}
 
-	beforeDestroy() {
+	beforeDestroy(): void {
 		this.$root.$off('getLyricByID');
 	}
 
@@ -235,11 +236,11 @@ export default class List extends Vue {
 		this.$ipcRenderer
 			.invoke('listFind', { query: {}, sort: { artist: 1, title: 1, datetime: -1 } })
 			.then((doc: IsongList[]) => {
-				const filter = this.$lodash.filter(doc, 'videoArr').map(e => e.videoArr);
-				const flatten = this.$lodash.flatten(filter).map(e => e?.videoID) as string[];
+				const filter = this.$lodash.filter(doc, 'videoArr').map((e) => e.videoArr);
+				const flatten = this.$lodash.flatten(filter).map((e) => e?.videoID) as string[];
 				AppModule.setPlayList(flatten);
 
-				const iconArray = doc.map(item => item.iconPath || undefined);
+				const iconArray = doc.map((item) => item.iconPath || undefined);
 				this.$ipcRenderer
 					.invoke('loadBuffer', { path: iconArray })
 					.then((res: { data: Buffer; info: OutputInfo }[]) => {
@@ -254,14 +255,14 @@ export default class List extends Vue {
 
 				// show all songs
 				if (process.env.NODE_ENV == 'development') {
-					const toStr = doc.map(item => `${item.title} / ${item.artist}`);
+					const toStr = doc.map((item) => `${item.title} / ${item.artist}`);
 					console.info(`%c${toStr.join(', ')}`, `color: ${this.$vuetify.theme.themes.dark.accent}`);
 				}
 
 				/// /// /// /// /// /// /// /// /// 先判斷不存在 /// 否則會被refresh刷掉
 				if (!this.lyricsObj) this.lyricsObj = LyModule.lyricObj;
 			})
-			.catch(err => {
+			.catch((err) => {
 				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
 	}
@@ -288,7 +289,7 @@ export default class List extends Vue {
 						lyricsUrl: obj.lyricsUrl,
 						lyrics: obj.lyrics,
 						imagePath: item.imagePath || undefined,
-						imageSize: item.imageSize || undefined
+						imageSize: item.imageSize || undefined,
 					};
 					this.videoID = videoID;
 					AppModule.setVideoTitle(videoTitle);
@@ -302,17 +303,17 @@ export default class List extends Vue {
 	private singleRemove(key: string) {
 		this.$ipcRenderer
 			.invoke('listRemoveOne', { query: { lyricsKey: key } })
-			.then(res => {
+			.then((res) => {
 				if (res.ok > 0) {
 					this.$ipcRenderer.send('removeFile', {
-						files: [`${key}.jpg`, `${key}.icon.jpg`]
+						files: [`${key}.jpg`, `${key}.icon.jpg`],
 					});
 
 					const index = this.$lodash.findIndex(this.list, ['lyricsKey', key]);
 					this.list.splice(index, 1);
 				}
 			})
-			.catch(err => {
+			.catch((err) => {
 				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
 	}
@@ -322,7 +323,7 @@ export default class List extends Vue {
 			artist: obj.artist,
 			title: obj.title,
 			lyricsKey: obj.lyricsKey,
-			lyricsUrl: obj.lyricsUrl
+			lyricsUrl: obj.lyricsUrl,
 		};
 
 		if (AppModule.subWindow) {

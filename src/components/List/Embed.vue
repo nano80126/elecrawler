@@ -3,7 +3,7 @@
 		<v-card-actions>
 			<v-list class="py-0" dense width="100%" color="transparent">
 				<v-list-item :disabled="!player">
-					<v-list-item-content class=" col col-lg-6">
+					<v-list-item-content class="col col-lg-6">
 						<div class="d-flex align-center progress-container">
 							<span>{{ $moment.utc(progressCurr * 1000).format('mm:ss') }}</span>
 							<v-progress-linear
@@ -11,7 +11,7 @@
 								class="my-0 mx-3"
 								height="4"
 								@change="progressChange"
-								style="cursor: pointer;"
+								style="cursor: pointer"
 							/>
 							<span>{{ $moment.utc(progressMax * 1000).format('mm:ss') }}</span>
 						</div>
@@ -25,7 +25,7 @@
 						v-show="$root.webWidth >= 1264"
 						class="col-1 col-lg-2 mx-lg-auto"
 						:class="`${randomColor}--text`"
-						style="position: relative;"
+						style="position: relative"
 					>
 						<span class="video-title">{{ videoTitle }}</span>
 					</v-list-item-content>
@@ -48,7 +48,7 @@
 									<v-icon small v-else>fas fa-volume-mute</v-icon>
 								</v-btn>
 							</template>
-							<v-card width="120px" class="px-1 no-drag" style="overflow: hidden;" color="grey darken-2">
+							<v-card width="120px" class="px-1 no-drag" style="overflow: hidden" color="grey darken-2">
 								<v-slider v-model="volume" color="grey lighten-2" hide-details />
 								<!-- @end="volumeChange"
 									@click="volumeChange" -->
@@ -156,11 +156,11 @@ export default class Embed extends Vue {
 	private playState = -1;
 	// private s = stata.a;
 
-	get videoTitle() {
+	get videoTitle(): string {
 		return AppModule.videoTitle;
 	}
 
-	get randomColor() {
+	get randomColor(): string {
 		// 長度-1及不包含黑色
 		const r = this.$lodash.random(this.colors.length - 2);
 		return this.colors[r];
@@ -172,7 +172,7 @@ export default class Embed extends Vue {
 	}
 
 	/**播放器是否可播放 */
-	get canPlay() {
+	get canPlay(): boolean {
 		return this.playState == 0 || this.playState == 2 || this.playState == 5;
 	}
 
@@ -181,7 +181,7 @@ export default class Embed extends Vue {
 		return PlayerModule.playerLoop;
 	}
 
-	set loop(value) {
+	set loop(value: boolean) {
 		PlayerModule.videoLoop(value);
 	}
 
@@ -190,29 +190,29 @@ export default class Embed extends Vue {
 		return PlayerModule.playerShuffle;
 	}
 
-	set shuffle(value) {
+	set shuffle(value: boolean) {
 		PlayerModule.videoShuffle(value);
 	}
 
 	/**播放進度條 */
-	get progress() {
+	get progress(): number {
 		return (this.progressCurr / this.progressMax) * 100;
 	}
 
-	set progress(value) {
+	set progress(value: number) {
 		this.progressCurr = (this.progressMax * value) / 100;
 	}
 
-	get volume() {
+	get volume(): number {
 		return PlayerModule.volume;
 	}
 
-	set volume(value) {
+	set volume(value: number) {
 		PlayerModule.videoSetVolume(value);
 	}
 
 	@Watch('$store.getters.playState')
-	onPlayStateChange(state: number) {
+	onPlayStateChange(state: number): void {
 		this.playState = state;
 
 		PlayerModule.clearIntervalArr();
@@ -240,13 +240,13 @@ export default class Embed extends Vue {
 
 	/**if sheet changed, trigger when user operating in Search.vue */
 	@Watch('sheet')
-	onSheetChange(value: boolean) {
+	onSheetChange(value: boolean): void {
 		if (value) this.CheckPlayer();
 	}
 
 	/**if videoID changed, trigger when user operating in List.vue*/
 	@Watch('videoID')
-	onVideoIDChange(value?: string) {
+	onVideoIDChange(value?: string): void {
 		if (value?.length == 11) {
 			if (!PlayerModule.player) {
 				this.IframeAPIReady(value);
@@ -257,7 +257,7 @@ export default class Embed extends Vue {
 		}
 	}
 
-	mounted() {
+	mounted(): void {
 		if (!PlayerModule.player && this.videoID) {
 			this.IframeAPIReady(this.videoID);
 		} else {
@@ -265,7 +265,7 @@ export default class Embed extends Vue {
 		}
 	}
 
-	beforeDestroy() {
+	beforeDestroy(): void {
 		PlayerModule.clearIntervalArr();
 	}
 
@@ -291,21 +291,19 @@ export default class Embed extends Vue {
 				origin: 'https://www.youtube.com',
 				playsinline: 1,
 				modestbranding: 1,
-				// eslint-disable-next-line @typescript-eslint/camelcase
 				cc_load_policy: 0,
-				// eslint-disable-next-line @typescript-eslint/camelcase
-				iv_load_policy: 0
+				iv_load_policy: 0,
 			},
 			events: {
-				onReady: e => {
+				onReady: (e) => {
 					e.target.setPlaybackQuality('small');
 					e.target.setVolume(this.volume);
 					// this.$store.state.player.playerState = 5;
 					// PlayerModule.playerState = 5;
 					PlayerModule.changeState(5); // 5: 可播放
 					AppModule.setVideoID(id); // 更新video id
-				}
-			}
+				},
+			},
 		});
 		PlayerModule.creatPlayer(py);
 	}

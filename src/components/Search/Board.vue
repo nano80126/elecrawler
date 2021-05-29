@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { AppModule } from '@/store/modules/app';
+import { AppModule, Colors } from '@/store/modules/app';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 
 import { IlyricsObjSearched } from '@/types/renderer';
@@ -39,7 +39,7 @@ export default class Board extends Vue {
 	/**是否已存在清單 */
 	@Prop({ required: true, type: Boolean }) exist!: boolean;
 
-	mounted() {
+	mounted(): void {
 		if (process.env.NODE_ENV == 'development') {
 			console.info(`%c${this.lyricsObj.obj.title} / ${this.lyricsObj.obj.artist}`, 'color: #03A9F4;');
 		}
@@ -56,18 +56,18 @@ export default class Board extends Vue {
 						artist: this.lyricsObj.obj.artist,
 						title: this.lyricsObj.obj.title,
 						lyricsUrl: this.lyricsObj.obj.lyricsUrl,
-						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-					}
-				}
+						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss'),
+					},
+				},
 			});
-			ret.then(res => {
+			ret.then((res) => {
 				if (res.ok) {
 					const { lyricsUrl } = this.lyricsObj.obj;
 					AppModule.addUrlList(lyricsUrl);
 					this.$emit('update:exist', true);
 				}
-			}).catch(err => {
-				AppModule.snackbar({ text: err, color: 'error' });
+			}).catch((err) => {
+				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
 		}
 	}

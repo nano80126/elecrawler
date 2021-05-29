@@ -14,12 +14,13 @@
 		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
 		"baseUrl": ".",
+		"resolveJsonModule": true,
 		"typeRoots": ["node_modules/@types"],
 		"types": [
 			"webpack-env",
-			"vuetify",
+			"youtube",
 			"node",
-			"youtube"
+			"vuetify",
 		],
 		"paths": {
 			"@/*": [

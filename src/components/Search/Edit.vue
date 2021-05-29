@@ -6,7 +6,7 @@
 				<!-- <template > -->
 				<v-list-item v-for="(item, idx) in draggableArray" :key="item.id">
 					<v-list-item-icon class="handle my-6 mr-3">
-						<v-icon style="cursor: pointer;">fas fa-bars</v-icon>
+						<v-icon style="cursor: pointer">fas fa-bars</v-icon>
 					</v-list-item-icon>
 					<v-list-item-content
 						:style="`border-bottom: ${idx < urlObjArray.length - 1 ? '1px solid gray' : ''}`"
@@ -17,7 +17,7 @@
 								<span
 									v-if="item.videoTitle"
 									class="subtitle-2 mr-3 ml-auto"
-									style="user-select: text; max-width: 90%;"
+									style="user-select: text; max-width: 90%"
 									v-text="item.videoTitle"
 								/>
 								<!-- {{ item.videoTitle }} -->
@@ -69,20 +69,20 @@ import { IyouTubeObj } from '@/types/renderer';
 
 @Component({
 	components: {
-		draggable
-	}
+		draggable,
+	},
 })
 export default class Edit extends Vue {
 	/**YouTube Obj Array，自訂title用 */
 	@Prop() urlObjArray!: IyouTubeObj[];
 
 	/**回傳可拖動之陣列 */
-	get draggableArray() {
+	get draggableArray(): IyouTubeObj[] {
 		return this.urlObjArray;
 	}
 
 	/**設定拖動後陣列 */
-	set draggableArray(val) {
+	set draggableArray(val: IyouTubeObj[]) {
 		this.$emit('update:urlObjArray', val);
 	}
 }

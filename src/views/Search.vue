@@ -7,7 +7,7 @@
 				class="pl-3"
 				:style="{
 					'min-height': `${$root.webHeight - 44}px`,
-					'max-width': isTwoColumn || isThreeColumn ? '416px' : null
+					'max-width': isTwoColumn || isThreeColumn ? '416px' : null,
 				}"
 			>
 				<!-- 416px = 480 - 64(navigation) -->
@@ -80,7 +80,7 @@
 									small
 									class="ml-2"
 									color="light-blue lighten-1"
-									style="cursor: pointer;"
+									style="cursor: pointer"
 									@click="historySearch(words.artist, words.title)"
 								>
 									{{ words.title || words.artist }}
@@ -125,7 +125,7 @@
 							<!-- <v-lazy> -->
 							<template v-slot="{ item }">
 								<v-card :key="item.id" class="mx-auto mr-3" outlined min-height="130">
-									<v-card-title style="position:relative; white-space: nowrap;">
+									<v-card-title style="position: relative; white-space: nowrap">
 										<span class="ellipsis-title">{{ item.title }}</span>
 										<!-- <v-chip
 											icon
@@ -140,7 +140,7 @@
 												size="16"
 												color="success darken-1"
 												class="mr-1"
-												style="position:absolute; right:0;"
+												style="position: absolute; right: 0"
 											>
 												fas fa-check
 											</v-icon>
@@ -205,7 +205,7 @@
 					cols
 					class="pl-3"
 					:style="{ 'max-width': isThreeColumn ? '480px' : null }"
-					style="border-left:1px solid rgba(150, 150, 150, 0.5);"
+					style="border-left: 1px solid rgba(150, 150, 150, 0.5)"
 				>
 					<!-- {{ this.lyricsObj ? this.lyricsObj.exist : null }} -->
 					<template v-if="lyricsObj">
@@ -214,7 +214,7 @@
 						</div>
 					</template>
 					<template v-else>
-						<div class="d-flex align-center" style="height:100%;">
+						<div class="d-flex align-center" style="height: 100%">
 							<v-card flat shaped class="mr-3" width="100%">
 								<v-card-subtitle class="text-center">
 									{{ $t('doSearchLyrics') }}
@@ -235,7 +235,7 @@
 					cols
 					class="pl-3"
 					:style="{ 'max-width': extendImage ? `${$root.webWidth - 480}px` : `${$root.webWidth - 960}px` }"
-					style="border-left:1px solid rgba(150, 150, 150, 0.5);"
+					style="border-left: 1px solid rgba(150, 150, 150, 0.5)"
 				>
 					<template v-if="lyricsObj && lyricsObj.exist">
 						<!-- <div class="min-scroll y info-scroll" :style="{ height: `${$root.webHeight - 44}px` }"> -->
@@ -243,7 +243,7 @@
 						<!-- </div> -->
 					</template>
 					<template v-else>
-						<div class="d-flex align-center" style="height:100%">
+						<div class="d-flex align-center" style="height: 100%">
 							<v-card flat shaped width="100%">
 								<v-card-subtitle class="text-center">
 									{{ $t('addListToAccess') }}
@@ -269,8 +269,8 @@ import { EwindowSend, Ikeywords, IlistSearched, IlyricsObjSearched } from '@/typ
 @Component({
 	components: {
 		lyricCard: board,
-		lyricMedia: media
-	}
+		lyricMedia: media,
+	},
 })
 export default class Search extends Vue {
 	/**搜尋清單 */
@@ -290,7 +290,7 @@ export default class Search extends Vue {
 	/**關鍵字是否存在 */
 	private keywordsExist = false;
 	/**防抖動計時器 */
-	private debounceTimer: NodeJS.Timeout | null = null;
+	private debounceTimer: number | null = null;
 
 	/**是否可以搜尋 */
 	get canSearch(): boolean {
@@ -313,7 +313,7 @@ export default class Search extends Vue {
 		return this.$root.$data.webWidth >= 1440 && this.lyricsObj != null;
 	}
 
-	created() {
+	created(): void {
 		this.$ipcRenderer
 			.invoke('historyFind', { query: {} })
 			.then((res: Ikeywords[]) => {
@@ -327,12 +327,12 @@ export default class Search extends Vue {
 					});
 				}
 			})
-			.catch(err => {
+			.catch((err) => {
 				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
 	}
 
-	mounted() {
+	mounted(): void {
 		// // load list saved
 		// this.$ipcRenderer
 		// 	.invoke('listFind', { query: {}, sort: { datetime: 1 } })
@@ -347,14 +347,15 @@ export default class Search extends Vue {
 		// 	});
 	}
 
-	beforeDestroy() {
+	beforeDestroy(): void {
 		this.$ipcRenderer.removeAllListeners('searchRes');
 		this.$ipcRenderer.removeAllListeners('lyricRes');
 	}
 	/**搜尋 */
-	private lyricsSearch() {
-		clearTimeout(this.debounceTimer as NodeJS.Timeout);
-		this.debounceTimer = setTimeout(() => {
+	private lyricsSearch(): void {
+		// clearTimeout(this.debounceTimer as NodeJS.Timeout);
+		clearTimeout(this.debounceTimer as number);
+		this.debounceTimer = window.setTimeout(() => {
 			if (!this.canSearch) return;
 			AppModule.changeOverlay(true);
 
@@ -364,9 +365,9 @@ export default class Search extends Vue {
 			this.$ipcRenderer
 				.invoke('searchReq', {
 					artist: this.artist,
-					title: this.title
+					title: this.title,
 				})
-				.then(res => {
+				.then((res) => {
 					this.searchRes(res);
 				})
 				.catch((err: Error) => {
@@ -389,9 +390,9 @@ export default class Search extends Vue {
 		this.$ipcRenderer
 			.invoke('searchReq', {
 				artist: artist,
-				title: title
+				title: title,
 			})
-			.then(res => {
+			.then((res) => {
 				this.searchRes(res);
 			})
 			.catch((err: Error) => {
@@ -408,18 +409,18 @@ export default class Search extends Vue {
 					$set: {
 						artist,
 						title,
-						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-					}
-				}
+						datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss'),
+					},
+				},
 			})
 			.then(() => {
 				this.keywords.unshift({
 					artist,
 					title,
-					datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+					datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss'),
 				});
 			})
-			.catch(err => {
+			.catch((err) => {
 				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
 	}
@@ -431,7 +432,7 @@ export default class Search extends Vue {
 
 		// 確認是否存在列表中
 		this.$nextTick(() => {
-			res.list.forEach(obj => {
+			res.list.forEach((obj) => {
 				// const index = this.list.findIndex(item => item.lyricsUrl == obj.lyricsUrl);
 				const exist = AppModule.urlList.includes(obj.lyricsUrl);
 				Object.assign(obj, { exist });
@@ -450,7 +451,7 @@ export default class Search extends Vue {
 
 		this.$ipcRenderer
 			.invoke('getLyrics', { url, exist })
-			.then(res => {
+			.then((res) => {
 				// 這邊為 main process產生的error
 				if (res.error) {
 					AppModule.snackbar({ text: res.error, color: Colors.Error });
@@ -465,13 +466,13 @@ export default class Search extends Vue {
 							title: obj.title,
 							lyricsKey: obj.lyricsKey,
 							lyricsUrl: obj.lyricsUrl,
-							lyrics: obj.lyrics
+							lyrics: obj.lyrics,
 						}),
-						exist: exist
+						exist: exist,
 					};
 				});
 			})
-			.catch(err => {
+			.catch((err) => {
 				// 這邊為其他 error，主要原因為上面
 				AppModule.snackbar({ text: err, color: Colors.Error });
 			})

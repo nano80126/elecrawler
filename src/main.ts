@@ -26,24 +26,39 @@ import '@/style.scss';
 /// ///
 Object.defineProperties(Vue.prototype, {
 	$moment: {
-		value: moment
+		value: moment,
 	},
 	$lodash: {
-		value: lodash
+		value: lodash,
 	},
 	$axios: {
-		value: axios
+		value: axios,
 	},
 	$qs: {
-		value: qs
+		value: qs,
 	},
 	$shell: {
-		value: process.env.IS_ELECTRON ? window.shell : undefined
+		value: process.env.IS_ELECTRON ? window.shell : undefined,
 	},
 	$ipcRenderer: {
-		value: process.env.IS_ELECTRON ? window.ipcRenderer : undefined
-	}
+		value: process.env.IS_ELECTRON ? window.ipcRenderer : undefined,
+	},
+	$eventNames: {
+		value: function () {
+			return Object.keys(this._events);
+		},
+	},
 });
+
+// declare namespace YT {
+// 	export class Player {}
+// }
+
+// type YTplayer = YT.Player;
+
+// declare namespace YTP {
+// 	type YTPlayer = YT.Player;
+// }
 
 declare global {
 	/**window add YT interface */
@@ -67,8 +82,8 @@ declare module 'vue/types/vue' {
 		// $fs: { readdirSync: Function; unlink: Function; exists: Function; mkdir: Function };
 		$ipcRenderer: IpcRenderer;
 		$shell: Shell;
-
-		_events: { getLyricByID: [Function] };
+		$eventNames(): Array<string>;
+		// _events: { getLyricByID: [Function] };
 	}
 }
 
@@ -77,7 +92,7 @@ new Vue({
 	store,
 	vuetify,
 	i18n,
-	render: h => h(App),
+	render: (h) => h(App),
 
 	///
 	data() {
@@ -101,8 +116,8 @@ new Vue({
 				'purple',
 				'white',
 				'grey',
-				'black'
-			])
+				'black',
+			]),
 		};
 	},
 
@@ -127,11 +142,11 @@ new Vue({
 						this.$ipcRenderer
 							.invoke('listFindOne', {
 								query: {
-									videoArr: { $elemMatch: { videoID: videoID } }
-								}
+									videoArr: { $elemMatch: { videoID: videoID } },
+								},
 							})
 							.then(async (doc: IsongList) => {
-								const videoTitle = doc.videoArr?.find(e => e.videoID == videoID)?.videoTitle;
+								const videoTitle = doc.videoArr?.find((e) => e.videoID == videoID)?.videoTitle;
 								const res = await this.$ipcRenderer.invoke('getLyrics', { url: doc.lyricsUrl });
 
 								this.$nextTick(() => {
@@ -144,22 +159,22 @@ new Vue({
 										artist: obj.artist,
 										lyrics: obj.lyrics,
 										imagePath: doc.imagePath || undefined,
-										imageSize: doc.imageSize || undefined
+										imageSize: doc.imageSize || undefined,
 									};
 									this.$emit('getLyricByID', lyricsObj);
 									LyModule.saveLyric(lyricsObj);
 									AppModule.setVideoTitle(videoTitle || '');
 								});
 							})
-							.catch(err => {
-								AppModule.snackbar({ text: err, color: 'error' });
+							.catch((err) => {
+								AppModule.snackbar({ text: err, color: Colors.Error });
 							})
 							.finally(() => {
 								AppModule.changeOverlay(false);
 							});
 					}, 1500);
 			}
-		}
+		},
 	},
 
 	created() {
@@ -214,7 +229,7 @@ new Vue({
 					if (locale) this.$i18n.locale = locale;
 					LyModule.saveText({ mainColor, subColor, textAlign });
 				})
-				.catch(err => {
+				.catch((err) => {
 					AppModule.snackbar({ text: err, color: Colors.Error });
 				});
 		},
@@ -224,13 +239,10 @@ new Vue({
 			this.$ipcRenderer
 				.invoke('listFind', { query: {}, sort: { datetime: 1 } })
 				.then((doc: IsongList[]) => {
-					console.log(doc);
-					const urlList = doc.map(item => item.lyricsUrl);
-					// this.$lodash.map(doc, item => item.lyricsUrl);
-					//
+					const urlList = doc.map((item) => item.lyricsUrl);
 					AppModule.setUrlList(urlList);
 				})
-				.catch(err => {
+				.catch((err) => {
 					this.$store.commit('snackbar', { text: err, color: Colors.Error });
 				});
 		},
@@ -281,6 +293,6 @@ new Vue({
 				PlayerModule.videoLoop(false);
 				PlayerModule.videoShuffle(true);
 			});
-		}
-	}
+		},
+	},
 }).$mount('#app');

@@ -4,7 +4,7 @@
 		<v-card-title>
 			<span class="ellipsis" v-text="lyricsObj.title" style="max-width: 500px" />
 		</v-card-title>
-		<v-card-subtitle style="position: relative;">
+		<v-card-subtitle style="position: relative">
 			<span v-text="lyricsObj.artist" />
 		</v-card-subtitle>
 
@@ -13,7 +13,7 @@
 		<!-- height = 32+48+38+2+52+12    -->
 		<v-card-text
 			class="text-darken-2 font-weight-bold lyric-body py-0"
-			style="position:relative;"
+			style="position: relative"
 			:style="{ height: `${$root.webHeight - 241}px` }"
 		>
 			<!-- :style="{ height: `${$root.webHeight - 184}px` }" -->
@@ -36,10 +36,10 @@
 			<div
 				class="mr-n4 py-4 pr-4 min-scroll y info-scroll lyric-content"
 				:class="`${mainColor}--text ${subColor}--subtext text-${textAlign}`"
-				style="position:relative; overflow-y: auto; height: 100%;"
+				style="position: relative; overflow-y: auto; height: 100%"
 			>
 				<span class="text-center" v-html="lyricsObj.lyrics || `<span>${$('noLyricsExist')}</span>`"></span>
-				<span class="grey--text text-lighten-2 px-4 mt-10" style="float: right;"> -- {{ $t('end') }} </span>
+				<span class="grey--text text-lighten-2 px-4 mt-10" style="float: right"> -- {{ $t('end') }} </span>
 			</div>
 		</v-card-text>
 
@@ -101,7 +101,7 @@
 				step="0.02"
 				type="range"
 				class="slider"
-				style="width:12%; min-width: 120px"
+				style="width: 12%; min-width: 120px"
 			/>
 		</v-card-actions>
 
@@ -152,14 +152,14 @@ export default class Display extends Vue {
 	// }
 
 	@Watch('lyricsObj.imagePath')
-	changeLyricImage(img: string) {
+	changeLyricImage(img: string): void {
 		this.image = null;
 		if (img) this.backimgLoad();
 	}
 
 	@Watch('mainColor')
-	changeMainColor(val: string) {
-		this.$ipcRenderer.invoke('writeConfig', { mainColor: val }).then(res => {
+	changeMainColor(val: string): void {
+		this.$ipcRenderer.invoke('writeConfig', { mainColor: val }).then((res) => {
 			if (process.env.NODE_ENV == 'development') {
 				console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
 			}
@@ -167,8 +167,8 @@ export default class Display extends Vue {
 	}
 
 	@Watch('subColor')
-	changeSubColor(val: string) {
-		this.$ipcRenderer.invoke('writeConfig', { subColor: val }).then(res => {
+	changeSubColor(val: string): void {
+		this.$ipcRenderer.invoke('writeConfig', { subColor: val }).then((res) => {
 			if (process.env.NODE_ENV == 'development') {
 				console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
 			}
@@ -176,28 +176,28 @@ export default class Display extends Vue {
 	}
 
 	@Watch('textAlign')
-	changeTextAlign(val: string) {
-		this.$ipcRenderer.invoke('writeConfig', { textAlign: val }).then(res => {
+	changeTextAlign(val: string): void {
+		this.$ipcRenderer.invoke('writeConfig', { textAlign: val }).then((res) => {
 			if (process.env.NODE_ENV == 'development') {
 				console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
 			}
 		});
 	}
 
-	created() {
+	created(): void {
 		const { mainColor, subColor, textAlign } = LyModule.lyricText as LyricsTxtConf;
 		this.mainColor = mainColor || this.mainColor;
 		this.subColor = subColor || this.subColor;
 		this.textAlign = textAlign || this.textAlign;
 	}
 
-	mounted() {
+	mounted(): void {
 		if (this.lyricsObj?.imagePath) {
 			this.backimgLoad();
 		}
 	}
 
-	beforeDestroy() {
+	beforeDestroy(): void {
 		if (this.lyricsObj) LyModule.saveLyric(this.lyricsObj);
 		LyModule.saveText({ mainColor: this.mainColor, subColor: this.subColor, textAlign: this.textAlign });
 	}
@@ -206,10 +206,10 @@ export default class Display extends Vue {
 	private backimgLoad() {
 		this.$ipcRenderer
 			.invoke('loadBuffer', { path: this.lyricsObj?.imagePath })
-			.then(res => {
+			.then((res) => {
 				this.image = Buffer.from(res.data);
 			})
-			.catch(err => {
+			.catch((err) => {
 				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
 	}
@@ -227,12 +227,8 @@ export default class Display extends Vue {
 	top: 0;
 	bottom: 0;
 	max-width: calc(100% - 32px);
-
 	left: 50%;
 	transform: translate(-50%);
-	// margin: 0 auto;
-	// width: calc(100% - 32px);
-	// margin: auto;
 }
 
 .fadeIn-enter-active,

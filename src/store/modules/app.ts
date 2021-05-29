@@ -1,25 +1,32 @@
 import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from '@/store/index';
 
-export interface AppState {
-	subWindow: Window | null;
-	overlay: boolean;
-	snackbars: { show: boolean; color: Colors | string; text: string; timeout: number }[];
-	isElectron: boolean;
-	picPath: string;
-	playList: string[];
-	urlList: string[];
-	videoID: string;
-	videoTitle: string;
-}
-
 /**snackbar 顏色 */
 export enum Colors {
 	Info = 'info',
 	Primary = 'primary',
 	Success = 'success',
 	Warning = 'warning',
-	Error = 'error'
+	Error = 'error',
+}
+
+export interface Isnackbar {
+	show: boolean;
+	color: Colors;
+	text: string;
+	timeout: number;
+}
+
+export interface AppState {
+	subWindow: Window | null;
+	overlay: boolean;
+	snackbars: Isnackbar[];
+	isElectron: boolean;
+	picPath: string;
+	playList: string[];
+	urlList: string[];
+	videoID: string;
+	videoTitle: string;
 }
 
 @Module({ dynamic: true, store, name: 'app' })
@@ -29,7 +36,7 @@ class Common extends VuexModule implements AppState {
 	/**是否覆蓋overlay */
 	public overlay = false;
 	//
-	public snackbars: { show: boolean; color: Colors | string; text: string; timeout: number }[] = [];
+	public snackbars: Isnackbar[] = [];
 	//
 	public isElectron = process.env.IS_ELECTRON ? true : false;
 	/**圖片路徑 */
@@ -45,11 +52,11 @@ class Common extends VuexModule implements AppState {
 
 	/// getters
 	get barsHidden(): number {
-		return this.snackbars.filter(x => !x.show).length;
+		return this.snackbars.filter((x) => !x.show).length;
 	}
 
 	get barsVisible(): number {
-		return this.snackbars.filter(x => x.show).length;
+		return this.snackbars.filter((x) => x.show).length;
 	}
 
 	@Mutation
@@ -68,12 +75,12 @@ class Common extends VuexModule implements AppState {
 	}
 
 	@Mutation
-	snackbar(bar: { color?: Colors | string; timeout?: number; text?: string }) {
+	snackbar(bar: { color?: Colors; timeout?: number; text?: string }) {
 		this.snackbars.push({
 			show: true,
 			color: bar.color || Colors.Error,
 			timeout: bar.timeout || 3000,
-			text: bar.text || ''
+			text: bar.text || '',
 		});
 	}
 

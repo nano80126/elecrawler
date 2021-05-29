@@ -57,7 +57,7 @@ export default class Player extends VuexModule implements PlayerState {
 	/**清除所有interval ID */
 	@Mutation
 	clearIntervalArr() {
-		this.intervalArray.forEach(id => {
+		this.intervalArray.forEach((id) => {
 			clearInterval(id);
 		});
 		this.intervalArray = [];

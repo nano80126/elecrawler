@@ -76,31 +76,31 @@ export enum EwindowSend {
 	WINDOWRESTORE = 'window-restore',
 	WINDOWHIDE = 'window-hide',
 	WINDOWCLOSE = 'window-close',
-	WINDOWWIDTH = 'window-width'
+	WINDOWWIDTH = 'window-width',
 }
 
 /**enumerater of ipcMain.Send event for panel control */
 export enum EpanelSend {
 	PANELSHOW = 'panel-show',
-	PANELHIDE = 'panel-hide'
+	PANELHIDE = 'panel-hide',
 }
 
 /**enumerater of ipcRenderer.send event for tray control */
 export enum EtraySend {
 	MODE = 'tray-mode',
-	VOLUME = 'tray-volume'
+	VOLUME = 'tray-volume',
 }
 
 /**enumerator of ipcRenderer.on in main.ts */
 export enum EmodeOn {
 	MODESINGLE = 'mode-single',
 	MODELOOP = 'mode-loop',
-	MODESHUFFLE = 'mode-shuffle'
+	MODESHUFFLE = 'mode-shuffle',
 }
 
 /**enumerator of ipcRenderer.on in main.ts */
 export enum EvolumeOn {
 	VOLUMEPLUS = 'volume-plus',
 	VOLUMEMINUS = 'volume-minus',
-	VOLUMESET = 'volume-set'
+	VOLUMESET = 'volume-set',
 }

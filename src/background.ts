@@ -9,7 +9,7 @@ import path from 'path';
 import qs from 'qs';
 
 import {
-	createProtocol
+	createProtocol,
 	/* installVueDevtools */
 } from 'vue-cli-plugin-electron-builder/lib';
 // import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
@@ -63,13 +63,13 @@ protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: tru
 
 /**Create Tray and Menu */
 function createTrayMenu(): Promise<string> {
-	return new Promise(resolve => {
+	return new Promise((resolve) => {
 		tray = new Tray(path.resolve(__static, 'icons/trayicon.ico'));
 		contextMenu = Menu.buildFromTemplate([
 			{
 				label: 'Open',
 				type: 'normal',
-				click: () => win?.show()
+				click: () => win?.show(),
 			},
 			{ type: 'separator' },
 			{
@@ -80,11 +80,11 @@ function createTrayMenu(): Promise<string> {
 						type: 'radio',
 						label: 'Single',
 						checked: true,
-						click: () => win?.webContents.send(EmodeSend.MODESINGLE)
+						click: () => win?.webContents.send(EmodeSend.MODESINGLE),
 					},
 					{ type: 'radio', label: 'Loop', click: () => win?.webContents.send(EmodeSend.MODELOOP) },
-					{ type: 'radio', label: 'Shuffle', click: () => win?.webContents.send(EmodeSend.MODESHUFFLE) }
-				]
+					{ type: 'radio', label: 'Shuffle', click: () => win?.webContents.send(EmodeSend.MODESHUFFLE) },
+				],
 			},
 			{
 				type: 'submenu',
@@ -93,31 +93,31 @@ function createTrayMenu(): Promise<string> {
 					{
 						type: 'radio',
 						label: 'Mute',
-						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 0 })
+						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 0 }),
 					},
 					{
 						type: 'radio',
 						label: '25%',
-						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 25 })
+						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 25 }),
 					},
 					{
 						type: 'radio',
 						label: '50%',
-						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 50 })
+						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 50 }),
 					},
 					{
 						checked: true,
 						type: 'radio',
 						label: '75%',
-						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 75 })
+						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 75 }),
 					},
 					{
 						type: 'radio',
 						label: '100%',
-						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 100 })
+						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 100 }),
 					},
-					{ type: 'radio', label: 'Custom', enabled: false }
-				]
+					{ type: 'radio', label: 'Custom', enabled: false },
+				],
 			},
 			{ type: 'separator' },
 			{
@@ -126,8 +126,8 @@ function createTrayMenu(): Promise<string> {
 				click: () => {
 					win?.close();
 					splash?.close();
-				}
-			}
+				},
+			},
 		]);
 		tray.setToolTip('EleCrawler');
 		tray.setContextMenu(contextMenu);
@@ -163,21 +163,21 @@ function createWindow() {
 			nodeIntegration: false,
 			enableRemoteModule: false,
 			contextIsolation: true,
-			nativeWindowOpen: true
-		}
+			nativeWindowOpen: true,
+		},
 	});
 	if (process.env.NODE_ENV == 'production') win.removeMenu();
 	// win.setMenu(mainMenu);
 	// Menu.setApplicationMenu(mainMenu);
-	win.webContents.setWindowOpenHandler(handler => {
+	win.webContents.setWindowOpenHandler((handler) => {
 		const { frameName, features } = handler;
 
 		if (frameName === 'editPanel') {
-			const { artist, title, lyricsKey, lyricsUrl } = (qs.parse(features, {
-				delimiter: ','
-			}) as unknown) as IchannelLyricsObj;
+			const { artist, title, lyricsKey, lyricsUrl } = qs.parse(features, {
+				delimiter: ',',
+			}) as unknown as IchannelLyricsObj;
 
-			win?.webContents.on('did-create-window', subWindow => {
+			win?.webContents.on('did-create-window', (subWindow) => {
 				child = subWindow;
 				subWindow.once('ready-to-show', () => {
 					subWindow.show();
@@ -186,7 +186,7 @@ function createWindow() {
 						song: title,
 						key: lyricsKey,
 						url: lyricsUrl,
-						delay: 0
+						delay: 0,
 					});
 					subWindow.webContents.send('syncLanguage', locale);
 				});
@@ -213,8 +213,8 @@ function createWindow() {
 					show: false,
 					autoHideMenuBar: true,
 					frame: false,
-					resizable: false
-				}
+					resizable: false,
+				},
 			};
 		} else {
 			return { action: 'deny' };
@@ -334,7 +334,7 @@ function createWindow() {
 }
 
 /**Create splash screen */
-function createSplash() {
+function createSplash(): void {
 	// console.log('create splash', new Date() - d);
 	// Create the splash window
 	splash = new BrowserWindow({
@@ -353,8 +353,8 @@ function createSplash() {
 			nodeIntegration: false,
 			enableRemoteModule: false,
 			contextIsolation: true,
-			nativeWindowOpen: true
-		}
+			nativeWindowOpen: true,
+		},
 	});
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -573,7 +573,7 @@ ipcMain.on('syncLanguage', (e, args) => {
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
 	if (process.platform === 'win32') {
-		process.on('message', data => {
+		process.on('message', (data) => {
 			if (data === 'graceful-exit') {
 				app.quit();
 			}

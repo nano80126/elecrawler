@@ -13,6 +13,9 @@
 	"[javascript]": {
 		"editor.formatOnSave": true // 針對 .prettierrc.js & .eslintrc.js
 	},
+	"[typescript]":{
+		"editor.formatOnSave": true // 針對 ts
+	},
 	"editor.tabSize": 4,
 	"vetur.validation.template": false
 }

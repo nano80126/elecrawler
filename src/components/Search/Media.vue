@@ -35,7 +35,7 @@
 						<template v-slot:prepend-inner>
 							<v-badge :value="badge" :content="urlIndex + 1" overlap left bottom color="orange">
 								<v-hover v-model="badge" close-delay="500">
-									<v-icon left color="red" style="cursor:default;">fab fa-youtube</v-icon>
+									<v-icon left color="red" style="cursor: default">fab fa-youtube</v-icon>
 								</v-hover>
 							</v-badge>
 						</template>
@@ -66,7 +66,7 @@
 								@click="openWindow(lyricsObj.obj.title)"
 								v-bind="attrs"
 								v-on="on"
-								style="position:relative;"
+								style="position: relative"
 							>
 								<v-icon small>fab fa-chrome</v-icon>
 							</v-btn>
@@ -182,7 +182,7 @@
 								@paste="onPaste"
 								@focus="canPaste = true"
 								@blur="canPaste = false"
-								style="outline: 0;"
+								style="outline: 0"
 							/>
 
 							<v-card
@@ -209,7 +209,7 @@
 										ref="img"
 										v-resize="resize"
 										@load="updateRatio"
-										style="border-radius: inherit; margin:auto;"
+										style="border-radius: inherit; margin: auto"
 									>
 										<template v-if="onRect">
 											<div id="small-region" ref="region" />
@@ -235,9 +235,7 @@
 											<br />
 											<small>Drag image and drop here</small>
 										</template>
-										<template v-else>
-											Drag image and drop here
-										</template>
+										<template v-else> Drag image and drop here </template>
 									</v-card-text>
 								</transition>
 
@@ -259,11 +257,11 @@
 				</v-col>
 				<v-col cols="3" offset="9" xl="2" offset-xl="10" class="mt-3 text-right">
 					<v-btn block outlined @click="saveMedia">
-						<div style="position: relative;">
+						<div style="position: relative">
 							<v-icon class="opa-75">fas fa-list</v-icon>
 							<v-icon x-small color="cyan" class="small-icon">fas fa-save</v-icon>
 						</div>
-						<span class="ml-2  font-weight-bold">{{ $t('save') }}</span>
+						<span class="ml-2 font-weight-bold">{{ $t('save') }}</span>
 					</v-btn>
 				</v-col>
 			</v-row>
@@ -325,8 +323,8 @@ import { OutputInfo } from 'sharp';
 
 @Component({
 	components: {
-		editPanel: edit
-	}
+		editPanel: edit,
+	},
 })
 export default class Media extends Vue {
 	/**是否為panel window */
@@ -352,7 +350,7 @@ export default class Media extends Vue {
 	/**是否顯示badge，顯示現在儲存的youtube url數量 */
 	private badge = false;
 	/**badge隱藏之timeout */
-	private badgeTimeout: NodeJS.Timeout | null = null;
+	private badgeTimeout: number | null = null;
 	/**是否有圖片將要拉進 */
 	private dragging = false;
 	/**是否可以貼上？當圖片區域focus時為true */
@@ -383,29 +381,29 @@ export default class Media extends Vue {
 		return this.urlObj[this.urlIndex].videoUrl || '';
 	}
 	/**更改當前顯示URL */
-	set activedURL(value) {
+	set activedURL(value: string) {
 		if (!value) this.urlObj[this.urlIndex].videoUrl = '';
 		else this.urlObj[this.urlIndex].videoUrl = value;
 	}
 
 	@Watch('urlIndex')
-	onUrlIndexChanged() {
+	onUrlIndexChanged(): void {
 		this.badge = true;
 
 		if (this.badgeTimeout) clearTimeout(this.badgeTimeout);
 		this.$nextTick(() => {
-			this.badgeTimeout = setTimeout(() => {
+			this.badgeTimeout = window.setTimeout(() => {
 				this.badge = false;
 			}, 1000);
 		});
 	}
 	@Watch('lyricsObj.obj.lyricsKey')
-	onLyricsKeyChanged() {
+	onLyricsKeyChanged(): void {
 		this.loadLyricsObj();
 	}
 
 	@Watch('onRect')
-	onOnRectChanged(bool: boolean) {
+	onOnRectChanged(bool: boolean): void {
 		if (bool) {
 			const keyon = (e: KeyboardEvent) => {
 				if (e.key == 'Escape') {
@@ -427,7 +425,7 @@ export default class Media extends Vue {
 	// 	console.log(bool);
 	// }
 
-	mounted() {
+	mounted(): void {
 		this.loadLyricsObj();
 	}
 
@@ -464,7 +462,7 @@ export default class Media extends Vue {
 				// 先判斷 videoArr存在
 				if (doc.videoArr) this.urlObj = doc.videoArr;
 			})
-			.catch(error => {
+			.catch((error) => {
 				AppModule.snackbar({ text: error, color: Colors.Error });
 			});
 	}
@@ -498,10 +496,10 @@ export default class Media extends Vue {
 							params: {
 								part: 'snippet, status',
 								id: id[0],
-								key: process.env.VUE_APP_YOUTUBE_DATA_API_KEY
-							}
+								key: process.env.VUE_APP_YOUTUBE_DATA_API_KEY,
+							},
 						})
-						.then(res => {
+						.then((res) => {
 							if (res.data.items[0].status.embeddable) {
 								this.$set(
 									this.urlObj,
@@ -513,7 +511,7 @@ export default class Media extends Vue {
 								this.urlIndex = itemKey;
 							}
 						})
-						.catch(err => {
+						.catch((err) => {
 							AppModule.snackbar({ text: err, color: Colors.Error });
 						});
 				}
@@ -538,7 +536,7 @@ export default class Media extends Vue {
 		if (videoID && videoID[0].length == 11) {
 			this.$ipcRenderer
 				.invoke('videoCover', { ID: videoID })
-				.then(res => {
+				.then((res) => {
 					if (res.Error) {
 						AppModule.snackbar({ text: res.message, color: Colors.Error });
 						return;
@@ -551,7 +549,7 @@ export default class Media extends Vue {
 						this.$set(this.imgSize, 'height', height);
 					});
 				})
-				.catch(err => {
+				.catch((err) => {
 					AppModule.snackbar({ text: err, color: Colors.Error });
 				});
 		} else {
@@ -578,7 +576,7 @@ export default class Media extends Vue {
 
 			this.$ipcRenderer
 				.invoke('toBuffer', { buffer: buf })
-				.then(res => {
+				.then((res) => {
 					this.imgBuffer = Buffer.from(res.data);
 
 					const { width, height } = res.info;
@@ -587,7 +585,7 @@ export default class Media extends Vue {
 						this.$set(this.imgSize, 'height', height);
 					});
 				})
-				.catch(err => {
+				.catch((err) => {
 					AppModule.snackbar({ text: err, color: Colors.Error });
 				});
 		});
@@ -618,7 +616,7 @@ export default class Media extends Vue {
 					this.$set(this.imgSize, 'height', height);
 				});
 			})
-			.catch(err => {
+			.catch((err) => {
 				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
 
@@ -641,7 +639,7 @@ export default class Media extends Vue {
 					});
 				}
 			})
-			.catch(err => {
+			.catch((err) => {
 				AppModule.snackbar({ text: err, color: Colors.Error });
 			})
 			.finally(() => {
@@ -661,7 +659,7 @@ export default class Media extends Vue {
 				.invoke('saveImage', {
 					buffer: this.imgBuffer,
 					key: this.lyricsObj.obj.lyricsKey,
-					size: { left: x, top: y, width: w, height: h }
+					size: { left: x, top: y, width: w, height: h },
 				})
 				.then((res: OutputInfo[]) => {
 					// if (res.Error) {
@@ -674,9 +672,9 @@ export default class Media extends Vue {
 					// this.urlObj = this.$lodash.compact(this.urlObj);
 					this.urlIndex = 0; // Set index to 0 or maybe return url not in urlObj
 					// 移除url為空
-					this.urlObj = this.urlObj.filter(e => e.videoUrl && e.videoUrl.length > 0);
+					this.urlObj = this.urlObj.filter((e) => e.videoUrl && e.videoUrl.length > 0);
 					// 去頭尾空白
-					this.urlObj.forEach(e => (e.artist = e.artist?.replace(/(^\s+)|(\s+$)/g, '')));
+					this.urlObj.forEach((e) => (e.artist = e.artist?.replace(/(^\s+)|(\s+$)/g, '')));
 
 					this.$ipcRenderer
 						.invoke('listSave', {
@@ -688,11 +686,11 @@ export default class Media extends Vue {
 									iconPath: res[1] ? `${picPath}\\${obj.lyricsKey}.icon.jpg` : undefined,
 									imageSize: this.imgSize,
 									rectangle: this.rectPercent,
-									datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-								}
-							}
+									datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss'),
+								},
+							},
 						})
-						.then(res => {
+						.then((res) => {
 							if (res.ok > 0) {
 								AppModule.snackbar({ text: '変更が保存された', color: Colors.Success });
 							}
@@ -706,7 +704,7 @@ export default class Media extends Vue {
 
 					const { obj } = this.lyricsObj;
 					this.$ipcRenderer.send('removeFile', {
-						files: [`${obj.lyricsKey}.jpg`, `${obj.lyricsKey}.icon.jpg`]
+						files: [`${obj.lyricsKey}.jpg`, `${obj.lyricsKey}.icon.jpg`],
 					});
 				});
 		} else {
@@ -714,9 +712,9 @@ export default class Media extends Vue {
 
 			this.urlIndex = 0;
 			// 移除url為空
-			this.urlObj = this.urlObj.filter(e => e.videoUrl && e.videoUrl.length > 0);
+			this.urlObj = this.urlObj.filter((e) => e.videoUrl && e.videoUrl.length > 0);
 			// 去頭尾空白
-			this.urlObj.forEach(e => (e.artist = e.artist?.replace(/(^\s+)|(\s+$)/g, '')));
+			this.urlObj.forEach((e) => (e.artist = e.artist?.replace(/(^\s+)|(\s+$)/g, '')));
 
 			this.$ipcRenderer
 				.invoke('listSave', {
@@ -728,14 +726,14 @@ export default class Media extends Vue {
 							imageSize: undefined,
 							rectangle: undefined,
 							iconPath: undefined,
-							datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss')
-						}
-					}
+							datetime: this.$moment().format('YYYY-MM-DD HH:mm:ss'),
+						},
+					},
 				})
-				.then(res => {
+				.then((res) => {
 					if (res.ok > 0) {
 						this.$ipcRenderer.send('removeFile', {
-							files: [`${obj.lyricsKey}.jpg`, `${obj.lyricsKey}.icon.jpg`]
+							files: [`${obj.lyricsKey}.jpg`, `${obj.lyricsKey}.icon.jpg`],
 						});
 						AppModule.snackbar({ text: '変更が保存された', color: Colors.Success });
 					}

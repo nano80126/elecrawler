@@ -13,17 +13,9 @@ This is a music player application with lyric crawler build by electron.
 - English
 - Chinese
 
-### Migration 
 
-* [ ] electron v10
+### Delete no use module in package.json
 
-### Waiting
-
-* [ ] Design an icon (lightning + spider)
-* [ ] vue i18n
-
-
-### Update to electron v11
 
 ### Onprogress
 
@@ -94,6 +86,9 @@ This is a music player application with lyric crawler build by electron.
     * create a background worker
 * [ ] Register ipcMain after win.show()
 * [ ] Clean interface between main and renderer
+* [ ] This dependency was not found
+    * mongodb-client-encryption in ./node_modules/mongodb/lib/encrypter.js
+    To install it, you can run: npm install --save mongodb-client-encryption
 
 
 ### Known bugs

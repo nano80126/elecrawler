@@ -45,14 +45,14 @@
 <script lang="ts">
 import media from '@/components/Search/Media.vue';
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import { AppModule } from '@/store/modules/app';
+import { AppModule, Isnackbar } from '@/store/modules/app';
 
 import { EpanelSend, IlyricsObjSearched } from '@/types/renderer';
 
 @Component({
 	components: {
-		lyricMedia: media
-	}
+		lyricMedia: media,
+	},
 })
 export default class App extends Vue {
 	/**show after mounted */
@@ -62,7 +62,7 @@ export default class App extends Vue {
 	/**當前使用語言 */
 	private language = this.$i18n.locale;
 
-	get snackbars() {
+	get snackbars(): Array<Isnackbar> {
 		return AppModule.snackbars;
 	}
 
@@ -71,16 +71,16 @@ export default class App extends Vue {
 	}
 
 	@Watch('$store.getters.barsVisible')
-	onBarsVisibleChange(value: number) {
+	onBarsVisibleChange(value: number): void {
 		if (value == 0) AppModule.emptySnackbars();
 	}
 
 	@Watch('language')
-	onLanguageChange(value: string) {
+	onLanguageChange(value: string): void {
 		this.$i18n.locale = value;
 	}
 
-	created() {
+	created(): void {
 		this.$ipcRenderer.on('lyricObj', (e, args) => {
 			this.lyricsObj = null;
 			this.$nextTick(() => {
@@ -91,15 +91,15 @@ export default class App extends Vue {
 							title: args.song,
 							lyricsKey: args.key,
 							lyricsUrl: args.url,
-							lyrics: ''
+							lyrics: '',
 						}),
-						exist: true
+						exist: true,
 					};
 				}, args.delay);
 			});
 		});
 
-		window.addEventListener('message', msg => {
+		window.addEventListener('message', (msg) => {
 			if (msg.data.type == 'lyricsObj') {
 				//
 				const { data } = msg.data;
@@ -112,9 +112,9 @@ export default class App extends Vue {
 								title: data.title,
 								lyricsKey: data.lyricsKey,
 								lyricsUrl: data.lyricsUrl,
-								lyrics: ''
+								lyrics: '',
 							}),
-							exist: true
+							exist: true,
 						};
 					}, data.delay);
 				});
@@ -126,7 +126,7 @@ export default class App extends Vue {
 		});
 	}
 
-	mounted() {
+	mounted(): void {
 		this.SHOW = true;
 	}
 

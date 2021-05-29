@@ -4,7 +4,7 @@
 			<v-app-bar app flat height="32" color="blue-grey darken-4">
 				<div class="window-drag header ml-n4" />
 				<!--  -->
-				<div class="" style="width: 90px;">
+				<div class="" style="width: 90px">
 					<!-- slider no used now -->
 					<v-slider ref="slider1" class="no-drag" value="100" hide-details />
 				</div>
@@ -94,7 +94,7 @@
 										:color="playerState[$store.getters.playState]"
 										dot
 										overlap
-										style="width:100%;"
+										style="width: 100%"
 									>
 										<v-list-item-content>
 											<v-icon small>fas fa-music</v-icon>
@@ -239,9 +239,7 @@
 			<v-dialog v-model="dialog" max-width="200" persistent>
 				<v-card>
 					<v-card-title class="text-center">
-						<span class="mx-auto subtitle-2 font-weight-bold">
-							リストデータをクリア
-						</span>
+						<span class="mx-auto subtitle-2 font-weight-bold"> リストデータをクリア </span>
 					</v-card-title>
 					<v-card-actions class="px-4">
 						<v-btn icon color="error darken-1" @click.stop="dialog = false">
@@ -249,9 +247,7 @@
 						</v-btn>
 						<v-spacer />
 						<v-btn icon color="success darken-1" @click.stop="dataEmpty">
-							<v-icon>
-								fas fa-check
-							</v-icon>
+							<v-icon> fas fa-check </v-icon>
 						</v-btn>
 					</v-card-actions>
 				</v-card>
@@ -281,7 +277,7 @@
 import Embed from '@/components/List/Embed.vue';
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import { AppModule, Colors } from '@/store/modules/app';
+import { AppModule, Colors, Isnackbar } from '@/store/modules/app';
 import { EwindowSend } from './types/renderer';
 
 // import Woker from '@/worker';
@@ -291,8 +287,8 @@ import { EwindowSend } from './types/renderer';
 
 @Component({
 	components: {
-		EmbedPlayer: Embed
-	}
+		EmbedPlayer: Embed,
+	},
 })
 export default class App extends Vue {
 	// $root!: {
@@ -313,7 +309,7 @@ export default class App extends Vue {
 		1: 'light-green darken-1',
 		2: 'warning',
 		3: 'pink',
-		5: 'info'
+		5: 'info',
 	});
 
 	/**Toggle menu show / hide, hide after language changed */
@@ -322,7 +318,7 @@ export default class App extends Vue {
 	private languages = Object.freeze({
 		tw: '中文',
 		en: 'English',
-		jp: '日本語'
+		jp: '日本語',
 	});
 	/**當前使用語言 (待刪)*/
 	// private language = this.$i18n.locale;
@@ -336,7 +332,7 @@ export default class App extends Vue {
 		return AppModule.overlay;
 	}
 
-	get snackbars() {
+	get snackbars(): Isnackbar[] {
 		return AppModule.snackbars;
 	}
 
@@ -345,26 +341,26 @@ export default class App extends Vue {
 	}
 
 	@Watch('$store.getters.barsVisible')
-	onBarsVisibleChange(value: number) {
+	onBarsVisibleChange(value: number): void {
 		if (value == 0) AppModule.emptySnackbars();
 	}
 
 	/**Watch Locale */
 	@Watch('$i18n.locale')
-	onLanguageChange(value: string) {
+	onLanguageChange(value: string): void {
 		// this.$i18n.locale = value;
 		this.menu = false; // 關閉 menu
 		this.$ipcRenderer.send('syncLanguage', { locale: value }); // 同步所有視窗
 	}
 
 	// life cycle
-	created() {
+	created(): void {
 		this.$router.beforeEach((to, from, next) => {
 			next();
 		});
 	}
 
-	mounted() {
+	mounted(): void {
 		this.SHOW = true;
 		this.bottomSheet = false;
 
@@ -412,9 +408,9 @@ export default class App extends Vue {
 		// 清空 path directory
 		this.$ipcRenderer
 			.invoke('listRemove', { query: {} })
-			.then(res => {
+			.then((res) => {
 				if (res.ok > 0) {
-					this.$ipcRenderer.invoke('emptyDir').then(res => {
+					this.$ipcRenderer.invoke('emptyDir').then((res) => {
 						if (res) {
 							AppModule.snackbar({ text: this.$t('clearDone') as string, color: Colors.Success });
 						}
@@ -423,7 +419,7 @@ export default class App extends Vue {
 			})
 			.catch((err: Error) => {
 				// this.$store.commit('snackbar', );
-				AppModule.snackbar({ text: err.message, color: 'error' });
+				AppModule.snackbar({ text: err.message, color: Colors.Error });
 			})
 			.finally(() => (this.dialog = false));
 	}
