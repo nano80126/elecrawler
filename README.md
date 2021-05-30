@@ -1,10 +1,10 @@
-# electron-lyric
+# ELECRAWLER
 
-This is a music player application with lyric crawler build by electron.
+YouTube music player App create by electron
 
 ### Features
 * Crawling lyric from **[歌詞検索サイト うたてん](https://utaten.com/)**
-* Custom background image of each lyric card by
+* Custom background image of each lyrics card by
     * Extracting cover image from **Youtube**
     * Picking image from local drive 
 
@@ -12,10 +12,6 @@ This is a music player application with lyric crawler build by electron.
 - Japanese
 - English
 - Chinese
-
-
-### Delete no use module in package.json
-
 
 ### Onprogress
 
@@ -91,24 +87,14 @@ This is a music player application with lyric crawler build by electron.
     To install it, you can run: npm install --save mongodb-client-encryption
 
 
-### Known bugs
+### To Do List 
 
-* [ ] ini prototype pollution and fixed using resolution in package.json
-* [ ] Mongodb bundle warning in production environment
+1. [ ] 
 
-### Vuex
+### Known Warning
 
-### New Route
+1. Mongodb bundle warning in production environment
 
-* [ ] sub play list
+### New Views
 
-### New Page 
-
-* [ ] First, create new branch
-* [ ] Toolbox window 
-* [ ] Browser window 
-
-### bundle / build
-
-### Make easy to migrate from development to production
-
+* sub play list
