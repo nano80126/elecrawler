@@ -6,11 +6,11 @@ import path from 'path';
 
 /**初始化express */
 export function initializeExpress(): Promise<string> {
-	return new Promise(resolve => {
+	return new Promise((resolve) => {
 		const app = express();
 		const router = express.Router();
 
-		const port = ((process.env.VUE_APP_PORT as unknown) as number) || 4000;
+		const port = (process.env.VUE_APP_PORT as unknown as number) || 4000;
 
 		// for CORS(Cross-Origin Resource Sharing) settings
 		app.use((req, res, next) => {

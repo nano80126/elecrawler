@@ -1,6 +1,6 @@
 /* eslint-disable */
-const { config } = require('vuex-module-decorators');
 const webpack = require('webpack');
+const nodeExternals = require('webpack-node-externals');
 // const WorkerPlugin = require('worker-plugin');
 
 module.exports = {
@@ -16,10 +16,10 @@ module.exports = {
 		// 	console.log(process.env.IS_ELECTRON);
 		// },
 		open: false,
-		port: 8080
+		port: 8080,
 	},
 	css: {
-		extract: { ignoreOrder: true }
+		extract: { ignoreOrder: true },
 	},
 	pages: {
 		main: {
@@ -27,29 +27,29 @@ module.exports = {
 			template: 'public/index.html',
 			filename: 'index.html',
 			title: 'main',
-			chunks: ['chunk-common', 'chunk-main-vendors', 'main']
+			chunks: ['chunk-common', 'chunk-main-vendors', 'main'],
 		},
 		splash: {
 			entry: 'src/pages/splash/main.ts',
 			template: 'public/splash.html',
 			filename: 'splash.html',
 			title: 'splash',
-			chunks: ['chunk-common', 'chunk-splash-vendors', 'splash']
+			chunks: ['chunk-common', 'chunk-splash-vendors', 'splash'],
 		},
 		panel: {
 			entry: 'src/pages/panel/main.ts',
 			template: 'public/splash.html',
 			filename: 'panel.html',
 			title: 'panel',
-			chunks: ['chunk-common', 'chunk-panel-vendors', 'panel']
-		}
+			chunks: ['chunk-common', 'chunk-panel-vendors', 'panel'],
+		},
 	},
-	chainWebpack: config => {
+	chainWebpack: (config) => {
 		// 保留空白
 		config.module
 			.rule('vue')
 			.use('vue-loader')
-			.tap(args => {
+			.tap((args) => {
 				args.compilerOptions.whitespace = 'preserve';
 			});
 
@@ -58,23 +58,23 @@ module.exports = {
 				main: {
 					name: 'chunk-main-vendors',
 					priority: -10,
-					chunks: chunk => chunk.name === 'main',
+					chunks: (chunk) => chunk.name === 'main',
 					test: /[\\/]node_modules[\\/]/,
-					enforce: true
+					enforce: true,
 				},
 				splash: {
 					name: 'chunk-splash-vendors',
 					priority: -11,
-					chunks: chunk => chunk.name === 'splash',
+					chunks: (chunk) => chunk.name === 'splash',
 					test: /[\\/]node_modules[\\/]/,
-					enforce: true
+					enforce: true,
 				},
 				panel: {
 					name: 'chunk-panel-vendors',
 					priority: -12,
-					chunks: chunk => chunk.name === 'panel',
+					chunks: (chunk) => chunk.name === 'panel',
 					test: /[\\/]node_modules[\\/]/,
-					enforce: true
+					enforce: true,
 				},
 				common: {
 					name: 'chunk-common',
@@ -82,17 +82,17 @@ module.exports = {
 					chunks: 'initial',
 					minChunks: 2,
 					reuseExistingChunk: true,
-					enforce: true
-				}
-			}
+					enforce: true,
+				},
+			},
 		});
 	},
 	configureWebpack: {
 		plugins: [
-			new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-tw$/)
+			new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-tw$/),
 			//
 			// new WorkerPlugin()
-		]
+		],
 	},
 	// configureWebpack: () => {
 	// 	return {
@@ -104,29 +104,54 @@ module.exports = {
 			preload: 'src/preload.ts',
 			// {mainPreload: "src/preload.ts",panelPreload: "src/preload2.ts"},
 
-			chainWebpackMainProcess: config => {
+			chainWebpackMainProcess: (config) => {
 				// Chain webpack config for electron main process only
 				// config.target = 'node';
-
 				const exts = {
-					sharp: 'commonjs2 sharp'
-					// mongodb: "commonjs mongodb"
+					sharp: 'commonjs2 sharp',
+					// mongodb: 'commonjs2 mongodb',
+					// express: 'express',
 				};
-
 				Object.assign(
 					exts,
 					process.env.NODE_ENV == 'development' ? { mongodb: 'commonjs2 mongodb' } : undefined
+					// process.env.NODE_ENV == 'development' ? { express: { commonjs: 'express' } } : undefined,
 				);
-
+				// config.externals([
+				// 	exts,
+				// 	{
+				// 		// bufferutil: 'commonjs bufferutil',
+				// 		// 'utf-8-validate': 'commonjs utf-8-validate'
+				// 	},
+				// ]);
+				// config.target = 'node';
+				// config.externals([
+				// 	nodeExternals({
+				// 		allowlist: [
+				// 			/^vue-cli-plugin-electron-builder/,
+				// 			// 'tslib',
+				// 			'cheerio',
+				// 			'axios',
+				// 			'qs',
+				// 			/^lodash/,
+				// 			// 'moment'
+				// 			// 'side-channel',
+				// 			// 'get-intrinsic',
+				// 			// 'has-symbols',
+				// 		],
+				// 		modulesFromFile: true,
+				// 	}),
+				// ]);
+				config.target = 'node';
 				config.externals([
 					exts,
-					{
-						// bufferutil: 'commonjs bufferutil',
-						// 'utf-8-validate': 'commonjs utf-8-validate'
-					}
+					// {
+					// 	// express: { commonjs: 'express' },
+					// 	// mongodb: { commonjs2: 'mongodb' },
+					// },
 				]);
 			},
-			chainWebpackRendererProcess: config => {
+			chainWebpackRendererProcess: (config) => {
 				// config.plugin('define').tap(args => {
 				// 	args[0]['TEST123'] = true;
 				// 	return args;
@@ -156,24 +181,24 @@ module.exports = {
 					target: [
 						{
 							target: 'nsis',
-							arch: ['x64']
-						}
-					]
+							arch: ['x64'],
+						},
+					],
 				},
 				nsis: {
 					oneClick: false,
 					allowElevation: true,
 					allowToChangeInstallationDirectory: true,
 					createDesktopShortcut: true,
-					shortcutName: 'Spider'
-				}
-			}
+					shortcutName: 'Spider',
+				},
+			},
 		},
 		i18n: {
 			locale: 'tw',
 			fallbackLocale: 'en',
 			localeDir: 'locales',
-			enableInSFC: false
-		}
-	}
+			enableInSFC: false,
+		},
+	},
 };

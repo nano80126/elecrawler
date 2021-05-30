@@ -57,9 +57,9 @@ This is a music player application with lyric crawler build by electron.
 * [x] Keywords looks odd (v-chip)
 * [x] Keywords use slide in animation
 * [x] fix edit panel
-    * nodeintegration = false
-    * enableRemoteModule = false
-    * contextIsolation = true
+    * nodeintegration=false
+    * enableRemoteModule=false
+    * contextIsolation=true
 * [x] Preload not work in production env
 * [x] Can't build in production
 * [x] Asyc volume and play mode between embed and tray 
