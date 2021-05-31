@@ -40,39 +40,3 @@ export interface IchannelLyricsObj {
 	lyricsKey: string;
 	lyricsUrl: string;
 }
-
-/**enumerater of ipcMain.on event for window control */
-export enum EwindowOn {
-	WINDOWMIN = 'window-min',
-	WINDOWMAX = 'window-max',
-	WINDOWRESTORE = 'window-restore',
-	WINDOWHIDE = 'window-hide',
-	WINDOWCLOSE = 'window-close',
-	WINDOWWIDTH = 'window-width'
-}
-
-/**enumerater of ipcMain.on event for window control */
-export enum EpanelOn {
-	PANELSHOW = 'panel-show',
-	PANELHIDE = 'panel-hide'
-}
-
-/**enumerater of ipcMain.on event for tray control */
-export enum EtrayOn {
-	MODE = 'tray-mode',
-	VOLUME = 'tray-volume'
-}
-
-/**enumerator of ipcMain.send to main.ts */
-export enum EmodeSend {
-	MODESINGLE = 'mode-single',
-	MODELOOP = 'mode-loop',
-	MODESHUFFLE = 'mode-shuffle'
-}
-
-/**enumerator of ipcMain.send to main.ts */
-export enum EvolumeSend {
-	VOLUMEPLUS = 'volume-plus',
-	VOLUMEMINUS = 'volume-minus',
-	VOLUMESET = 'volume-set'
-}

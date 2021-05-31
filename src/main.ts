@@ -20,7 +20,8 @@ import axios, { AxiosStatic } from 'axios';
 import qs, { stringify } from 'qs';
 
 import { LyModule } from '@/store/modules/lyrics';
-import { EmodeOn, EvolumeOn, IdisplayTxt, IlyricsDisplayObj, IlyricsObj, IsongList } from '@/types/renderer';
+import { IdisplayTxt, IlyricsDisplayObj, IlyricsObj, IsongList } from '@/types/renderer';
+import { EwindowOn, EtrayMode, EtrayVolume } from './types/enum';
 import '@/style.scss';
 
 /// ///
@@ -66,8 +67,6 @@ declare global {
 		YT: YT.Player;
 		ipcRenderer: IpcRenderer;
 		shell: Shell;
-		// api: any;
-		// test: any;
 	}
 }
 
@@ -78,8 +77,6 @@ declare module 'vue/types/vue' {
 		$axios: AxiosStatic;
 		$lodash: LoDashStatic;
 		$qs: { stringify: typeof stringify };
-
-		// $fs: { readdirSync: Function; unlink: Function; exists: Function; mkdir: Function };
 		$ipcRenderer: IpcRenderer;
 		$shell: Shell;
 		$eventNames(): Array<string>;
@@ -104,7 +101,6 @@ new Vue({
 			screenWidth: window.screen.width,
 			screenHeight: window.screen.height,
 			//
-
 			colors: Object.freeze([
 				'primary',
 				'cyan',
@@ -197,7 +193,7 @@ new Vue({
 		window.onresize = async () => {
 			this.webWidth = window.innerWidth;
 			this.webHeight = window.innerHeight;
-			this.windowIsMax = await this.$ipcRenderer.invoke('isMaxmized');
+			this.windowIsMax = await this.$ipcRenderer.invoke(EwindowOn.WINDOWMAXIMIZED);
 		};
 
 		this.loadUrlInList();
@@ -261,37 +257,40 @@ new Vue({
 				}
 			});
 
-			this.$ipcRenderer.on(EvolumeOn.VOLUMEPLUS, () => {
+			this.$ipcRenderer.on(EtrayVolume.VOLUMEPLUS, () => {
 				if (PlayerModule.player) {
 					PlayerModule.videoPlusVolume(5);
 				}
 			});
 
-			this.$ipcRenderer.on(EvolumeOn.VOLUMEMINUS, () => {
+			this.$ipcRenderer.on(EtrayVolume.VOLUMEMINUS, () => {
 				if (PlayerModule.player) {
 					PlayerModule.videoMinusVolume(5);
 				}
 			});
 
-			this.$ipcRenderer.on(EvolumeOn.VOLUMESET, (e, args) => {
+			this.$ipcRenderer.on(EtrayVolume.VOLUMESET, (e, args) => {
 				// if (PlayerModule.player) {
 				PlayerModule.videoSetVolume(args.vol);
 				// }
 			});
 
-			this.$ipcRenderer.on(EmodeOn.MODESINGLE, () => {
-				PlayerModule.videoLoop(false);
-				PlayerModule.videoShuffle(false);
+			this.$ipcRenderer.on(EtrayMode.MODESINGLE, () => {
+				PlayerModule.videoLoop(false, false);
+				PlayerModule.videoShuffle(false, false);
+				console.log(1);
 			});
 
-			this.$ipcRenderer.on(EmodeOn.MODELOOP, () => {
-				PlayerModule.videoLoop(true);
-				PlayerModule.videoShuffle(false);
+			this.$ipcRenderer.on(EtrayMode.MODELOOP, () => {
+				PlayerModule.videoLoop(true, false);
+				PlayerModule.videoShuffle(false, false);
+				console.log(2);
 			});
 
-			this.$ipcRenderer.on(EmodeOn.MODESHUFFLE, () => {
-				PlayerModule.videoLoop(false);
-				PlayerModule.videoShuffle(true);
+			this.$ipcRenderer.on(EtrayMode.MODESHUFFLE, () => {
+				PlayerModule.videoLoop(false, false);
+				PlayerModule.videoShuffle(true, false);
+				console.log(3);
 			});
 		},
 	},

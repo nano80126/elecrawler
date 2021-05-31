@@ -69,38 +69,38 @@ export interface IsongListWithIcon extends IsongList {
 	icon: Buffer;
 }
 
-/**enumerater of ipcMain.Send event for window control */
-export enum EwindowSend {
-	WINDOWMIN = 'window-min',
-	WINDOWMAX = 'window-max',
-	WINDOWRESTORE = 'window-restore',
-	WINDOWHIDE = 'window-hide',
-	WINDOWCLOSE = 'window-close',
-	WINDOWWIDTH = 'window-width',
-}
+// /**enumerater of ipcMain.Send event for window control */
+// export enum EwindowOn {
+// 	WINDOWMIN = 'window-min',
+// 	WINDOWMAX = 'window-max',
+// 	WINDOWRESTORE = 'window-restore',
+// 	WINDOWHIDE = 'window-hide',
+// 	WINDOWCLOSE = 'window-close',
+// 	WINDOWWIDTH = 'window-width',
+// }
 
-/**enumerater of ipcMain.Send event for panel control */
-export enum EpanelSend {
-	PANELSHOW = 'panel-show',
-	PANELHIDE = 'panel-hide',
-}
+// /**enumerater of ipcMain.Send event for panel control */
+// export enum EpanelSend {
+// 	PANELSHOW = 'panel-show',
+// 	PANELHIDE = 'panel-hide',
+// }
 
 /**enumerater of ipcRenderer.send event for tray control */
-export enum EtraySend {
-	MODE = 'tray-mode',
-	VOLUME = 'tray-volume',
-}
+// export enum EtraySend {
+// 	MODE = 'tray-mode',
+// 	VOLUME = 'tray-volume',
+// }
 
 /**enumerator of ipcRenderer.on in main.ts */
-export enum EmodeOn {
-	MODESINGLE = 'mode-single',
-	MODELOOP = 'mode-loop',
-	MODESHUFFLE = 'mode-shuffle',
-}
+// export enum EmodeOn {
+// 	MODESINGLE = 'mode-single',
+// 	MODELOOP = 'mode-loop',
+// 	MODESHUFFLE = 'mode-shuffle',
+// }
 
 /**enumerator of ipcRenderer.on in main.ts */
-export enum EvolumeOn {
-	VOLUMEPLUS = 'volume-plus',
-	VOLUMEMINUS = 'volume-minus',
-	VOLUMESET = 'volume-set',
-}
+// export enum EvolumeOn {
+// 	VOLUMEPLUS = 'volume-plus',
+// 	VOLUMEMINUS = 'volume-minus',
+// 	VOLUMESET = 'volume-set',
+// }

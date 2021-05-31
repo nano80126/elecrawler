@@ -182,7 +182,7 @@ export default class Embed extends Vue {
 	}
 
 	set loop(value: boolean) {
-		PlayerModule.videoLoop(value);
+		PlayerModule.videoLoop(value, true);
 	}
 
 	/**隨機播放狀態 */
@@ -191,7 +191,7 @@ export default class Embed extends Vue {
 	}
 
 	set shuffle(value: boolean) {
-		PlayerModule.videoShuffle(value);
+		PlayerModule.videoShuffle(value, true);
 	}
 
 	/**播放進度條 */

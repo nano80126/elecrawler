@@ -1,19 +1,19 @@
 import { globalShortcut } from 'electron';
 import { win } from '@/background';
-import { EvolumeSend } from '@/types/main';
+import { EtrayVolume } from '@/types/enum';
 
 /** 註冊 global 快捷鍵 */
 export function globalRegisterHotkey() {
-	return new Promise(resolve => {
+	return new Promise((resolve) => {
 		globalShortcut.register('Alt+-', () => {
 			if (win) {
-				win.webContents.send(EvolumeSend.VOLUMEMINUS);
+				win.webContents.send(EtrayVolume.VOLUMEMINUS);
 			}
 		});
 
 		globalShortcut.register('Alt+=', () => {
 			if (win) {
-				win.webContents.send(EvolumeSend.VOLUMEPLUS);
+				win.webContents.send(EtrayVolume.VOLUMEPLUS);
 			}
 		});
 

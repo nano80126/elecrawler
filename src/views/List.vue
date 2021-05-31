@@ -166,8 +166,9 @@ import player from '@/components/List/Embed.vue';
 import { AppModule, Colors } from '@/store/modules/app';
 import { LyModule } from '@/store/modules/lyrics';
 import { PlayerModule } from '@/store/modules/player';
-import { EpanelSend, EwindowSend, IlyricsDisplayObj, IlyricsObj, IsongList, IsongListWithIcon } from '@/types/renderer';
 import { OutputInfo } from 'sharp';
+import { IlyricsDisplayObj, IlyricsObj, IsongList, IsongListWithIcon } from '@/types/renderer';
+import { EpanelOn, EwindowOn } from '@/types/enum';
 
 import { Component, Vue } from 'vue-property-decorator';
 // import { getModule } from 'vuex-module-decorators';
@@ -228,7 +229,7 @@ export default class List extends Vue {
 
 	/**展開視窗 */
 	private expandWidth() {
-		if (!this.isTwoColumn) this.$ipcRenderer.send(EwindowSend.WINDOWWIDTH, { width: 1680 });
+		if (!this.isTwoColumn) this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 1680 });
 	}
 
 	/**刷新列表 */
@@ -327,7 +328,7 @@ export default class List extends Vue {
 		};
 
 		if (AppModule.subWindow) {
-			this.$ipcRenderer.invoke(EpanelSend.PANELSHOW).then((exist: boolean) => {
+			this.$ipcRenderer.invoke(EpanelOn.PANELSHOW).then((exist: boolean) => {
 				if (exist) {
 					const data = Object.assign(lyricObj, { delay: 500 });
 					AppModule.subWindow?.postMessage({ type: 'lyricsObj', data }, '*');

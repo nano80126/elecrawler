@@ -278,7 +278,7 @@ import Embed from '@/components/List/Embed.vue';
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { AppModule, Colors, Isnackbar } from '@/store/modules/app';
-import { EwindowSend } from './types/renderer';
+import { EwindowOn } from './types/enum';
 
 // import Woker from '@/worker';
 // import Worker from 'http://localhost:4000/123';
@@ -379,24 +379,24 @@ export default class App extends Vue {
 
 	// methods
 	private windowMin() {
-		this.$ipcRenderer.send(EwindowSend.WINDOWMIN);
+		this.$ipcRenderer.send(EwindowOn.WINDOWMIN);
 	}
 
 	private windowMax() {
-		this.$ipcRenderer.send(EwindowSend.WINDOWMAX);
+		this.$ipcRenderer.send(EwindowOn.WINDOWMAX);
 	}
 
 	private windowRestore() {
-		this.$ipcRenderer.send(EwindowSend.WINDOWRESTORE);
+		this.$ipcRenderer.send(EwindowOn.WINDOWRESTORE);
 	}
 
 	private windowHide() {
-		this.$ipcRenderer.send(EwindowSend.WINDOWHIDE);
+		this.$ipcRenderer.send(EwindowOn.WINDOWHIDE);
 	}
 
 	private appClose() {
 		// window close // if all window closed, then app will close too
-		this.$ipcRenderer.send(EwindowSend.WINDOWCLOSE);
+		this.$ipcRenderer.send(EwindowOn.WINDOWCLOSE);
 	}
 
 	private openPicDir() {

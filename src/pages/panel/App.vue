@@ -47,7 +47,8 @@ import media from '@/components/Search/Media.vue';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { AppModule, Isnackbar } from '@/store/modules/app';
 
-import { EpanelSend, IlyricsObjSearched } from '@/types/renderer';
+import { IlyricsObjSearched } from '@/types/renderer';
+import { EpanelOn } from '@/types/enum';
 
 @Component({
 	components: {
@@ -131,7 +132,8 @@ export default class App extends Vue {
 	}
 
 	private windowHide() {
-		this.$ipcRenderer.send(EpanelSend.PANELHIDE);
+		// this.$ipcRenderer.send(EpanelSend.PANELHIDE);
+		this.$ipcRenderer.send(EpanelOn.PANELHIDE);
 	}
 }
 </script>

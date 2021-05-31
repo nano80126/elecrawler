@@ -2,7 +2,7 @@
 
 declare const __static: string;
 
-import { app, protocol, BrowserWindow, ipcMain, Tray, Menu, MenuItem } from 'electron';
+import { app, protocol, BrowserWindow, ipcMain, Tray, Menu, MenuItem, shell } from 'electron';
 // import { Worker, isMainThread } from 'worker_threads';
 // import { execFile, fork, spawn } from 'child_process';
 import path from 'path';
@@ -39,7 +39,8 @@ import { createMongoConnection, mongoCLient } from './api/mongo';
 /******************************************************************************************************* */
 
 // custom types
-import { Iconfig, IchannelLyricsObj, EtrayOn, EwindowOn, EmodeSend, EvolumeSend, EpanelOn } from './types/main';
+import { Iconfig, IchannelLyricsObj } from './types/main';
+import { EwindowOn, EpanelOn, EtrayOn, EtrayMode, EtrayVolume } from './types/enum';
 import { exit } from 'process';
 // import './api/mongo';
 
@@ -80,10 +81,10 @@ function createTrayMenu(): Promise<string> {
 						type: 'radio',
 						label: 'Single',
 						checked: true,
-						click: () => win?.webContents.send(EmodeSend.MODESINGLE),
+						click: () => win?.webContents.send(EtrayMode.MODESINGLE),
 					},
-					{ type: 'radio', label: 'Loop', click: () => win?.webContents.send(EmodeSend.MODELOOP) },
-					{ type: 'radio', label: 'Shuffle', click: () => win?.webContents.send(EmodeSend.MODESHUFFLE) },
+					{ type: 'radio', label: 'Loop', click: () => win?.webContents.send(EtrayMode.MODELOOP) },
+					{ type: 'radio', label: 'Shuffle', click: () => win?.webContents.send(EtrayMode.MODESHUFFLE) },
 				],
 			},
 			{
@@ -93,28 +94,28 @@ function createTrayMenu(): Promise<string> {
 					{
 						type: 'radio',
 						label: 'Mute',
-						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 0 }),
+						click: () => win?.webContents.send(EtrayVolume.VOLUMESET, { vol: 0 }),
 					},
 					{
 						type: 'radio',
 						label: '25%',
-						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 25 }),
+						click: () => win?.webContents.send(EtrayVolume.VOLUMESET, { vol: 25 }),
 					},
 					{
 						type: 'radio',
 						label: '50%',
-						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 50 }),
+						click: () => win?.webContents.send(EtrayVolume.VOLUMESET, { vol: 50 }),
 					},
 					{
 						checked: true,
 						type: 'radio',
 						label: '75%',
-						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 75 }),
+						click: () => win?.webContents.send(EtrayVolume.VOLUMESET, { vol: 75 }),
 					},
 					{
 						type: 'radio',
 						label: '100%',
-						click: () => win?.webContents.send(EvolumeSend.VOLUMESET, { vol: 100 }),
+						click: () => win?.webContents.send(EtrayVolume.VOLUMESET, { vol: 100 }),
 					},
 					{ type: 'radio', label: 'Custom', enabled: false },
 				],
@@ -486,7 +487,7 @@ function windowOn() {
 		win?.setSize(args.width, win?.getSize()[1], true);
 	});
 
-	ipcMain.handle('isMaxmized', () => {
+	ipcMain.handle(EwindowOn.WINDOWMAXIMIZED, () => {
 		return win?.isMaximized();
 	});
 }
@@ -519,6 +520,8 @@ function trayOn() {
 	ipcMain.on(EtrayOn.MODE, (e, args: { loop: boolean; shuffle: boolean }) => {
 		if (contextMenu) {
 			const { loop, shuffle } = args;
+
+			console.log(loop, shuffle);
 			// first items means mode, second items means mode selections
 			if (loop) {
 				(contextMenu.items[2].submenu?.items[1] as MenuItem).checked = true;
