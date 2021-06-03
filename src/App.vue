@@ -6,7 +6,7 @@
 				<!--  -->
 				<div class="" style="width: 90px">
 					<!-- slider no used now -->
-					<v-slider ref="slider1" class="no-drag" value="100" hide-details />
+					<v-slider ref="slider1" class="no-drag" value="100" min="0" max="100" hide-details />
 				</div>
 				<!-- <span class="ml-3">{{ $t('message') }}</span> -->
 				<v-spacer />
@@ -35,8 +35,15 @@
 				</v-btn>
 			</v-app-bar>
 
-			<v-navigation-drawer app dark permanent mini-variant mini-variant-width="64" class="brown darken-2">
-				<div class="window-drag left" />
+			<!-- brown darken-2 -->
+			<v-navigation-drawer app dark permanent mini-variant mini-variant-width="64" class="">
+				<v-img
+					class="nav-back"
+					position="left 55% center"
+					:src="require('@/assets/nav3.jpg')"
+					style="opacity: 0.6"
+				/>
+				<div class="window-drag left" style="opacity: 0.5" />
 				<!--  -->
 				<v-list flat class="no-drag">
 					<v-tooltip right transition="scroll-x-transition" open-delay="300">
@@ -431,6 +438,11 @@ export default class App extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.nav-back {
+	position: absolute;
+	height: 100%;
+}
+
 .fixed-right-bottom {
 	position: fixed;
 	font-weight: bold;

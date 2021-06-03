@@ -33,6 +33,8 @@ YouTube music player App create by electron
 * [ ] This dependency was not found
     * mongodb-client-encryption in ./node_modules/mongodb/lib/encrypter.js
     To install it, you can run: npm install --save mongodb-client-encryption
+* [ ] Panel add scroll bar
+* [ ] Add portfinder for find free port
 
 ### Known Warning
 
