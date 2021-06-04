@@ -55,8 +55,8 @@ new Vue({
 
 	data() {
 		return {
-			// webWidth: window.innerWidth,
-			// webHeight: window.innerHeight
+			webWidth: window.innerWidth,
+			webHeight: window.innerHeight, // panel 會用到
 		};
 	},
 	///

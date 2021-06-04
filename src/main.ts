@@ -278,19 +278,16 @@ new Vue({
 			this.$ipcRenderer.on(EtrayMode.MODESINGLE, () => {
 				PlayerModule.videoLoop(false, false);
 				PlayerModule.videoShuffle(false, false);
-				console.log(1);
 			});
 
 			this.$ipcRenderer.on(EtrayMode.MODELOOP, () => {
 				PlayerModule.videoLoop(true, false);
 				PlayerModule.videoShuffle(false, false);
-				console.log(2);
 			});
 
 			this.$ipcRenderer.on(EtrayMode.MODESHUFFLE, () => {
 				PlayerModule.videoLoop(false, false);
 				PlayerModule.videoShuffle(true, false);
-				console.log(3);
 			});
 		},
 	},

@@ -1,6 +1,7 @@
 // import { ipcMain } from 'electron';
 import express from 'express';
 import path from 'path';
+import portfinder from 'portfinder';
 // import { parentPort, isMainThread } from 'worker_threads';
 // import { app as electron } from 'electron';
 
@@ -56,9 +57,25 @@ export function initializeExpress(): Promise<string> {
 		// 	res.send('This is as test message');
 		// });
 
-		app.listen(port, 'localhost', () => {
-			console.log(`Http Server Started On Port ${port} :)`);
-			resolve('create express server successfully');
-		});
+		// 搜尋可用 port
+		portfinder.getPort(
+			{
+				startPort: 4000,
+				port: 4000,
+				stopPort: 4050,
+			},
+			(err, port) => {
+				if (err) console.log(err);
+
+				app.listen(port, 'localhost', () => {
+					console.log(`Http Server Started On Port ${port} :)`);
+					resolve('create express server successfully');
+				});
+			}
+		);
+		// app.listen(port, 'localhost', () => {
+		// 	console.log(`Http Server Started On Port ${port} :)`);
+		// 	resolve('create express server successfully');
+		// });
 	});
 }

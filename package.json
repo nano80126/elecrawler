@@ -24,6 +24,7 @@
 		"moment": "^2.29.1",
 		"mongodb": "^3.6.2",
 		"mongodb-client-encryption": "^1.2.3",
+		"portfinder": "^1.0.28",
 		"qs": "^6.10.0",
 		"sharp": "^0.27.2",
 		"vue": "^2.6.11",

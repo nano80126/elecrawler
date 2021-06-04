@@ -6,7 +6,15 @@
 				<!--  -->
 				<div class="" style="width: 90px">
 					<!-- slider no used now -->
-					<v-slider ref="slider1" class="no-drag" value="100" min="0" max="100" hide-details />
+					<v-slider
+						ref="slider1"
+						class="no-drag no-hover"
+						min="0"
+						max="100"
+						step="1"
+						value="100"
+						hide-details
+					/>
 				</div>
 				<!-- <span class="ml-3">{{ $t('message') }}</span> -->
 				<v-spacer />
@@ -464,5 +472,17 @@ export default class App extends Vue {
 .slideRight-leave-to {
 	opacity: 0;
 	transform: translateX(60px);
+}
+</style>
+
+<style lang="scss">
+.no-hover > .v-input__control > .v-input__slot > .v-slider > .v-slider__thumb-container > .v-slider__thumb {
+	cursor: pointer;
+
+	&::before {
+		content: '';
+		width: 0;
+		height: 0;
+	}
 }
 </style>
