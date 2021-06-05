@@ -18,37 +18,36 @@ export interface Isnackbar {
 }
 
 export interface AppState {
+	/**子視窗 Window */
 	subWindow: Window | null;
+	/**overlay 是否顯示 */
 	overlay: boolean;
 	snackbars: Isnackbar[];
+	/**是否為 electron */
 	isElectron: boolean;
+	/**圖片路徑 */
 	picPath: string;
+	/**後端 port */
+	port: number;
+	/**播放列表 video ID */
 	playList: string[];
+	/**歌詞列表 Lyrics Url */
 	urlList: string[];
-	videoID: string;
-	videoTitle: string;
 }
 
 @Module({ dynamic: true, store, name: 'app' })
 class Common extends VuexModule implements AppState {
-	/**子視窗 Window */
 	public subWindow: Window | null = null;
-	/**是否覆蓋overlay */
 	public overlay = false;
 	//
-	public snackbars: Isnackbar[] = [];
+	public snackbars: Array<Isnackbar> = [];
 	//
 	public isElectron = process.env.IS_ELECTRON ? true : false;
-	/**圖片路徑 */
 	public picPath = '';
-	/**播放列表 video ID */
-	public playList: string[] = [];
-	/**播放中之 video ID */
-	public videoID = '';
-	/**播放中之 video 標題 */
-	public videoTitle = '';
-	/**歌詞列表 Lyrics Url */
-	public urlList: string[] = [];
+	public port = 0;
+
+	public playList: Array<string> = [];
+	public urlList: Array<string> = [];
 
 	/// getters
 	get barsHidden(): number {
@@ -84,27 +83,22 @@ class Common extends VuexModule implements AppState {
 		});
 	}
 
+	/**變更 圖片 儲存路徑 */
 	@Mutation
 	savePicPath(path: string): void {
 		this.picPath = path;
+	}
+
+	/**變更 Port */
+	@Mutation
+	changePort(port: number): void {
+		this.port = port;
 	}
 
 	/**儲存播放列表 */
 	@Mutation
 	setPlayList(list: string[]): void {
 		this.playList = list;
-	}
-
-	/**更改播放中影片ID */
-	@Mutation
-	setVideoID(id: string): void {
-		this.videoID = id;
-	}
-
-	/**更改播放中標題 */
-	@Mutation
-	setVideoTitle(title: string): void {
-		this.videoTitle = title;
 	}
 
 	/**儲存歌詞URL列表 */

@@ -37,6 +37,9 @@ YouTube music player App create by electron
 0. [x] Add portfinder for find free port
 0. [ ] Add enum for fs.ts
 0. [ ] Use Promise.all for initialization
+0. [ ] Unable change background and lyrics after a video end
+0. [x] Save port in playermodule for YouTube API
+0. [ ] 
  
 ### Known Warning
 

@@ -122,17 +122,17 @@ new Vue({
 			if (state == 0) {
 				const loop = PlayerModule.playerLoop;
 				const shuffle = PlayerModule.playerShuffle;
-				if (loop) setTimeout(() => PlayerModule.playVideo(), 1500);
+				if (loop) window.setTimeout(() => PlayerModule.playVideo(), 1500);
 				else if (shuffle)
-					setTimeout(() => {
-						const arr = this.$lodash.without(AppModule.playList, AppModule.videoID);
+					window.setTimeout(() => {
+						const arr = this.$lodash.without(AppModule.playList, PlayerModule.videoID);
 						const videoID = arr[this.$lodash.random(0, arr.length - 1)];
 
 						PlayerModule.loadPlayerByID(videoID);
 						// code above for loading video
 
 						// code below for get lyric object
-						// if route is List enable
+						// if route is List, show overlay
 						if (this.$route.name == 'List') AppModule.changeOverlay(true);
 
 						this.$ipcRenderer
@@ -143,24 +143,27 @@ new Vue({
 							})
 							.then(async (doc: IsongList) => {
 								const videoTitle = doc.videoArr?.find((e) => e.videoID == videoID)?.videoTitle;
-								const res = await this.$ipcRenderer.invoke(EcrawlerOn.LYRICS, { url: doc.lyricsUrl });
+								// const res = await this.$ipcRenderer.invoke(EcrawlerOn.LYRICS, { url: doc.lyricsUrl });
+								this.$ipcRenderer
+									.invoke(EcrawlerOn.LYRICS, { url: doc.lyricsUrl })
+									.then((doc2: { obj: IlyricsObj }) => {
+										this.$nextTick(() => {
+											const { obj } = doc2;
 
-								this.$nextTick(() => {
-									const obj = res.obj as IlyricsObj;
-
-									const lyricsObj: IlyricsDisplayObj = {
-										lyricsKey: obj.lyricsKey,
-										lyricsUrl: obj.lyricsUrl,
-										title: obj.title,
-										artist: obj.artist,
-										lyrics: obj.lyrics,
-										imagePath: doc.imagePath || undefined,
-										imageSize: doc.imageSize || undefined,
-									};
-									this.$emit('getLyricByID', lyricsObj);
-									LyModule.saveLyric(lyricsObj);
-									AppModule.setVideoTitle(videoTitle || '');
-								});
+											const lyricsObj: IlyricsDisplayObj = {
+												lyricsKey: obj.lyricsKey,
+												lyricsUrl: obj.lyricsUrl,
+												title: obj.title,
+												artist: obj.artist,
+												lyrics: obj.lyrics,
+												imagePath: doc.imagePath || undefined,
+												imageSize: doc.imageSize || undefined,
+											};
+											this.$emit('getLyricByID', lyricsObj);
+											LyModule.saveLyric(lyricsObj);
+											PlayerModule.setVideoTitle(videoTitle || '');
+										});
+									});
 							})
 							.catch((err) => {
 								AppModule.snackbar({ text: err, color: Colors.Error });
@@ -180,6 +183,8 @@ new Vue({
 		this.mkPicDir();
 		//
 		this.readConfig();
+		//
+		this.getPort();
 		//
 		this.registerGlobalHotkey();
 
@@ -230,20 +235,14 @@ new Vue({
 				});
 		},
 
-		/**載入Url List, 比對用 */
-		loadUrlInList() {
-			this.$ipcRenderer
-				.invoke('listFind', { query: {}, sort: { datetime: 1 } })
-				.then((doc: IsongList[]) => {
-					const urlList = doc.map((item) => item.lyricsUrl);
-					AppModule.setUrlList(urlList);
-				})
-				.catch((err) => {
-					this.$store.commit('snackbar', { text: err, color: Colors.Error });
-				});
+		/**取得後端 Port */
+		getPort() {
+			this.$ipcRenderer.invoke('getPort').then((port: number) => {
+				AppModule.changePort(port);
+			});
 		},
 
-		/**  */
+		/**註冊 global 熱鍵 */
 		registerGlobalHotkey() {
 			this.$ipcRenderer.on('playVideo', () => {
 				if (PlayerModule.player) {
@@ -270,9 +269,9 @@ new Vue({
 			});
 
 			this.$ipcRenderer.on(EtrayVolume.VOLUMESET, (e, args) => {
-				// if (PlayerModule.player) {
-				PlayerModule.videoSetVolume(args.vol);
-				// }
+				if (PlayerModule.player) {
+					PlayerModule.videoSetVolume(args.vol);
+				}
 			});
 
 			this.$ipcRenderer.on(EtrayMode.MODESINGLE, () => {
@@ -289,6 +288,19 @@ new Vue({
 				PlayerModule.videoLoop(false, false);
 				PlayerModule.videoShuffle(true, false);
 			});
+		},
+
+		/**載入Url List, 比對用 */
+		loadUrlInList() {
+			this.$ipcRenderer
+				.invoke('listFind', { query: {}, sort: { datetime: 1 } })
+				.then((doc: IsongList[]) => {
+					const urlList = doc.map((item) => item.lyricsUrl);
+					AppModule.setUrlList(urlList);
+				})
+				.catch((err) => {
+					this.$store.commit('snackbar', { text: err, color: Colors.Error });
+				});
 		},
 	},
 }).$mount('#app');

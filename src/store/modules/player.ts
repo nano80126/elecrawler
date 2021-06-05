@@ -1,6 +1,5 @@
 import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from '@/store/index';
-import { AppModule } from './app';
 import { LyModule } from './lyrics'; // for destroy lyrics obj
 import { EtrayOn } from '@/types/enum';
 
@@ -16,6 +15,10 @@ export interface PlayerState {
 	playerState: number;
 	/**播放器音量 */
 	playerVolume: number;
+	/**播放中 Video ID */
+	videoID: string;
+	/**播放中 video title */
+	videoTitle: string;
 }
 
 @Module({ dynamic: true, store, name: 'player' })
@@ -27,6 +30,8 @@ export default class Player extends VuexModule implements PlayerState {
 	public playerState = -1;
 	public playerVolume = 75;
 	///
+	public videoID = '';
+	public videoTitle = '';
 
 	get playState(): number {
 		return this.playerState;
@@ -88,7 +93,8 @@ export default class Player extends VuexModule implements PlayerState {
 		if (this.player) {
 			this.player.cueVideoById({ videoId: id, suggestedQuality: 'small' });
 			// this.player.setVolume(this.playerVolume);
-			AppModule.setVideoID(id);
+			this.videoID = id;
+			// AppModule.setVideoID(id);
 		}
 	}
 
@@ -97,7 +103,8 @@ export default class Player extends VuexModule implements PlayerState {
 		if (this.player) {
 			this.player.loadVideoById({ videoId: id, suggestedQuality: 'small' });
 			// this.player.setVolume(this.playerVolume);
-			AppModule.setVideoID(id);
+			this.videoID = id;
+			// AppModule.setVideoID(id);
 		}
 	}
 
@@ -169,6 +176,18 @@ export default class Player extends VuexModule implements PlayerState {
 	videoShuffle(/**new value */ bool: boolean, /**send to background? */ toBackground: boolean): void {
 		this.playerShuffle = bool;
 		if (toBackground) window.ipcRenderer.send(EtrayOn.MODE, { shuffle: bool });
+	}
+
+	/**更改播放中影片ID */
+	@Mutation
+	setVideoID(id: string): void {
+		this.videoID = id;
+	}
+
+	/**更改播放中標題 */
+	@Mutation
+	setVideoTitle(title: string): void {
+		this.videoTitle = title;
 	}
 }
 

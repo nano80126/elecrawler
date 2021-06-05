@@ -158,7 +158,7 @@ export default class Embed extends Vue {
 
 	/**取得 Video 標題 */
 	get videoTitle(): string {
-		return AppModule.videoTitle;
+		return PlayerModule.videoTitle;
 	}
 
 	/**產生隨機顏色 */
@@ -284,6 +284,7 @@ export default class Embed extends Vue {
 		if (!id) return;
 
 		const youtube = window.YT;
+		const port = AppModule.port;
 		// new youtube.Player(,)
 
 		const py = new youtube.Player('youtube-audio', {
@@ -298,8 +299,8 @@ export default class Embed extends Vue {
 				fs: 0,
 				rel: 0,
 				disablekb: 1,
-				// origin: 'https://www.youtube.com',
-				origin: 'http://localhost:4000',
+				// origin: 'http://localhost:4000',
+				origin: `http://localhost:${port}`,
 				playsinline: 1,
 				modestbranding: 1,
 				cc_load_policy: 0,
@@ -312,7 +313,7 @@ export default class Embed extends Vue {
 					// this.$store.state.player.playerState = 5;
 					// PlayerModule.playerState = 5;
 					PlayerModule.changeState(5); // 5: 可播放
-					AppModule.setVideoID(id); // 更新video id
+					PlayerModule.setVideoID(id); // 更新video id
 				},
 			},
 		});

@@ -1,4 +1,5 @@
 // import { ipcMain } from 'electron';
+import { ipcMain } from 'electron';
 import express from 'express';
 import path from 'path';
 import portfinder from 'portfinder';
@@ -11,7 +12,7 @@ export function initializeExpress(): Promise<string> {
 		const app = express();
 		const router = express.Router();
 
-		const port = (process.env.VUE_APP_PORT as unknown as number) || 4000;
+		// const port = (process.env.VUE_APP_PORT as unknown as number) || 4000;
 
 		// for CORS(Cross-Origin Resource Sharing) settings
 		app.use((req, res, next) => {
@@ -66,6 +67,10 @@ export function initializeExpress(): Promise<string> {
 			},
 			(err, port) => {
 				if (err) console.log(err);
+
+				ipcMain.handle('getPort', () => {
+					return port;
+				});
 
 				app.listen(port, 'localhost', () => {
 					console.log(`Http Server Started On Port ${port} :)`);

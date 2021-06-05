@@ -293,7 +293,7 @@ export default class List extends Vue {
 						imageSize: item.imageSize || undefined,
 					};
 					this.videoID = videoID;
-					AppModule.setVideoTitle(videoTitle);
+					PlayerModule.setVideoTitle(videoTitle);
 				});
 			}
 			AppModule.changeOverlay(false);

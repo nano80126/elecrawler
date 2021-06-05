@@ -316,7 +316,7 @@ export default class Search extends Vue {
 
 	created(): void {
 		this.$ipcRenderer
-			.invoke('historyFind', { query: {} })
+			.invoke('historyFind', { query: {}, sort: { datetime: -1 } })
 			.then((res: Ikeywords[]) => {
 				// forEach + setTimeout for animation load
 				if (res.length > 0) {
