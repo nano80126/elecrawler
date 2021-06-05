@@ -156,19 +156,21 @@ export default class Embed extends Vue {
 	private playState = -1;
 	// private s = stata.a;
 
+	/**取得 Video 標題 */
 	get videoTitle(): string {
 		return AppModule.videoTitle;
 	}
 
+	/**產生隨機顏色 */
 	get randomColor(): string {
 		// 長度-1及不包含黑色
 		const r = this.$lodash.random(this.colors.length - 2);
 		return this.colors[r];
 	}
 
-	/**播放器 */
-	get player() {
-		return PlayerModule.player;
+	/**播放器不為 null */
+	get player(): boolean {
+		return PlayerModule.player != null;
 	}
 
 	/**播放器是否可播放 */
@@ -176,37 +178,42 @@ export default class Embed extends Vue {
 		return this.playState == 0 || this.playState == 2 || this.playState == 5;
 	}
 
-	/**循環狀態 */
+	/**取得 loop */
 	get loop(): boolean {
 		return PlayerModule.playerLoop;
 	}
 
+	/**設定 loop */
 	set loop(value: boolean) {
 		PlayerModule.videoLoop(value, true);
 	}
 
-	/**隨機播放狀態 */
+	/**取得 shuffle */
 	get shuffle(): boolean {
 		return PlayerModule.playerShuffle;
 	}
 
+	/**設定 shuffle */
 	set shuffle(value: boolean) {
 		PlayerModule.videoShuffle(value, true);
 	}
 
-	/**播放進度條 */
+	/**取得 播放進度 */
 	get progress(): number {
 		return (this.progressCurr / this.progressMax) * 100;
 	}
 
+	/**設定 撥放進度 */
 	set progress(value: number) {
 		this.progressCurr = (this.progressMax * value) / 100;
 	}
 
+	/**取得 音量 */
 	get volume(): number {
 		return PlayerModule.volume;
 	}
 
+	/**設定 音量 */
 	set volume(value: number) {
 		PlayerModule.videoSetVolume(value);
 	}
@@ -226,14 +233,17 @@ export default class Embed extends Vue {
 				break;
 			case 1:
 				PlayerModule.pushIntervalArr(
-					setInterval(() => {
+					// setInterval(() => {
+					// 	this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
+					// }, 250)
+					window.setInterval(() => {
 						this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
 					}, 250)
 				);
-				this.progressMax = this.player?.getDuration() || this.progressMax;
+				this.progressMax = PlayerModule.player?.getDuration() || this.progressMax;
 				break;
 			case 5:
-				this.progressMax = this.player?.getDuration() || this.progressMax;
+				this.progressMax = PlayerModule.player?.getDuration() || this.progressMax;
 				break;
 		}
 	}
@@ -288,7 +298,8 @@ export default class Embed extends Vue {
 				fs: 0,
 				rel: 0,
 				disablekb: 1,
-				origin: 'https://www.youtube.com',
+				// origin: 'https://www.youtube.com',
+				origin: 'http://localhost:4000',
 				playsinline: 1,
 				modestbranding: 1,
 				cc_load_policy: 0,
@@ -324,7 +335,10 @@ export default class Embed extends Vue {
 					break;
 				case 1:
 					PlayerModule.pushIntervalArr(
-						setInterval(() => {
+						// setInterval(() => {
+						// 	this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
+						// }, 250)
+						window.setInterval(() => {
 							this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
 						}, 250)
 					);

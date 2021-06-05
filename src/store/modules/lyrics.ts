@@ -1,51 +1,31 @@
 import { Module, Mutation, VuexModule, getModule } from 'vuex-module-decorators';
 import store from '@/store/index';
-import { IlyricsDisplayObj } from '@/types/renderer';
-import { IcongiText } from '@/types/main';
-
-type LyricsObject = IlyricsDisplayObj;
-
-// interface LyricsObject {
-// 	key: string;
-// 	url: string;
-// 	title: string;
-// 	artist: string;
-// 	lyric: string;
-// 	image?: string;
-// 	imageSize?: { width: number; height: number };
-// }
-
-export type LyricsTxtConf = IcongiText;
-
-// export interface LyricsTxtConf {
-// 	main: string;
-// 	sub: string;
-// 	align: string;
-// }
+import { IdisplayText, IlyricsDisplayObj } from '@/types/renderer';
 
 export interface LyricsState {
-	lyricObj: LyricsObject | null;
-	lyricText: LyricsTxtConf | null;
+	lyricObj: IlyricsDisplayObj | null;
+	lyricText: IdisplayText | null;
 }
 
 @Module({ dynamic: true, store, name: 'lyrics' })
 class Lyrics extends VuexModule implements LyricsState {
-	public lyricObj: LyricsObject | null = null;
-	public lyricText: LyricsTxtConf | null = null;
+	public lyricObj: IlyricsDisplayObj | null = null;
+	public lyricText: IdisplayText | null = null;
 	///
 
 	@Mutation
-	saveLyric(obj: LyricsObject) {
+	saveLyric(obj: IlyricsDisplayObj): void {
 		this.lyricObj = obj;
 	}
 
 	@Mutation
-	clearLyric() {
+	clearLyric(): void {
 		this.lyricObj = null;
 	}
 
+	/**save lyrics text config (color, sub color, align) */
 	@Mutation
-	saveText(txt: LyricsTxtConf) {
+	saveTextConf(txt: IdisplayText): void {
 		this.lyricText = txt;
 	}
 }

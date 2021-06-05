@@ -169,7 +169,7 @@
 												</v-btn>
 											</template>
 											<span>
-												{{ item.lyricsFront }}
+												{{ item.lyricsShort }}
 											</span>
 										</v-tooltip>
 									</v-card-actions>
@@ -264,8 +264,8 @@ import media from '@/components/Search/Media.vue';
 import { AppModule, Colors } from '@/store/modules/app';
 
 import { Component, Vue } from 'vue-property-decorator';
-import { Ikeywords, IlistSearched, IlyricsObjSearched } from '@/types/renderer';
-import { EwindowOn } from '@/types/enum';
+import { Ikeywords, IlistSearched, IlyricsSearched } from '@/types/renderer';
+import { EcrawlerOn, EwindowOn } from '@/types/enum';
 
 @Component({
 	components: {
@@ -278,7 +278,7 @@ export default class Search extends Vue {
 	private searchList: IlistSearched[] = [];
 
 	/**歌詞物件 */
-	private lyricsObj: IlyricsObjSearched | null = null;
+	private lyricsObj: IlyricsSearched | null = null;
 
 	/**搜尋歌手 */
 	private artist = '';
@@ -364,7 +364,7 @@ export default class Search extends Vue {
 			this.lyricsObj = null;
 			this.searchList = [];
 			this.$ipcRenderer
-				.invoke('searchReq', {
+				.invoke(EcrawlerOn.LIST, {
 					artist: this.artist,
 					title: this.title,
 				})
@@ -389,7 +389,7 @@ export default class Search extends Vue {
 		this.lyricsObj = null;
 		this.searchList = [];
 		this.$ipcRenderer
-			.invoke('searchReq', {
+			.invoke(EcrawlerOn.LIST, {
 				artist: artist,
 				title: title,
 			})
@@ -451,7 +451,7 @@ export default class Search extends Vue {
 		AppModule.changeOverlay(true);
 
 		this.$ipcRenderer
-			.invoke('getLyrics', { url, exist })
+			.invoke(EcrawlerOn.LYRICS, { url, exist })
 			.then((res) => {
 				// 這邊為 main process產生的error
 				if (res.error) {

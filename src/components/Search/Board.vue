@@ -30,12 +30,12 @@
 import { AppModule, Colors } from '@/store/modules/app';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 
-import { IlyricsObjSearched } from '@/types/renderer';
+import { IlyricsSearched } from '@/types/renderer';
 
 @Component
 export default class Board extends Vue {
 	/**歌詞物件 */
-	@Prop({ required: true, type: Object }) lyricsObj!: IlyricsObjSearched;
+	@Prop({ required: true, type: Object }) lyricsObj!: IlyricsSearched;
 	/**是否已存在清單 */
 	@Prop({ required: true, type: Boolean }) exist!: boolean;
 

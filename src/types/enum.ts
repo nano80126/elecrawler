@@ -36,20 +36,28 @@ export enum EtrayOn {
 
 /**enumerator of ipcMain.send to main.ts */
 export enum EtrayMode {
-	/** */
+	/**change play mode to single */
 	MODESINGLE = 'mode-single',
-	/** */
+	/**change play mode to loop */
 	MODELOOP = 'mode-loop',
-	/** */
+	/**change play mode to shuffle */
 	MODESHUFFLE = 'mode-shuffle',
 }
 
 /**enumerator of ipcMain.send to main.ts */
 export enum EtrayVolume {
-	/** */
+	/**volume plus */
 	VOLUMEPLUS = 'volume-plus',
-	/** */
+	/**volume minus */
 	VOLUMEMINUS = 'volume-minus',
-	/** */
+	/**set volume value */
 	VOLUMESET = 'volume-set',
+}
+
+/**enumerator for crawler on event */
+export enum EcrawlerOn {
+	/**get list searched */
+	LIST = 'crawl-list',
+	/**get lyrics */
+	LYRICS = 'crawl-lyrics',
 }

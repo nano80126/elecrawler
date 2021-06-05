@@ -1,5 +1,5 @@
 /**interface of text config  */
-export interface IcongiText {
+export interface IconfigText {
 	mainColor: string;
 	subColor: string;
 	textAlign: string;
@@ -10,7 +10,7 @@ export interface IconfigLocale {
 }
 
 /**interface of text config and start window position */
-export interface Iconfig extends IcongiText, IconfigLocale {
+export interface Iconfig extends IconfigText, IconfigLocale {
 	x?: number;
 	y?: number;
 }
@@ -21,11 +21,11 @@ export interface IlistCrawled {
 	artist: string;
 	title: string;
 	lyricsUrl: string;
-	lyricsFront: string;
+	lyricsShort: string;
 }
 
 /**interface of lyrics object crawled */
-export interface IlyricsObjCrawled {
+export interface IlyricsCrawled {
 	artist: string;
 	title: string;
 	lyricsUrl: string;

@@ -39,8 +39,8 @@ import { createMongoConnection, mongoCLient } from './api/mongo';
 /******************************************************************************************************* */
 
 // custom types
-import { Iconfig, IchannelLyricsObj } from './types/main';
-import { EwindowOn, EpanelOn, EtrayOn, EtrayMode, EtrayVolume } from './types/enum';
+import { Iconfig, IchannelLyricsObj } from '@/types';
+import { EwindowOn, EpanelOn, EtrayOn, EtrayMode, EtrayVolume } from '@/types/enum';
 import { exit } from 'process';
 // import './api/mongo';
 

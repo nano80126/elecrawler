@@ -115,9 +115,9 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
-import { LyModule, LyricsTxtConf } from '@/store/modules/lyrics';
+import { LyModule } from '@/store/modules/lyrics';
 import { AppModule, Colors } from '@/store/modules/app';
-import { IlyricsDisplayObj } from '@/types/renderer';
+import { IdisplayText, IlyricsDisplayObj } from '@/types/renderer';
 
 @Component
 export default class Display extends Vue {
@@ -185,7 +185,7 @@ export default class Display extends Vue {
 	}
 
 	created(): void {
-		const { mainColor, subColor, textAlign } = LyModule.lyricText as LyricsTxtConf;
+		const { mainColor, subColor, textAlign } = LyModule.lyricText as IdisplayText;
 		this.mainColor = mainColor || this.mainColor;
 		this.subColor = subColor || this.subColor;
 		this.textAlign = textAlign || this.textAlign;
@@ -199,7 +199,7 @@ export default class Display extends Vue {
 
 	beforeDestroy(): void {
 		if (this.lyricsObj) LyModule.saveLyric(this.lyricsObj);
-		LyModule.saveText({ mainColor: this.mainColor, subColor: this.subColor, textAlign: this.textAlign });
+		LyModule.saveTextConf({ mainColor: this.mainColor, subColor: this.subColor, textAlign: this.textAlign });
 	}
 
 	/**載入背景圖 */

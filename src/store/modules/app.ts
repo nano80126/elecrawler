@@ -60,22 +60,22 @@ class Common extends VuexModule implements AppState {
 	}
 
 	@Mutation
-	setSubWindow(window: Window | null) {
+	setSubWindow(window: Window | null): void {
 		this.subWindow = window;
 	}
 
 	@Mutation
-	emptySnackbars() {
+	emptySnackbars(): void {
 		this.snackbars = [];
 	}
 
 	@Mutation
-	changeOverlay(bool: boolean) {
+	changeOverlay(bool: boolean): void {
 		this.overlay = bool;
 	}
 
 	@Mutation
-	snackbar(bar: { color?: Colors; timeout?: number; text?: string }) {
+	snackbar(bar: { color?: Colors; timeout?: number; text?: string }): void {
 		this.snackbars.push({
 			show: true,
 			color: bar.color || Colors.Error,
@@ -85,37 +85,37 @@ class Common extends VuexModule implements AppState {
 	}
 
 	@Mutation
-	savePicPath(path: string) {
+	savePicPath(path: string): void {
 		this.picPath = path;
 	}
 
 	/**儲存播放列表 */
 	@Mutation
-	setPlayList(list: string[]) {
+	setPlayList(list: string[]): void {
 		this.playList = list;
 	}
 
 	/**更改播放中影片ID */
 	@Mutation
-	setVideoID(id: string) {
+	setVideoID(id: string): void {
 		this.videoID = id;
 	}
 
 	/**更改播放中標題 */
 	@Mutation
-	setVideoTitle(title: string) {
+	setVideoTitle(title: string): void {
 		this.videoTitle = title;
 	}
 
 	/**儲存歌詞URL列表 */
 	@Mutation
-	setUrlList(list: string[]) {
+	setUrlList(list: string[]): void {
 		this.urlList = list;
 	}
 
 	/**新增歌詞URL進列表 */
 	@Mutation
-	addUrlList(url: string) {
+	addUrlList(url: string): void {
 		this.urlList.push(url);
 	}
 }

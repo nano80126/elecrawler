@@ -5,7 +5,7 @@ import { LyModule } from './lyrics'; // for destroy lyrics obj
 import { EtrayOn } from '@/types/enum';
 
 export interface PlayerState {
-	intervalArray: NodeJS.Timeout[];
+	intervalArray: Array<number>;
 	/**播放器 */
 	player: YT.Player | null;
 	/**循環播放 */
@@ -18,18 +18,9 @@ export interface PlayerState {
 	playerVolume: number;
 }
 
-// export interface YTPlayer extends YT.Player {
-// 	getVideoData(): {
-// 		author: string;
-// 		title: string;
-// 		video_id: string;
-// 		video_quality: string;
-// 	};
-// }
-
 @Module({ dynamic: true, store, name: 'player' })
 export default class Player extends VuexModule implements PlayerState {
-	public intervalArray: NodeJS.Timeout[] = [];
+	public intervalArray: Array<number> = [];
 	public player: YT.Player | null = null;
 	public playerLoop = false;
 	public playerShuffle = false;
@@ -50,13 +41,13 @@ export default class Player extends VuexModule implements PlayerState {
 
 	/**紀錄interval ID, 之後清除使用 */
 	@Mutation
-	pushIntervalArr(interval: NodeJS.Timeout) {
+	pushIntervalArr(interval: number): void {
 		this.intervalArray.push(interval);
 	}
 
 	/**清除所有interval ID */
 	@Mutation
-	clearIntervalArr() {
+	clearIntervalArr(): void {
 		this.intervalArray.forEach((id) => {
 			clearInterval(id);
 		});
@@ -64,7 +55,7 @@ export default class Player extends VuexModule implements PlayerState {
 	}
 
 	@Mutation
-	creatPlayer(yt: YT.Player) {
+	creatPlayer(yt: YT.Player): void {
 		this.player = yt;
 		this.player.addEventListener('onStateChange', (e: YT.OnStateChangeEvent) => {
 			this.playerState = e.data;
@@ -76,12 +67,12 @@ export default class Player extends VuexModule implements PlayerState {
 	}
 
 	@Mutation
-	changeState(state: number) {
+	changeState(state: number): void {
 		this.playerState = state;
 	}
 
 	@Mutation
-	destroyPlayer() {
+	destroyPlayer(): void {
 		if (this.player) {
 			this.player.destroy();
 			this.player = null;
@@ -93,7 +84,7 @@ export default class Player extends VuexModule implements PlayerState {
 	}
 
 	@Mutation
-	cuePlayerByID(id: string) {
+	cuePlayerByID(id: string): void {
 		if (this.player) {
 			this.player.cueVideoById({ videoId: id, suggestedQuality: 'small' });
 			// this.player.setVolume(this.playerVolume);
@@ -102,7 +93,7 @@ export default class Player extends VuexModule implements PlayerState {
 	}
 
 	@Mutation
-	loadPlayerByID(id: string) {
+	loadPlayerByID(id: string): void {
 		if (this.player) {
 			this.player.loadVideoById({ videoId: id, suggestedQuality: 'small' });
 			// this.player.setVolume(this.playerVolume);
@@ -111,36 +102,36 @@ export default class Player extends VuexModule implements PlayerState {
 	}
 
 	@Mutation
-	playVideo() {
+	playVideo(): void {
 		const state = this.player?.getPlayerState();
 		if (state != -1 && state != 3) this.player?.playVideo();
 	}
 
 	@Mutation
-	pauseVideo() {
+	pauseVideo(): void {
 		if (this.player?.getPlayerState() == 1) this.player.pauseVideo();
 	}
 
 	@Mutation
-	backward10() {
+	backward10(): void {
 		const curr = this.player?.getCurrentTime();
 		if (curr) this.player?.seekTo(curr - 10, true);
 	}
 
 	@Mutation
-	forward10() {
+	forward10(): void {
 		const curr = this.player?.getCurrentTime();
 		if (curr) this.player?.seekTo(curr + 10, true);
 	}
 
 	@Mutation
-	videoProgress(value: number) {
+	videoProgress(value: number): void {
 		this.player?.seekTo(value, true);
 	}
 
 	/**變更音量 */
 	@Mutation
-	videoSetVolume(value: number) {
+	videoSetVolume(value: number): void {
 		this.playerVolume = value;
 		this.player?.setVolume(value);
 		window.ipcRenderer.send(EtrayOn.VOLUME, { volume: value });
@@ -148,7 +139,7 @@ export default class Player extends VuexModule implements PlayerState {
 
 	/**音量 + */
 	@Mutation
-	videoPlusVolume(value: number) {
+	videoPlusVolume(value: number): void {
 		if (this.playerVolume + value > 100) this.playerVolume = 100;
 		else this.playerVolume += value;
 
@@ -158,7 +149,7 @@ export default class Player extends VuexModule implements PlayerState {
 
 	/**音量 - */
 	@Mutation
-	videoMinusVolume(value: number) {
+	videoMinusVolume(value: number): void {
 		if (this.playerVolume - value < 0) this.playerVolume = 0;
 		else this.playerVolume -= value;
 
@@ -168,14 +159,14 @@ export default class Player extends VuexModule implements PlayerState {
 
 	/**變更 loop */
 	@Mutation
-	videoLoop(/**new value */ bool: boolean, /**send to background? */ toBackground: boolean) {
+	videoLoop(/**new value */ bool: boolean, /**send to background? */ toBackground: boolean): void {
 		this.playerLoop = bool;
 		if (toBackground) window.ipcRenderer.send(EtrayOn.MODE, { loop: bool });
 	}
 
 	/**變更 shffle */
 	@Mutation
-	videoShuffle(/**new value */ bool: boolean, /**send to background? */ toBackground: boolean) {
+	videoShuffle(/**new value */ bool: boolean, /**send to background? */ toBackground: boolean): void {
 		this.playerShuffle = bool;
 		if (toBackground) window.ipcRenderer.send(EtrayOn.MODE, { shuffle: bool });
 	}

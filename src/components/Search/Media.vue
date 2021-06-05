@@ -318,7 +318,7 @@ import edit from '@/components/Search/Edit.vue';
 import { AppModule, Colors } from '@/store/modules/app';
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
-import { IlyricsObjSearched, IyouTubeObj, IsongList, Irectangle } from '@/types/renderer';
+import { IlyricsSearched, IyouTubeObj, IsongList, Irectangle } from '@/types/renderer';
 import { OutputInfo } from 'sharp';
 
 @Component({
@@ -337,7 +337,7 @@ export default class Media extends Vue {
 	@Prop({ required: true }) extendImage!: boolean;
 
 	/**Lyric Object，儲存用 */
-	@Prop({ required: true }) lyricsObj!: IlyricsObjSearched;
+	@Prop({ required: true }) lyricsObj!: IlyricsSearched;
 
 	/**YouTube obj array */
 	private urlObj: IyouTubeObj[] = [{ videoUrl: '' }];

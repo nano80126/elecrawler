@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 'use strict';
 
 import axios from 'axios';
@@ -6,7 +5,8 @@ import cheerio from 'cheerio';
 // const cheerio = require('cheerio');
 
 import { ipcMain } from 'electron';
-import { IlistCrawled, IlyricsObjCrawled } from '@/types/main';
+import { IlistCrawled, IlyricsCrawled } from '@/types';
+import { EcrawlerOn } from '@/types/enum';
 
 // const axios = require('axios');
 // const { ipcMain } = require('electron');
@@ -21,16 +21,16 @@ async function listCrawl(artist: string, title: string): Promise<{}> {
 		artist_name: artist,
 		title: title,
 		form_open: 0,
-		show_artists: 1
+		show_artists: 1,
 	};
 
-	const data: { error: Error | null; list: IlistCrawled[] } = {
+	const data: { error: Error | null; list: Array<IlistCrawled> } = {
 		error: null,
-		list: []
+		list: [],
 	};
 	await axios
 		.get('https://utaten.com/lyric/search', { params: opt })
-		.then(res => {
+		.then((res) => {
 			// console.log(res.config.params);
 
 			const $ = cheerio.load(res.data);
@@ -64,13 +64,13 @@ async function listCrawl(artist: string, title: string): Promise<{}> {
 						artist: songSinger,
 						title: songTitle,
 						lyricsUrl: href || '',
-						lyricsFront: lyric
+						lyricsShort: lyric,
 						// expanded: false
 					});
 				}
 			}
 		})
-		.catch(err => {
+		.catch((err) => {
 			data.error = new Error(err);
 		});
 
@@ -80,11 +80,11 @@ async function listCrawl(artist: string, title: string): Promise<{}> {
 async function lyricsCrawl(subUrl: string): Promise<{}> {
 	const url = `https://utaten.com/${subUrl}`;
 
-	const data: { error: Error | null; obj?: IlyricsObjCrawled } = { error: null };
+	const data: { error: Error | null; obj?: IlyricsCrawled } = { error: null };
 
 	await axios
 		.get(url)
-		.then(res => {
+		.then((res) => {
 			const $ = cheerio.load(res.data);
 			const main = $('body div#container > div#contents > main');
 
@@ -97,10 +97,7 @@ async function lyricsCrawl(subUrl: string): Promise<{}> {
 			if (title.length < 1) {
 				// 若old class不存在
 				title = main.find('div.newLyricTitle'); // 使用新的 class 尋找
-				const newMainTxt = title
-					.children('h1.newLyricTitle__main')
-					.text()
-					.match(/「.+」/);
+				const newMainTxt = title.children('h1.newLyricTitle__main').text().match(/「.+」/);
 				if (newMainTxt) mainTxt = newMainTxt[0].replace(/^「|」$/g, '');
 
 				const newArtist = main
@@ -129,10 +126,7 @@ async function lyricsCrawl(subUrl: string): Promise<{}> {
 			}
 
 			const lyricBody = main.find('div.lyricBody');
-			const lyricContent = lyricBody
-				.children('.medium')
-				.children('.hiragana')
-				.html();
+			const lyricContent = lyricBody.children('.medium').children('.hiragana').html();
 
 			Object.assign(data, {
 				obj: {
@@ -140,11 +134,11 @@ async function lyricsCrawl(subUrl: string): Promise<{}> {
 					title: mainTxt,
 					lyricsUrl: subUrl,
 					lyricsKey: subUrl.match(/(?<=^\/lyric\/)\w+(?=\/$)/)?.[0],
-					lyrics: lyricContent
-				}
+					lyrics: lyricContent,
+				},
 			});
 		})
-		.catch(err => {
+		.catch((err) => {
 			data.error = new Error(err);
 		});
 
@@ -153,20 +147,20 @@ async function lyricsCrawl(subUrl: string): Promise<{}> {
 
 /**註冊爬蟲程序 */
 export function crawlerRegister(): Promise<string> {
-	return new Promise(resolve => {
-		ipcMain.on('searchReq', async (e, args) => {
+	return new Promise((resolve) => {
+		ipcMain.on(EcrawlerOn.LIST, async (e, args) => {
 			const { artist, title } = args;
 			const ret = await listCrawl(artist, title);
 			e.sender.send('searchRes', ret);
 		});
 
-		ipcMain.handle('searchReq', async (e, args) => {
+		ipcMain.handle(EcrawlerOn.LIST, async (e, args) => {
 			const { artist, title } = args;
 			const ret = await listCrawl(artist, title);
 			return ret;
 		});
 
-		ipcMain.on('getLyrics', async (e, args: { url: string; exist: boolean }) => {
+		ipcMain.on(EcrawlerOn.LYRICS, async (e, args: { url: string; exist: boolean }) => {
 			const { url, exist } = args;
 			const ret = await lyricsCrawl(url);
 			Object.assign(ret, { exist });
@@ -174,7 +168,7 @@ export function crawlerRegister(): Promise<string> {
 			e.sender.send('lyricRes', ret);
 		});
 
-		ipcMain.handle('getLyrics', async (e, args: { url: string; exist: boolean }) => {
+		ipcMain.handle(EcrawlerOn.LYRICS, async (e, args: { url: string; exist: boolean }) => {
 			const { url, exist } = args;
 			const ret = await lyricsCrawl(url);
 			Object.assign(ret, { exist });

@@ -20,8 +20,8 @@ import axios, { AxiosStatic } from 'axios';
 import qs, { stringify } from 'qs';
 
 import { LyModule } from '@/store/modules/lyrics';
-import { IdisplayTxt, IlyricsDisplayObj, IlyricsObj, IsongList } from '@/types/renderer';
-import { EwindowOn, EtrayMode, EtrayVolume } from './types/enum';
+import { IdisplayConfig, IlyricsDisplayObj, IlyricsObj, IsongList } from '@/types/renderer';
+import { EwindowOn, EtrayMode, EtrayVolume, EcrawlerOn } from '@/types/enum';
 import '@/style.scss';
 
 /// ///
@@ -143,7 +143,7 @@ new Vue({
 							})
 							.then(async (doc: IsongList) => {
 								const videoTitle = doc.videoArr?.find((e) => e.videoID == videoID)?.videoTitle;
-								const res = await this.$ipcRenderer.invoke('getLyrics', { url: doc.lyricsUrl });
+								const res = await this.$ipcRenderer.invoke(EcrawlerOn.LYRICS, { url: doc.lyricsUrl });
 
 								this.$nextTick(() => {
 									const obj = res.obj as IlyricsObj;
@@ -219,11 +219,11 @@ new Vue({
 		readConfig() {
 			this.$ipcRenderer
 				.invoke('readConfig')
-				.then((res: IdisplayTxt) => {
+				.then((res: IdisplayConfig) => {
 					const { mainColor, subColor, textAlign, locale } = res;
 
 					if (locale) this.$i18n.locale = locale;
-					LyModule.saveText({ mainColor, subColor, textAlign });
+					LyModule.saveTextConf({ mainColor, subColor, textAlign });
 				})
 				.catch((err) => {
 					AppModule.snackbar({ text: err, color: Colors.Error });

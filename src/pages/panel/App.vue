@@ -47,7 +47,7 @@ import media from '@/components/Search/Media.vue';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { AppModule, Isnackbar } from '@/store/modules/app';
 
-import { IlyricsObjSearched } from '@/types/renderer';
+import { IlyricsSearched } from '@/types/renderer';
 import { EpanelOn } from '@/types/enum';
 
 @Component({
@@ -59,7 +59,7 @@ export default class App extends Vue {
 	/**show after mounted */
 	private SHOW = false;
 	/**歌詞物件 */
-	private lyricsObj: IlyricsObjSearched | null = null;
+	private lyricsObj: IlyricsSearched | null = null;
 	/**當前使用語言 */
 	private language = this.$i18n.locale;
 

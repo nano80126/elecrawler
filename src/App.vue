@@ -48,9 +48,11 @@
 				<v-img
 					class="nav-back"
 					position="left 55% center"
-					:src="require('@/assets/nav3.jpg')"
+					transition="fade-transition"
+					:src="navImg"
 					style="opacity: 0.6"
 				/>
+				<!-- :src="require('@/assets/nav3.jpg')" -->
 				<div class="window-drag left" style="opacity: 0.5" />
 				<!--  -->
 				<v-list flat class="no-drag">
@@ -295,6 +297,8 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import { AppModule, Colors, Isnackbar } from '@/store/modules/app';
 import { EwindowOn } from './types/enum';
 
+// import nav from '@/assets/nav3.jpg';
+
 // import Woker from '@/worker';
 // import Worker from 'http://localhost:4000/123';
 
@@ -310,6 +314,8 @@ export default class App extends Vue {
 	// 	webHeight: number;
 	// };
 
+	/**image of nav */
+	private navImg = require('@/assets/nav3.jpg');
 	/**Show after mounted */
 	private SHOW = false;
 	/**Dialog for clear data */

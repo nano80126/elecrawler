@@ -168,7 +168,7 @@ import { LyModule } from '@/store/modules/lyrics';
 import { PlayerModule } from '@/store/modules/player';
 import { OutputInfo } from 'sharp';
 import { IlyricsDisplayObj, IlyricsObj, IsongList, IsongListWithIcon } from '@/types/renderer';
-import { EpanelOn, EwindowOn } from '@/types/enum';
+import { EcrawlerOn, EpanelOn, EwindowOn } from '@/types/enum';
 
 import { Component, Vue } from 'vue-property-decorator';
 // import { getModule } from 'vuex-module-decorators';
@@ -275,7 +275,7 @@ export default class List extends Vue {
 
 		if (!videoID) PlayerModule.destroyPlayer();
 
-		const res = await this.$ipcRenderer.invoke('getLyrics', { url: item.lyricsUrl, exist: true });
+		const res = await this.$ipcRenderer.invoke(EcrawlerOn.LYRICS, { url: item.lyricsUrl, exist: true });
 		this.$nextTick(() => {
 			if (res.error) {
 				AppModule.snackbar({ text: res.error, color: Colors.Error });

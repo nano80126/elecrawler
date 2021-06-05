@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { app, ipcMain } from 'electron';
-import { Iconfig } from '@/types/main';
+import { Iconfig } from '@/types';
 
 const picPath = path.resolve(app.getPath('pictures'), 'EleCrawler');
 // process.env.NODE_ENV == 'development'
@@ -15,12 +15,12 @@ let config: Iconfig | {} = {};
 
 /**初始化 file 操作channel */
 export function registerFileOperation() {
-	return new Promise(resolve => {
+	return new Promise((resolve) => {
 		// create picture directory
 		ipcMain.handle('mkPicDir', () => {
 			const exist = fs.existsSync(picPath);
 			if (!exist) {
-				fs.mkdir(picPath, err => {
+				fs.mkdir(picPath, (err) => {
 					if (err) console.log(err);
 				});
 			}
@@ -72,7 +72,7 @@ export function registerFileOperation() {
 
 /**載入 config */
 export function loadConfig() {
-	return new Promise(resolve => {
+	return new Promise((resolve) => {
 		const exist = fs.existsSync(jsonPath);
 		if (!exist) {
 			fs.writeFileSync(jsonPath, JSON.stringify({}));
@@ -86,7 +86,7 @@ export function loadConfig() {
 	});
 }
 
-/**儲存config */
+/**儲存 config */
 export function saveConfig(args = {}): void {
 	Object.assign(config, args);
 
@@ -94,11 +94,11 @@ export function saveConfig(args = {}): void {
 	const newCfg: { [key: string]: string | number } = {};
 	Object.keys(config)
 		.sort((a, b) => a.length - b.length)
-		.forEach(key => {
+		.forEach((key) => {
 			newCfg[key] = (config as { [key: string]: string })[key];
 		});
 	// 儲存 config
-	fs.writeFile(jsonPath, JSON.stringify(newCfg), err => {
+	fs.writeFile(jsonPath, JSON.stringify(newCfg), (err) => {
 		//
 		if (err) console.log(err);
 	});
