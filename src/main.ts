@@ -118,8 +118,8 @@ new Vue({
 	},
 
 	watch: {
-		'$store.getters.playState'(state) {
-			if (state == 0) {
+		'$store.getters.playState'(state: YT.PlayerState) {
+			if (state == YT.PlayerState.ENDED) {
 				const loop = PlayerModule.playerLoop;
 				const shuffle = PlayerModule.playerShuffle;
 				if (loop) window.setTimeout(() => PlayerModule.playVideo(), 1500);
@@ -129,9 +129,12 @@ new Vue({
 						const videoID = arr[this.$lodash.random(0, arr.length - 1)];
 
 						PlayerModule.loadPlayerByID(videoID);
-						// code above for loading video
 
+						// code above for loading video
+						console.warn(videoID);
+						console.warn(this.$route.name);
 						// code below for get lyric object
+
 						// if route is List, show overlay
 						if (this.$route.name == 'List') AppModule.changeOverlay(true);
 
@@ -159,8 +162,10 @@ new Vue({
 												imagePath: doc.imagePath || undefined,
 												imageSize: doc.imageSize || undefined,
 											};
+
+											console.info('crawl lyrics', lyricsObj);
 											this.$emit('getLyricByID', lyricsObj);
-											LyModule.saveLyric(lyricsObj);
+											LyModule.saveLyrics(lyricsObj);
 											PlayerModule.setVideoTitle(videoTitle || '');
 										});
 									});
@@ -202,6 +207,11 @@ new Vue({
 		};
 
 		this.loadUrlInList();
+
+		this.$ipcRenderer.on('listFindTest', (e, args) => {
+			// console.info(e);
+			console.info(args);
+		});
 
 		/**web worker test */
 		// const worker = new Worker('./worker/index.ts', { type: 'module' });

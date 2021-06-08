@@ -12,7 +12,7 @@ export interface PlayerState {
 	/**隨機播放 */
 	playerShuffle: boolean;
 	/**播放器狀態 */
-	playerState: number;
+	playerState: YT.PlayerState;
 	/**播放器音量 */
 	playerVolume: number;
 	/**播放中 Video ID */
@@ -60,7 +60,7 @@ export default class Player extends VuexModule implements PlayerState {
 	}
 
 	@Mutation
-	creatPlayer(yt: YT.Player): void {
+	createPlayer(yt: YT.Player): void {
 		this.player = yt;
 		this.player.addEventListener('onStateChange', (e: YT.OnStateChangeEvent) => {
 			this.playerState = e.data;
@@ -72,7 +72,7 @@ export default class Player extends VuexModule implements PlayerState {
 	}
 
 	@Mutation
-	changeState(state: number): void {
+	changeState(state: YT.PlayerState): void {
 		this.playerState = state;
 	}
 

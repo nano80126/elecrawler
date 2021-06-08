@@ -38,7 +38,7 @@
 				:class="`${mainColor}--text ${subColor}--subtext text-${textAlign}`"
 				style="position: relative; overflow-y: auto; height: 100%"
 			>
-				<span class="text-center" v-html="lyricsObj.lyrics || `<span>${$('noLyricsExist')}</span>`"></span>
+				<div class="text-center" v-html="lyricsObj.lyrics || `<span>${$('noLyricsExist')}</span>`"></div>
 				<span class="grey--text text-lighten-2 px-4 mt-10" style="float: right"> -- {{ $t('end') }} </span>
 			</div>
 		</v-card-text>
@@ -126,13 +126,14 @@ export default class Display extends Vue {
 
 	/**圖片Buffer */
 	private image: Buffer | null = null;
+	/**文字主顏色 */
 	private mainColor = 'primary';
+	/**文字副顏色 */
 	private subColor = 'grey';
+	/**文字對齊 */
 	private textAlign = 'left';
-
 	/**文字顏色 */
 	private colors: Readonly<Array<string>> = this.$root.$data.colors;
-
 	/**是否展開大圖 */
 	private fullImg = true;
 	/**背景透明度 */
@@ -151,10 +152,16 @@ export default class Display extends Vue {
 	// 	}, 300);
 	// }
 
+	@Watch('lyricsObj')
+	changeLyricsObj(obj: IlyricsDisplayObj): void {
+		console.info('lyrics object changed', obj);
+	}
+
 	@Watch('lyricsObj.imagePath')
-	changeLyricImage(img: string): void {
+	changeImagePath(path: string): void {
+		console.info('image path changed', path);
 		this.image = null;
-		if (img) this.backimgLoad();
+		if (path) this.backimgLoad();
 	}
 
 	@Watch('mainColor')
@@ -198,7 +205,7 @@ export default class Display extends Vue {
 	}
 
 	beforeDestroy(): void {
-		if (this.lyricsObj) LyModule.saveLyric(this.lyricsObj);
+		if (this.lyricsObj) LyModule.saveLyrics(this.lyricsObj);
 		LyModule.saveTextConf({ mainColor: this.mainColor, subColor: this.subColor, textAlign: this.textAlign });
 	}
 

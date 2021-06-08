@@ -10,11 +10,16 @@ let mongoCLient: MongoClient;
 /**建立Mongo連線 */
 export function createMongoConnection(): Promise<string> {
 	return new Promise((resolve) => {
-		MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true }, (err, client) => {
-			if (err) throw err;
-			mongoCLient = client;
+		mongoCLient = new MongoClient('mongodb://localhost:27017/lyrics', {
+			useUnifiedTopology: true,
+			auth: { user: 'lyricsAdmin', password: 'elecrawler' },
+			authMechanism: 'SCRAM-SHA-1',
+		});
 
-			const db = client.db('lyrics');
+		mongoCLient.connect((err) => {
+			if (err) console.log(err);
+
+			const db = mongoCLient.db('lyrics');
 			const history = db.collection('history');
 			const list = db.collection('list');
 
@@ -51,6 +56,7 @@ export function createMongoConnection(): Promise<string> {
 			});
 
 			ipcMain.handle('listFindOne', async (e, args) => {
+				e.sender.send('listFindTest', args);
 				return await list.findOne(args.query);
 			});
 
@@ -85,6 +91,18 @@ export function createMongoConnection(): Promise<string> {
 			// });
 			resolve('connect to mongodb successfully');
 		});
+
+		// MongoClient.connect(
+		// 	'mongodb://localhost:27017',
+		// 	{
+		// 		// useUnifiedTopology: true,
+		// 		auth: { user: 'lyricsAdmin', password: 'elecrawler' },
+		// 		// authMechanism: 'SCRAM-SHA-256',
+		// 	},
+		// 	(err, client) => {
+
+		// 	}
+		// );
 	});
 }
 

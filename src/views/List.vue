@@ -185,10 +185,8 @@ import { Component, Vue } from 'vue-property-decorator';
 export default class List extends Vue {
 	/**過濾字串 */
 	private filterStr = '';
-
-	/**清單 */
+	/**播放清單 */
 	private list: IsongListWithIcon[] = [];
-
 	/**歌詞物件 */
 	private lyricsObj: IlyricsDisplayObj | null = null;
 	/**影片ID，Embed用 */
@@ -212,9 +210,12 @@ export default class List extends Vue {
 	created(): void {
 		if (!this.$root.$eventNames().includes('getLyricByID')) {
 			this.$root.$on('getLyricByID', (obj: IlyricsDisplayObj) => {
+				console.info('$emit', obj);
 				this.lyricsObj = obj;
+				console.info('$emit lyricsObj', this.lyricsObj);
 			});
 		}
+		console.info(this.$root.$eventNames());
 	}
 
 	mounted(): void {
@@ -222,7 +223,8 @@ export default class List extends Vue {
 	}
 
 	beforeDestroy(): void {
-		this.$root.$off('getLyricByID');
+		console.info('list.vue destory');
+		// this.$root.$off('getLyricByID');
 	}
 
 	// methods

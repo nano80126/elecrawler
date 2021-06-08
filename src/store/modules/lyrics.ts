@@ -14,7 +14,7 @@ class Lyrics extends VuexModule implements LyricsState {
 	///
 
 	@Mutation
-	saveLyric(obj: IlyricsDisplayObj): void {
+	saveLyrics(obj: IlyricsDisplayObj): void {
 		this.lyricObj = obj;
 	}
 

@@ -224,14 +224,14 @@ export default class Embed extends Vue {
 
 		PlayerModule.clearIntervalArr();
 		switch (state) {
-			case -1:
+			case -1: // YT.PlayerState.UNSTARTED
 				this.progress = 0;
 				this.$nextTick(() => (this.progressMax = 0));
 				break;
-			case 0:
+			case 0: // YT.PlayerState.ENDED
 				this.progressCurr = this.progressMax;
 				break;
-			case 1:
+			case 1: // YT.PlayerState.PLAYING
 				PlayerModule.pushIntervalArr(
 					// setInterval(() => {
 					// 	this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
@@ -242,7 +242,7 @@ export default class Embed extends Vue {
 				);
 				this.progressMax = PlayerModule.player?.getDuration() || this.progressMax;
 				break;
-			case 5:
+			case 5: // YT.PlayerState.CUED
 				this.progressMax = PlayerModule.player?.getDuration() || this.progressMax;
 				break;
 		}
@@ -317,7 +317,7 @@ export default class Embed extends Vue {
 				},
 			},
 		});
-		PlayerModule.creatPlayer(py);
+		PlayerModule.createPlayer(py);
 	}
 
 	/**確認播放器狀態、參數 */
