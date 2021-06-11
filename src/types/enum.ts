@@ -77,3 +77,11 @@ export enum EfsOn {
 	/**write configuration */
 	WRITECONFIG = 'write-config',
 }
+
+/**enumerator for play evnet */
+export enum EplayHotkey {
+	/**play video */
+	PLAYVIDEO = 'play-video',
+	/**pause video */
+	PAUSEVIDEO = 'pause-video',
+}

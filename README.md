@@ -43,7 +43,7 @@ YouTube music player App create by electron
     * not set to shuffle mode in the first time
     * often occurred
 0. [x] Moving get port method to list.vue mounted 
-
+0. [ ] Add next and last video mathods
  
 ### Known Warning
 

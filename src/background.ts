@@ -33,7 +33,7 @@ import { initializeExpress } from './api/express';
 import { crawlerRegister } from './api/crawler';
 import { registerSharpHandler } from './api/sharp';
 
-import { globalRegisterHotkey, winRegisterHotkey, unregisterAllHotKey } from './api/shortcut';
+import { globalRegisterHotkey, winRegisterHotkey, unregisterAllHotKey } from './api/hotkey';
 import { registerFileOperation, config, loadConfig, saveConfig } from './api/fs';
 import { createMongoConnection, mongoCLient } from './api/mongo';
 /******************************************************************************************************* */

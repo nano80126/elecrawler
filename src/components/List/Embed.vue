@@ -67,7 +67,7 @@
 				</v-list-item-icon> -->
 
 					<v-list-item-icon class="align-center">
-						<v-btn icon @click="backward10" :disabled="!player">
+						<v-btn icon @click.left="backward10" @click.right="lastVideo" :disabled="!player">
 							<v-icon small>fas fa-backward</v-icon>
 						</v-btn>
 						<!--  -->
@@ -79,7 +79,7 @@
 							<v-icon small>fas fa-pause</v-icon>
 						</v-btn>
 						<!--  -->
-						<v-btn icon @click="forward10" :disabled="!player">
+						<v-btn icon @click.left="forward10" @click.right="nextVideo" :disabled="!player">
 							<v-icon small>fas fa-forward</v-icon>
 						</v-btn>
 
@@ -384,6 +384,14 @@ export default class Embed extends Vue {
 	/**快進10sec */
 	private forward10(): void {
 		PlayerModule.forward10();
+	}
+	/**上一首歌 */
+	private lastVideo(): void {
+		console.info('play last video');
+	}
+	/**下一首歌 */
+	private nextVideo(): void {
+		console.info('play next video');
 	}
 	/**切換Loop */
 	private toggleLoop() {

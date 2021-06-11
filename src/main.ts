@@ -185,7 +185,7 @@ new Vue({
 		// set theme dark
 		this.$vuetify.theme.dark = true;
 		//
-		this.mkPicDir();
+		this.makePicDir();
 		//
 		this.readConfig();
 		//
@@ -221,7 +221,7 @@ new Vue({
 
 	methods: {
 		/**建立圖片資料夾 */
-		mkPicDir() {
+		makePicDir() {
 			this.$ipcRenderer.invoke(EfsOn.MAKEDIR).then((res: { path: string }) => {
 				console.info(`%c${res.path}`, `color: ${this.$vuetify.theme.themes.dark.success};`);
 				AppModule.savePicPath(res.path);
@@ -297,6 +297,7 @@ new Vue({
 				.invoke('listFind', { query: {}, sort: { datetime: 1 } })
 				.then((doc: IsongList[]) => {
 					const urlList = doc.map((item) => item.lyricsUrl);
+					console.info(urlList);
 					AppModule.setUrlList(urlList);
 				})
 				.catch((err) => {
