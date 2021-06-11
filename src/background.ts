@@ -48,6 +48,8 @@ import { exit } from 'process';
 // be closed automatically when the JavaScript object is garbage collected.
 // let win: BrowserWindow | null = null;
 
+console.log('start');
+
 // windows
 let splash: BrowserWindow | null = null;
 let win: BrowserWindow | null = null;
@@ -63,7 +65,7 @@ let contextMenu: Menu | null = null;
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
 
 /**Create Tray and Menu */
-function createTrayMenu(): Promise<string> {
+function createTrayMenu(): Promise<void> {
 	return new Promise((resolve) => {
 		tray = new Tray(path.resolve(__static, 'icons/trayicon.ico'));
 		contextMenu = Menu.buildFromTemplate([
@@ -137,7 +139,7 @@ function createTrayMenu(): Promise<string> {
 			win?.show();
 		});
 
-		resolve('create tray menu successfully');
+		resolve();
 	});
 }
 
@@ -202,12 +204,12 @@ function createWindow() {
 				overrideBrowserWindowOptions: {
 					title: 'Panel',
 					backgroundColor: '#212121',
-					///
+					// //
 					x: undefined,
 					y: undefined,
 					width: 640,
 					height: 840,
-					///
+					// //
 					parent: win as BrowserWindow,
 					center: true,
 					modal: true,
@@ -336,6 +338,7 @@ function createWindow() {
 
 /**Create splash screen */
 function createSplash(): void {
+	console.log('create splash');
 	// console.log('create splash', new Date() - d);
 	// Create the splash window
 	splash = new BrowserWindow({
@@ -374,18 +377,31 @@ function createSplash(): void {
 		if (splash) {
 			splash.show();
 
-			splash.webContents.send('InitializingMsg', { msg: await createTrayMenu() });
-			splash.webContents.send('InitializingMsg', { msg: await globalRegisterHotkey() });
-			splash.webContents.send('InitializingMsg', { msg: await registerFileOperation() });
-			splash.webContents.send('InitializingMsg', { msg: await loadConfig() });
-			console.time('express');
-			splash.webContents.send('InitializingMsg', { msg: await initializeExpress() });
-			console.timeEnd('express');
-			splash.webContents.send('InitializingMsg', { msg: await crawlerRegister() });
-			splash.webContents.send('InitializingMsg', { msg: await registerSharpHandler() });
-			splash.webContents.send('InitializingMsg', { msg: await createMongoConnection() });
+			Promise.all([
+				createTrayMenu(),
+				globalRegisterHotkey(),
+				registerFileOperation(),
+				loadConfig(),
+				initializeExpress(),
+				crawlerRegister(),
+				registerSharpHandler(),
+				createMongoConnection(),
+			]).then((res) => {
+				console.log(res);
 
-			createWindow();
+				createWindow();
+			});
+
+			// splash.webContents.send('InitializingMsg', { msg: await createTrayMenu() });
+			// 	splash.webContents.send('InitializingMsg', { msg: await globalRegisterHotkey() });
+			// 	splash.webContents.send('InitializingMsg', { msg: await registerFileOperation() });
+			// 	splash.webContents.send('InitializingMsg', { msg: await loadConfig() });
+			// 	console.time('express');
+			// 	splash.webContents.send('InitializingMsg', { msg: await initializeExpress() });
+			// 	console.timeEnd('express');
+			// 	splash.webContents.send('InitializingMsg', { msg: await crawlerRegister() });
+			// 	splash.webContents.send('InitializingMsg', { msg: await registerSharpHandler() });
+			// 	splash.webContents.send('InitializingMsg', { msg: await createMongoConnection() });
 		} else {
 			exit(0);
 		}

@@ -8,7 +8,7 @@ import moment from 'moment';
 let mongoCLient: MongoClient;
 
 /**建立Mongo連線 */
-export function createMongoConnection(): Promise<string> {
+export function createMongoConnection(): Promise<void> {
 	return new Promise((resolve) => {
 		mongoCLient = new MongoClient('mongodb://localhost:27017/lyrics', {
 			useUnifiedTopology: true,
@@ -22,11 +22,6 @@ export function createMongoConnection(): Promise<string> {
 			const db = mongoCLient.db('lyrics');
 			const history = db.collection('history');
 			const list = db.collection('list');
-
-			// list.insert({ a: 123 }, (err, doc) => {
-			// 	console.log(err);
-			// 	console.log(doc);
-			// });
 
 			// 刪除
 			history.deleteMany({
@@ -89,7 +84,7 @@ export function createMongoConnection(): Promise<string> {
 			// ipcMain.on('mongoDisc', () => {
 			// 	client.close();
 			// });
-			resolve('connect to mongodb successfully');
+			resolve();
 		});
 
 		// MongoClient.connect(

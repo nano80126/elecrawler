@@ -61,3 +61,19 @@ export enum EcrawlerOn {
 	/**get lyrics */
 	LYRICS = 'crawl-lyrics',
 }
+
+/**enumerator for fs on event */
+export enum EfsOn {
+	/**make picture directory */
+	MAKEDIR = 'make-picture-directory',
+	/**get picture directory */
+	GETDIR = 'get-picture-directory',
+	/**empty picture directory */
+	EMPTYDIR = 'empty-picture-directory',
+	/**remove specific picture  */
+	REMOVEPIC = 'remove-picture',
+	/**read configuration */
+	READCONFIG = 'read-config',
+	/**write configuration */
+	WRITECONFIG = 'write-config',
+}

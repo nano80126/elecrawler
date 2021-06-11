@@ -21,7 +21,7 @@ import qs, { stringify } from 'qs';
 
 import { LyModule } from '@/store/modules/lyrics';
 import { IdisplayConfig, IlyricsDisplayObj, IlyricsObj, IsongList } from '@/types/renderer';
-import { EwindowOn, EtrayMode, EtrayVolume, EcrawlerOn } from '@/types/enum';
+import { EwindowOn, EtrayMode, EtrayVolume, EcrawlerOn, EfsOn } from '@/types/enum';
 import '@/style.scss';
 
 /// ///
@@ -189,8 +189,6 @@ new Vue({
 		//
 		this.readConfig();
 		//
-		this.getPort();
-		//
 		this.registerGlobalHotkey();
 
 		// window.test();
@@ -224,7 +222,7 @@ new Vue({
 	methods: {
 		/**建立圖片資料夾 */
 		mkPicDir() {
-			this.$ipcRenderer.invoke('mkPicDir').then((res: { path: string }) => {
+			this.$ipcRenderer.invoke(EfsOn.MAKEDIR).then((res: { path: string }) => {
 				console.info(`%c${res.path}`, `color: ${this.$vuetify.theme.themes.dark.success};`);
 				AppModule.savePicPath(res.path);
 			});
@@ -233,7 +231,7 @@ new Vue({
 		/**載入Config, text color and align */
 		readConfig() {
 			this.$ipcRenderer
-				.invoke('readConfig')
+				.invoke(EfsOn.READCONFIG)
 				.then((res: IdisplayConfig) => {
 					const { mainColor, subColor, textAlign, locale } = res;
 
@@ -243,13 +241,6 @@ new Vue({
 				.catch((err) => {
 					AppModule.snackbar({ text: err, color: Colors.Error });
 				});
-		},
-
-		/**取得後端 Port */
-		getPort() {
-			this.$ipcRenderer.invoke('getPort').then((port: number) => {
-				AppModule.changePort(port);
-			});
 		},
 
 		/**註冊 global 熱鍵 */

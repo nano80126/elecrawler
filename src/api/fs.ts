@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { app, ipcMain } from 'electron';
 import { Iconfig } from '@/types';
+import { EfsOn } from '@/types/enum';
 
 const picPath = path.resolve(app.getPath('pictures'), 'EleCrawler');
 // process.env.NODE_ENV == 'development'
@@ -14,10 +15,10 @@ const jsonPath = path.resolve(app.getPath('userData'), 'config.json');
 let config: Iconfig | {} = {};
 
 /**初始化 file 操作channel */
-export function registerFileOperation() {
+export function registerFileOperation(): Promise<void> {
 	return new Promise((resolve) => {
 		// create picture directory
-		ipcMain.handle('mkPicDir', () => {
+		ipcMain.handle(EfsOn.MAKEDIR, () => {
 			const exist = fs.existsSync(picPath);
 			if (!exist) {
 				fs.mkdir(picPath, (err) => {
@@ -27,14 +28,14 @@ export function registerFileOperation() {
 			return { path: picPath };
 		});
 
-		ipcMain.handle('getPicDir', () => {
+		ipcMain.handle(EfsOn.GETDIR, () => {
 			const exist = fs.existsSync(picPath);
 			if (!exist) throw new Error('No image directory exists.');
 			return { path: picPath };
 		});
 
 		// 清空資料夾，但不刪除資料夾本身
-		ipcMain.handle('emptyDir', () => {
+		ipcMain.handle(EfsOn.EMPTYDIR, () => {
 			// const { dirPath } = args;
 			const files = fs.readdirSync(picPath);
 
@@ -46,7 +47,7 @@ export function registerFileOperation() {
 		});
 
 		// 刪除檔案(array)
-		ipcMain.on('removeFile', (e, args: { files: string[] }) => {
+		ipcMain.on(EfsOn.REMOVEPIC, (e, args: { files: string[] }) => {
 			const { files } = args;
 
 			files.forEach((file: string) => {
@@ -58,15 +59,15 @@ export function registerFileOperation() {
 			});
 		});
 
-		ipcMain.handle('readConfig', () => {
+		ipcMain.handle(EfsOn.READCONFIG, () => {
 			return config;
 		});
 
-		ipcMain.handle('writeConfig', (e, args) => {
+		ipcMain.handle(EfsOn.WRITECONFIG, (e, args) => {
 			return Object.assign(config, args);
 		});
 
-		resolve('add handler of file operations');
+		resolve();
 	});
 }
 

@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<v-row no-gutters align="stretch" justify="center">
+		<v-row no-gutters align="stretch" justify="start">
 			<v-col
 				class="pl-3"
 				:style="{ 'min-height': `${$root.webHeight - 44}px`, 'max-width': isTwoColumn ? '416px' : null }"
@@ -121,31 +121,33 @@
 				</v-list>
 			</v-col>
 
-			<v-col v-if="isTwoColumn" cols class="px-3" style="border-left: 1px solid rgba(150, 150, 150, 0.5)">
-				<!-- <div class="d-flex align-center" style="height:100%;"> -->
-				<transition name="fadeIn" mode="out-in">
-					<template v-if="lyricsObj">
-						<v-card flat shaped width="100%">
-							<LyricDisplay :lyricsObj="lyricsObj" />
-							<v-divider />
-							<EmbedPlayer :videoID="videoID" />
-						</v-card>
-					</template>
-					<template v-else>
-						<div class="d-flex align-center" style="height: 100%">
+			<transition name="rightClose" mode="out-in">
+				<v-col v-if="isTwoColumn" cols class="px-3" style="border-left: 1px solid rgba(150, 150, 150, 0.5)">
+					<!-- <div class="d-flex align-center" style="height:100%;"> -->
+					<transition name="fadeIn" mode="out-in">
+						<template v-if="lyricsObj">
 							<v-card flat shaped width="100%">
-								<v-card-subtitle class="text-center">
-									<v-icon size="128">fas fa-spider</v-icon>
-									<span class="mx-auto logo-text" style=""> EleCrawler </span>
-								</v-card-subtitle>
-								<!-- <v-card-text>
+								<LyricDisplay :lyricsObj="lyricsObj" />
+								<v-divider />
+								<EmbedPlayer :videoID="videoID" />
+							</v-card>
+						</template>
+						<template v-else>
+							<div class="d-flex align-center" style="height: 100%">
+								<v-card flat shaped width="100%">
+									<v-card-subtitle class="text-center">
+										<v-icon size="128">fas fa-spider</v-icon>
+										<span class="mx-auto logo-text" style=""> EleCrawler </span>
+									</v-card-subtitle>
+									<!-- <v-card-text>
 									{{ filterList }}
 								</v-card-text> -->
-							</v-card>
-						</div>
-					</template>
-				</transition>
-			</v-col>
+								</v-card>
+							</div>
+						</template>
+					</transition>
+				</v-col>
+			</transition>
 		</v-row>
 
 		<!--   absolute-->
@@ -168,7 +170,7 @@ import { LyModule } from '@/store/modules/lyrics';
 import { PlayerModule } from '@/store/modules/player';
 import { OutputInfo } from 'sharp';
 import { IlyricsDisplayObj, IlyricsObj, IsongList, IsongListWithIcon } from '@/types/renderer';
-import { EcrawlerOn, EpanelOn, EwindowOn } from '@/types/enum';
+import { EcrawlerOn, EfsOn, EpanelOn, EwindowOn } from '@/types/enum';
 
 import { Component, Vue } from 'vue-property-decorator';
 // import { getModule } from 'vuex-module-decorators';
@@ -219,6 +221,7 @@ export default class List extends Vue {
 	}
 
 	mounted(): void {
+		this.getPort();
 		this.loadList();
 	}
 
@@ -227,7 +230,14 @@ export default class List extends Vue {
 		// this.$root.$off('getLyricByID');
 	}
 
-	// methods
+	/**取得後端 Port */
+	private getPort() {
+		if (AppModule.port == 0) {
+			this.$ipcRenderer.invoke('getPort').then((port: number) => {
+				AppModule.changePort(port);
+			});
+		}
+	}
 
 	/**展開視窗 */
 	private expandWidth() {
@@ -308,7 +318,7 @@ export default class List extends Vue {
 			.invoke('listRemoveOne', { query: { lyricsKey: key } })
 			.then((res) => {
 				if (res.ok > 0) {
-					this.$ipcRenderer.send('removeFile', {
+					this.$ipcRenderer.send(EfsOn.REMOVEPIC, {
 						files: [`${key}.jpg`, `${key}.icon.jpg`],
 					});
 
@@ -383,6 +393,34 @@ export default class List extends Vue {
 	}
 	to {
 		margin-left: -250%;
+	}
+}
+
+.rightClose {
+	&-enter-active,
+	&-leave-active {
+		transition: all 0.5s ease;
+	}
+
+	&-enter {
+		transform-origin: 100% 50%;
+		// margin-right: -200%;
+		width: 0;
+	}
+
+	&-enter-to {
+		transform-origin: 100% 50%;
+		// margin-right: 0;
+		width: 50%;
+	}
+
+	&-leave {
+		transform-origin: 100% 50%;
+		margin-right: 0;
+	}
+	&-leave-to {
+		transform-origin: 100% 50%;
+		margin-right: -100%;
 	}
 }
 

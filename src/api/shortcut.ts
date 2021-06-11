@@ -3,7 +3,7 @@ import { win } from '@/background';
 import { EtrayVolume } from '@/types/enum';
 
 /** 註冊 global 快捷鍵 */
-export function globalRegisterHotkey() {
+export function globalRegisterHotkey(): Promise<void> {
 	return new Promise((resolve) => {
 		globalShortcut.register('Alt+-', () => {
 			if (win) {
@@ -37,10 +37,7 @@ export function globalRegisterHotkey() {
 			win?.hide();
 		});
 
-		// globalShortcut.register('Alt+F12', () => {
-		// 	win?.webContents.openDevTools();
-		// });
-		resolve('register hotkey successfully');
+		resolve();
 	});
 }
 

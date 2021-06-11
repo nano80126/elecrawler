@@ -42,7 +42,7 @@ YouTube music player App create by electron
 0. [ ] if route is list, maybe do not change lyrics and background image
     * not set to shuffle mode in the first time
     * often occurred
-0. [ ] Moving get port method to list.vue mounted 
+0. [x] Moving get port method to list.vue mounted 
 
  
 ### Known Warning

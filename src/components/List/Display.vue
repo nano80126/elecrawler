@@ -118,11 +118,12 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import { LyModule } from '@/store/modules/lyrics';
 import { AppModule, Colors } from '@/store/modules/app';
 import { IdisplayText, IlyricsDisplayObj } from '@/types/renderer';
+import { EfsOn } from '@/types/enum';
 
 @Component
 export default class Display extends Vue {
 	/**歌詞物件 */
-	@Prop({ required: false, type: Object }) lyricsObj?: IlyricsDisplayObj;
+	@Prop({ required: true, type: Object }) lyricsObj!: IlyricsDisplayObj;
 
 	/**圖片Buffer */
 	private image: Buffer | null = null;
@@ -166,7 +167,7 @@ export default class Display extends Vue {
 
 	@Watch('mainColor')
 	changeMainColor(val: string): void {
-		this.$ipcRenderer.invoke('writeConfig', { mainColor: val }).then((res) => {
+		this.$ipcRenderer.invoke(EfsOn.WRITECONFIG, { mainColor: val }).then((res) => {
 			if (process.env.NODE_ENV == 'development') {
 				console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
 			}
@@ -175,7 +176,7 @@ export default class Display extends Vue {
 
 	@Watch('subColor')
 	changeSubColor(val: string): void {
-		this.$ipcRenderer.invoke('writeConfig', { subColor: val }).then((res) => {
+		this.$ipcRenderer.invoke(EfsOn.WRITECONFIG, { subColor: val }).then((res) => {
 			if (process.env.NODE_ENV == 'development') {
 				console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
 			}
@@ -184,7 +185,7 @@ export default class Display extends Vue {
 
 	@Watch('textAlign')
 	changeTextAlign(val: string): void {
-		this.$ipcRenderer.invoke('writeConfig', { textAlign: val }).then((res) => {
+		this.$ipcRenderer.invoke(EfsOn.WRITECONFIG, { textAlign: val }).then((res) => {
 			if (process.env.NODE_ENV == 'development') {
 				console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
 			}
@@ -205,6 +206,7 @@ export default class Display extends Vue {
 	}
 
 	beforeDestroy(): void {
+		console.info('display destory');
 		if (this.lyricsObj) LyModule.saveLyrics(this.lyricsObj);
 		LyModule.saveTextConf({ mainColor: this.mainColor, subColor: this.subColor, textAlign: this.textAlign });
 	}

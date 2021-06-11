@@ -295,7 +295,7 @@ import Embed from '@/components/List/Embed.vue';
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { AppModule, Colors, Isnackbar } from '@/store/modules/app';
-import { EwindowOn } from './types/enum';
+import { EfsOn, EwindowOn } from './types/enum';
 
 // import nav from '@/assets/nav3.jpg';
 
@@ -431,7 +431,7 @@ export default class App extends Vue {
 			.invoke('listRemove', { query: {} })
 			.then((res) => {
 				if (res.ok > 0) {
-					this.$ipcRenderer.invoke('emptyDir').then((res) => {
+					this.$ipcRenderer.invoke(EfsOn.EMPTYDIR).then((res) => {
 						if (res) {
 							AppModule.snackbar({ text: this.$t('clearDone') as string, color: Colors.Success });
 						}

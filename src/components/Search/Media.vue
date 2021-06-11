@@ -320,6 +320,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
 import { IlyricsSearched, IyouTubeObj, IsongList, Irectangle } from '@/types/renderer';
 import { OutputInfo } from 'sharp';
+import { EfsOn } from '@/types/enum';
 
 @Component({
 	components: {
@@ -703,7 +704,7 @@ export default class Media extends Vue {
 					AppModule.snackbar({ text: err.message, color: Colors.Error });
 
 					const { obj } = this.lyricsObj;
-					this.$ipcRenderer.send('removeFile', {
+					this.$ipcRenderer.send(EfsOn.REMOVEPIC, {
 						files: [`${obj.lyricsKey}.jpg`, `${obj.lyricsKey}.icon.jpg`],
 					});
 				});
@@ -732,7 +733,7 @@ export default class Media extends Vue {
 				})
 				.then((res) => {
 					if (res.ok > 0) {
-						this.$ipcRenderer.send('removeFile', {
+						this.$ipcRenderer.send(EfsOn.REMOVEPIC, {
 							files: [`${obj.lyricsKey}.jpg`, `${obj.lyricsKey}.icon.jpg`],
 						});
 						AppModule.snackbar({ text: '変更が保存された', color: Colors.Success });

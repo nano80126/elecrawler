@@ -17,6 +17,7 @@ import axios, { AxiosStatic } from 'axios';
 
 import { AppModule, Colors } from '@/store/modules/app';
 import '@/style.scss';
+import { EfsOn } from '@/types/enum';
 
 Object.defineProperties(Vue.prototype, {
 	$moment: {
@@ -65,7 +66,7 @@ new Vue({
 		this.$vuetify.theme.dark = true;
 
 		this.$ipcRenderer
-			.invoke('getPicDir')
+			.invoke(EfsOn.GETDIR)
 			.then((res: { path: string }) => {
 				console.info(`%c${res.path}`, `color: ${this.$vuetify.theme.themes.dark.success};`);
 				AppModule.savePicPath(res.path);
