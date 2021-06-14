@@ -5,6 +5,7 @@
 				class="pl-3"
 				:style="{ 'min-height': `${$root.webHeight - 44}px`, 'max-width': isTwoColumn ? '416px' : null }"
 			>
+				<!-- , 'max-width': isTwoColumn ? '416px' : null  -->
 				<div class="d-flex align-center justify-center">
 					<v-text-field
 						v-model="filterStr"
@@ -172,7 +173,7 @@ import { OutputInfo } from 'sharp';
 import { IlyricsDisplayObj, IlyricsObj, IsongList, IsongListWithIcon } from '@/types/renderer';
 import { EcrawlerOn, EfsOn, EpanelOn, EwindowOn } from '@/types/enum';
 
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 // import { getModule } from 'vuex-module-decorators';
 
 // import mymod from '@/store/mymodule';
@@ -208,26 +209,26 @@ export default class List extends Vue {
 		}) as Array<IsongListWithIcon>;
 	}
 
+	@Watch('$store.getters.lyricsKey')
+	changeLyricsKey(): void {
+		this.lyricsObj = LyModule.lyricObj;
+	}
+
 	// life cycle
 	created(): void {
-		if (!this.$root.$eventNames().includes('getLyricByID')) {
-			this.$root.$on('getLyricByID', (obj: IlyricsDisplayObj) => {
-				console.info('$emit', obj);
-				this.lyricsObj = obj;
-				console.info('$emit lyricsObj', this.lyricsObj);
-			});
-		}
+		// if (!this.$root.$eventNames().includes('getLyricByID')) {
+		// 	this.$root.$on('getLyricByID', (obj: IlyricsDisplayObj) => {
+		// 		console.info('$emit', obj);
+		// 		this.lyricsObj = obj;
+		// 		console.info('$emit lyricsObj', this.lyricsObj);
+		// 	});
+		// }
 		console.info(this.$root.$eventNames());
 	}
 
 	mounted(): void {
 		this.getPort();
 		this.loadList();
-	}
-
-	beforeDestroy(): void {
-		console.info('list.vue destory');
-		// this.$root.$off('getLyricByID');
 	}
 
 	/**取得後端 Port */
@@ -305,6 +306,7 @@ export default class List extends Vue {
 						imageSize: item.imageSize || undefined,
 					};
 					this.videoID = videoID;
+					LyModule.saveLyrics(this.lyricsObj);
 					PlayerModule.setVideoTitle(videoTitle);
 				});
 			}
@@ -400,18 +402,6 @@ export default class List extends Vue {
 	&-enter-active,
 	&-leave-active {
 		transition: all 0.5s ease;
-	}
-
-	&-enter {
-		transform-origin: 100% 50%;
-		// margin-right: -200%;
-		width: 0;
-	}
-
-	&-enter-to {
-		transform-origin: 100% 50%;
-		// margin-right: 0;
-		width: 50%;
 	}
 
 	&-leave {

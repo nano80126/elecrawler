@@ -33,11 +33,12 @@ export default class Player extends VuexModule implements PlayerState {
 	public videoID = '';
 	public videoTitle = '';
 
+	/**播放狀態 */
 	get playState(): number {
 		return this.playerState;
 	}
 
-	/**Default 75 */
+	/**音量大小, Default 75 */
 	get volume(): number {
 		return this.playerVolume;
 	}

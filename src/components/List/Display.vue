@@ -92,6 +92,10 @@
 				<!-- <v-icon style="position:absolute; top:0; left: 0;">fas fa-search</v-icon> -->
 			</v-btn>
 
+			<v-btn icon outlined @click="test">
+				<v-icon size="18" color="success">fas fa-vial</v-icon>
+			</v-btn>
+
 			<v-spacer />
 
 			<input
@@ -206,8 +210,7 @@ export default class Display extends Vue {
 	}
 
 	beforeDestroy(): void {
-		console.info('display destory');
-		if (this.lyricsObj) LyModule.saveLyrics(this.lyricsObj);
+		// if (this.lyricsObj) LyModule.saveLyrics(this.lyricsObj);
 		LyModule.saveTextConf({ mainColor: this.mainColor, subColor: this.subColor, textAlign: this.textAlign });
 	}
 
@@ -221,6 +224,12 @@ export default class Display extends Vue {
 			.catch((err) => {
 				AppModule.snackbar({ text: err, color: Colors.Error });
 			});
+	}
+
+	/**測試功能 */
+	private test() {
+		console.log(this.lyricsObj);
+		console.log(this.$store);
 	}
 }
 </script>

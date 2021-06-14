@@ -13,6 +13,11 @@ class Lyrics extends VuexModule implements LyricsState {
 	public lyricText: IdisplayText | null = null;
 	///
 
+	/**當前歌詞 Key */
+	get lyricsKey() {
+		return this.lyricObj?.lyricsKey;
+	}
+
 	@Mutation
 	saveLyrics(obj: IlyricsDisplayObj): void {
 		this.lyricObj = obj;

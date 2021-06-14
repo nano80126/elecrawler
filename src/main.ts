@@ -164,7 +164,7 @@ new Vue({
 											};
 
 											console.info('crawl lyrics', lyricsObj);
-											this.$emit('getLyricByID', lyricsObj);
+											// this.$emit('getLyricByID', lyricsObj);
 											LyModule.saveLyrics(lyricsObj);
 											PlayerModule.setVideoTitle(videoTitle || '');
 										});
@@ -297,7 +297,6 @@ new Vue({
 				.invoke('listFind', { query: {}, sort: { datetime: 1 } })
 				.then((doc: IsongList[]) => {
 					const urlList = doc.map((item) => item.lyricsUrl);
-					console.info(urlList);
 					AppModule.setUrlList(urlList);
 				})
 				.catch((err) => {
