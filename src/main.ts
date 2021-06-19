@@ -21,7 +21,7 @@ import qs, { stringify } from 'qs';
 
 import { LyModule } from '@/store/modules/lyrics';
 import { IdisplayConfig, IlyricsDisplayObj, IlyricsObj, IsongList } from '@/types/renderer';
-import { EwindowOn, EtrayMode, EtrayVolume, EcrawlerOn, EfsOn } from '@/types/enum';
+import { EwindowOn, EtrayMode, EtrayVolume, EcrawlerOn, EfsOn, EplayHotkey } from '@/types/enum';
 import '@/style.scss';
 
 /// ///
@@ -125,6 +125,9 @@ new Vue({
 				if (loop) window.setTimeout(() => PlayerModule.playVideo(), 1500);
 				else if (shuffle)
 					window.setTimeout(() => {
+						// if route is List, show overlay
+						if (this.$route.name == 'List') AppModule.changeOverlay(true);
+
 						const arr = this.$lodash.without(AppModule.playList, PlayerModule.videoID);
 						const videoID = arr[this.$lodash.random(0, arr.length - 1)];
 
@@ -134,9 +137,6 @@ new Vue({
 						console.warn(videoID);
 						console.warn(this.$route.name);
 						// code below for get lyric object
-
-						// if route is List, show overlay
-						if (this.$route.name == 'List') AppModule.changeOverlay(true);
 
 						this.$ipcRenderer
 							.invoke('listFindOne', {
@@ -245,13 +245,13 @@ new Vue({
 
 		/**註冊 global 熱鍵 */
 		registerGlobalHotkey() {
-			this.$ipcRenderer.on('playVideo', () => {
+			this.$ipcRenderer.on(EplayHotkey.PLAYVIDEO, () => {
 				if (PlayerModule.player) {
 					PlayerModule.playVideo();
 				}
 			});
 
-			this.$ipcRenderer.on('pauseVideo', () => {
+			this.$ipcRenderer.on(EplayHotkey.PAUSEVIDEO, () => {
 				if (PlayerModule.player) {
 					PlayerModule.pauseVideo();
 				}
@@ -276,18 +276,18 @@ new Vue({
 			});
 
 			this.$ipcRenderer.on(EtrayMode.MODESINGLE, () => {
-				PlayerModule.videoLoop(false, false);
-				PlayerModule.videoShuffle(false, false);
+				PlayerModule.videoLoop({ bool: false, toBackground: false });
+				PlayerModule.videoShuffle({ bool: false, toBackground: false });
 			});
 
 			this.$ipcRenderer.on(EtrayMode.MODELOOP, () => {
-				PlayerModule.videoLoop(true, false);
-				PlayerModule.videoShuffle(false, false);
+				PlayerModule.videoLoop({ bool: true, toBackground: false });
+				PlayerModule.videoShuffle({ bool: false, toBackground: false });
 			});
 
 			this.$ipcRenderer.on(EtrayMode.MODESHUFFLE, () => {
-				PlayerModule.videoLoop(false, false);
-				PlayerModule.videoShuffle(true, false);
+				PlayerModule.videoLoop({ bool: false, toBackground: false });
+				PlayerModule.videoShuffle({ bool: true, toBackground: false });
 			});
 		},
 

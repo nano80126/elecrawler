@@ -536,8 +536,6 @@ function trayOn() {
 	ipcMain.on(EtrayOn.MODE, (e, args: { loop: boolean; shuffle: boolean }) => {
 		if (contextMenu) {
 			const { loop, shuffle } = args;
-
-			console.log(loop, shuffle);
 			// first items means mode, second items means mode selections
 			if (loop) {
 				(contextMenu.items[2].submenu?.items[1] as MenuItem).checked = true;

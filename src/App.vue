@@ -214,8 +214,8 @@
 
 			<!-- class="grey lighten-4" -->
 			<v-main>
-				<v-overlay v-model="overlay" opacity="0.3" absolute>
-					<v-progress-circular indeterminate color="purple lighten-2" />
+				<v-overlay v-model="overlay" opacity="0.48" absolute>
+					<v-progress-circular indeterminate color="lime lighten-1" />
 				</v-overlay>
 				<!-- routes -->
 				<router-view />
@@ -379,6 +379,8 @@ export default class App extends Vue {
 		this.$router.beforeEach((to, from, next) => {
 			next();
 		});
+
+		// AppModule.changeOverlay(true);
 	}
 
 	mounted(): void {

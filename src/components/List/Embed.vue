@@ -185,7 +185,7 @@ export default class Embed extends Vue {
 
 	/**設定 loop */
 	set loop(value: boolean) {
-		PlayerModule.videoLoop(value, true);
+		PlayerModule.videoLoop({ bool: value, toBackground: true });
 	}
 
 	/**取得 shuffle */
@@ -195,7 +195,7 @@ export default class Embed extends Vue {
 
 	/**設定 shuffle */
 	set shuffle(value: boolean) {
-		PlayerModule.videoShuffle(value, true);
+		PlayerModule.videoShuffle({ bool: value, toBackground: true });
 	}
 
 	/**取得 播放進度 */

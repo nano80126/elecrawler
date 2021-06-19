@@ -167,16 +167,17 @@ export default class Player extends VuexModule implements PlayerState {
 
 	/**變更 loop */
 	@Mutation
-	videoLoop(/**new value */ bool: boolean, /**send to background? */ toBackground: boolean): void {
-		this.playerLoop = bool;
-		if (toBackground) window.ipcRenderer.send(EtrayOn.MODE, { loop: bool });
+	// videoLoop(/**new value */ bool: boolean, /**send to background? */ toBackground: boolean): void {
+	videoLoop(args: { /**new value */ bool: boolean; /**send to background? */ toBackground: boolean }): void {
+		this.playerLoop = args.bool;
+		if (args.toBackground) window.ipcRenderer.send(EtrayOn.MODE, { loop: args.bool });
 	}
 
 	/**變更 shffle */
 	@Mutation
-	videoShuffle(/**new value */ bool: boolean, /**send to background? */ toBackground: boolean): void {
-		this.playerShuffle = bool;
-		if (toBackground) window.ipcRenderer.send(EtrayOn.MODE, { shuffle: bool });
+	videoShuffle(args: { /**new value */ bool: boolean; /**send to background? */ toBackground: boolean }): void {
+		this.playerShuffle = args.bool;
+		if (args.toBackground) window.ipcRenderer.send(EtrayOn.MODE, { shuffle: args.bool });
 	}
 
 	/**更改播放中影片ID */

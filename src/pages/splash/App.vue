@@ -5,7 +5,7 @@
 				<v-img class="align-end px-1" :src="require('@/assets/splash.png')">
 					<v-card-text class="d-flex font-weight-black subtitle-1 orange--text text--darken-4">
 						<span>Initializing...</span>
-						<span class="ml-auto">{{ loadingMsg }}</span>
+						<!-- <span class="ml-auto">{{ loadingMsg }}</span> -->
 					</v-card-text>
 				</v-img>
 			</v-card>
@@ -40,7 +40,7 @@ export default class App extends Vue {
 	/**當前使用語言 */
 	private language = this.$i18n.locale;
 	/**載入中訊息 */
-	private loadingMsg = '123';
+	// private loadingMsg = '123';
 
 	@Watch('language')
 	onLanguageChange(value: string): void {
@@ -50,7 +50,7 @@ export default class App extends Vue {
 	created(): void {
 		this.$ipcRenderer.on('InitializingMsg', (e, args) => {
 			console.info(args);
-			this.loadingMsg = args.msg;
+			// this.loadingMsg = args.msg;
 		});
 	}
 

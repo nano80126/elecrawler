@@ -1,6 +1,6 @@
 import { globalShortcut } from 'electron';
 import { win } from '@/background';
-import { EtrayVolume } from '@/types/enum';
+import { EplayHotkey, EtrayVolume } from '@/types/enum';
 
 /** 註冊 global 快捷鍵 */
 export function globalRegisterHotkey(): Promise<void> {
@@ -19,13 +19,13 @@ export function globalRegisterHotkey(): Promise<void> {
 
 		globalShortcut.register('Alt+F5', () => {
 			if (win) {
-				win.webContents.send('playVideo');
+				win.webContents.send(EplayHotkey.PLAYVIDEO);
 			}
 		});
 
 		globalShortcut.register('Alt+F6', () => {
 			if (win) {
-				win.webContents.send('pauseVideo');
+				win.webContents.send(EplayHotkey.PAUSEVIDEO);
 			}
 		});
 
