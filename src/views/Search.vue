@@ -64,16 +64,15 @@
 					<template v-if="keywordsExist">
 						<v-col cols="12" class="mt-3" />
 						<!-- reserved for change line -->
-						<v-col cols="auto">
+						<v-col cols="auto" class="" style="height: 28px">
 							<v-chip label small color="orange lighten-1">
 								<v-icon x-small color="white">fas fa-star</v-icon>
 								<span class="ml-1 white--text">{{ $t('keyWord') }}</span>
 							</v-chip>
 						</v-col>
-						<v-col cols class="pl-3 keyword">
+						<v-col cols class="pl-3 keyword" style="height: 28px">
 							<!-- <div style="overflow-x:auto; white-space:nowrap;"> -->
 							<transition-group name="slideIn" mode="out-in">
-								<!-- <template v-if="keywords.length > 0"> -->
 								<v-chip
 									v-for="(words, key) in keywords"
 									:key="`keywords${key}`"
@@ -85,55 +84,39 @@
 								>
 									{{ words.title || words.artist }}
 								</v-chip>
-								<!-- </template> -->
 							</transition-group>
 						</v-col>
 					</template>
 
 					<!-- scroll below  --><!-- scroll below  --><!-- scroll below  -->
-					<!-- scroll below  --><!-- scroll below  --><!-- scroll below  -->
+
+					<!-- height: (32+40+12+28+12+12)*(2/5) = 136*(2/5)  -->
 					<transition name="lyricSlide">
 						<v-col v-if="lyricsObj && !isTwoColumn" cols="12" class="mt-3">
 							<!-- :style="{height: `${($root.webHeight - 136) / 2 - 12}px`" -->
 							<div
 								class="min-scroll y success-scroll"
-								:style="{ height: `${($root.webHeight - 136) / 2.5 - 12}px` }"
+								:style="{ height: `${($root.webHeight - 136) * (2 / 5) - 12}px` }"
 							>
 								<lyricCard :lyricsObj="lyricsObj" :exist.sync="lyricsObj.exist" />
 							</div>
 						</v-col>
 					</transition>
 
+					<!-- height: (32+40+12+28+12+12)*(3/5) = 136*(3/5)  -->
 					<v-col cols="12" class="mt-3">
 						<v-virtual-scroll
 							class="min-scroll y success-scroll scroll-darken"
 							bench="1"
 							:items="searchList"
 							item-height="150"
-							:height="($root.webHeight - 136) / (lyricsObj && !isTwoColumn ? 1.667 : 1)"
+							:height="($root.webHeight - 136) * (lyricsObj && !isTwoColumn ? 3 / 5 : 1)"
 						>
-							<!-- <div
-							class="min-scroll y success-scroll mt-3 pr-3"
-							:style="{ height: `${$root.webHeight - 136}px` }"
-							> -->
-							<!-- <v-row no-gutters> -->
-
-							<!-- <v-col cols="12"> -->
-							<!-- <transition-group name="cardList"> -->
-							<!-- <v-responsive class="overflow-y-auto" max-height="400">
-										<v-responsive height="1080"> -->
-							<!-- <v-lazy> -->
 							<template v-slot="{ item }">
 								<v-card :key="item.id" class="mx-auto mr-3" outlined min-height="130">
 									<v-card-title style="position: relative; white-space: nowrap">
 										<span class="ellipsis-title">{{ item.title }}</span>
-										<!-- <v-chip
-											icon
-											v-if="item.exist"
-											class="ml-auto mr-n2 no-active"
-											@click.prevent
-											:ripple="false"
-										> -->
+
 										<span v-if="item.exist" class="ml-auto">
 											<v-icon small color="grey">fas fa-list</v-icon>
 											<v-icon
@@ -145,7 +128,6 @@
 												fas fa-check
 											</v-icon>
 										</span>
-										<!-- </v-chip> -->
 									</v-card-title>
 									<v-card-subtitle>
 										<span class="ellipsis-artist">{{ item.artist }}</span>
@@ -173,31 +155,15 @@
 											</span>
 										</v-tooltip>
 									</v-card-actions>
-									<!-- <v-expand-transition>
-										<div v-show="item.expanded">
-											<v-divider />
-											<v-card-text>{{ item.lyric }}</v-card-text>
-										</div>
-									</v-expand-transition> -->
 								</v-card>
 							</template>
-							<!-- </v-lazy> -->
-							<!-- </v-responsive> -->
-							<!-- </v-responsive> -->
-							<!-- </transition-group> -->
-							<!-- </v-col> -->
-							<!-- </v-row> -->
-							<!-- </div> -->
 						</v-virtual-scroll>
-						<!-- scroll end --><!-- scroll end --><!-- scroll end --><!-- scroll end --><!-- scroll end -->
+						<!-- scroll end --><!-- scroll end --><!-- scroll end --><!-- scroll end -->
 					</v-col>
 					<!--  -->
 				</v-row>
 			</v-col>
 			<!-- 1st column end --><!-- 1st column end --><!-- 1st column end --><!-- 1st column end -->
-
-			<!-- <template v-if="isTwoColumn"> -->
-			<!-- <v-divider vertical /> -->
 
 			<transition name="lyricsFadeIn">
 				<v-col

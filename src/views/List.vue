@@ -9,7 +9,6 @@
 					'max-width': isTwoColumn ? '416px' : null,
 				}"
 			>
-				<!-- , 'max-width': isTwoColumn ? '416px' : null  -->
 				<div class="d-flex align-center justify-center">
 					<v-text-field
 						v-model="filterStr"
@@ -36,6 +35,8 @@
 					class="pl-3"
 					:style="{ 'min-height': `${$root.webHeight - 84}px`, 'max-width': isTwoColumn ? '416px' : null }"
 				> -->
+
+				<!-- height: 32+40+8+12 = 92 -->
 				<v-list two-line class="transparent mt-2 py-0">
 					<v-virtual-scroll
 						:items="filterList"
@@ -126,12 +127,19 @@
 				</v-list>
 			</v-col>
 
+			<!-- height: 32+12 = 44 -->
 			<transition name="rightClose" mode="out-in">
-				<v-col v-if="isTwoColumn" cols class="px-3" style="border-left: 1px solid rgba(150, 150, 150, 0.5)">
+				<v-col
+					v-if="isTwoColumn"
+					cols
+					class="px-3"
+					style="border-left: 1px solid rgba(150, 150, 150, 0.5)"
+					:style="{ 'min-height': `${$root.webHeight - 44}px` }"
+				>
 					<!-- <div class="d-flex align-center" style="height:100%;"> -->
 					<transition name="fadeIn" mode="out-in">
 						<template v-if="lyricsObj">
-							<v-card flat shaped width="100%">
+							<v-card flat shaped width="100%" height="">
 								<LyricDisplay :lyricsObj="lyricsObj" />
 								<v-divider />
 								<EmbedPlayer :videoID="videoID" />

@@ -23,6 +23,8 @@ export interface AppState {
 	/**overlay 是否顯示 */
 	overlay: boolean;
 	snackbars: Isnackbar[];
+	/**是否為 development */
+	isDev: boolean;
 	/**是否為 electron */
 	isElectron: boolean;
 	/**圖片路徑 */
@@ -42,6 +44,7 @@ class Common extends VuexModule implements AppState {
 	//
 	public snackbars: Array<Isnackbar> = [];
 	//
+	public isDev = process.env.NODE_ENV == 'development' ? true : false;
 	public isElectron = process.env.IS_ELECTRON ? true : false;
 	public picPath = '';
 	public port = 0;

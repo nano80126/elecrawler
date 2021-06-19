@@ -10,15 +10,12 @@
 
 		<v-divider />
 
-		<!-- height = 32+48+38+2+52+12    -->
+		<!-- height = 32+48+38+52+56+12+3(divider) -->
 		<v-card-text
 			class="text-darken-2 font-weight-bold lyric-body py-0"
 			style="position: relative"
 			:style="{ height: `${$root.webHeight - 241}px` }"
 		>
-			<!-- :style="{ height: `${$root.webHeight - 184}px` }" -->
-
-			<!-- <v-img class="back-card my-4 red" contain :src="image" /> -->
 			<transition name="fadeIn" mode="out-in">
 				<v-img
 					v-if="image"
@@ -30,15 +27,15 @@
 					:style="{ opacity: bkOpacity }"
 				/>
 				<!-- :width="backSize ? backSize.width : null"
-						:height="backSize ? backSize.height : null" -->
+				:height="backSize ? backSize.height : null" -->
 			</transition>
 
 			<div
 				class="mr-n4 py-4 pr-4 min-scroll y info-scroll lyric-content"
-				:class="`${mainColor}--text ${subColor}--subtext text-${textAlign}`"
+				:class="`${mainColor}--text ${subColor}--subtext`"
 				style="position: relative; overflow-y: auto; height: 100%"
 			>
-				<div class="text-center" v-html="lyricsObj.lyrics || `<span>${$('noLyricsExist')}</span>`"></div>
+				<div :class="`text-${textAlign}`" v-html="lyricsObj.lyrics || `<span>${$t('noLyricsExist')}</span>`" />
 				<span class="grey--text text-lighten-2 px-4 mt-10" style="float: right"> -- {{ $t('end') }} </span>
 			</div>
 		</v-card-text>
@@ -123,7 +120,7 @@ import { EfsOn } from '@/types/enum';
 @Component
 export default class Display extends Vue {
 	/**歌詞物件 */
-	@Prop({ required: true, type: Object }) lyricsObj!: IlyricsDisplayObj;
+	@Prop({ required: false, type: Object }) lyricsObj?: IlyricsDisplayObj;
 
 	/**圖片Buffer */
 	private image: Buffer | null = null;
@@ -153,14 +150,8 @@ export default class Display extends Vue {
 	// 	}, 300);
 	// }
 
-	@Watch('lyricsObj')
-	changeLyricsObj(obj: IlyricsDisplayObj): void {
-		console.info('lyrics object changed', obj);
-	}
-
 	@Watch('lyricsObj.imagePath')
 	changeImagePath(path: string): void {
-		console.info('image path changed', path);
 		this.image = null;
 		if (path) this.backimgLoad();
 	}
@@ -168,7 +159,7 @@ export default class Display extends Vue {
 	@Watch('mainColor')
 	changeMainColor(val: string): void {
 		this.$ipcRenderer.invoke(EfsOn.WRITECONFIG, { mainColor: val }).then((res) => {
-			if (process.env.NODE_ENV == 'development') {
+			if (AppModule.isDev) {
 				console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
 			}
 		});
@@ -177,7 +168,7 @@ export default class Display extends Vue {
 	@Watch('subColor')
 	changeSubColor(val: string): void {
 		this.$ipcRenderer.invoke(EfsOn.WRITECONFIG, { subColor: val }).then((res) => {
-			if (process.env.NODE_ENV == 'development') {
+			if (AppModule.isDev) {
 				console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
 			}
 		});
@@ -186,7 +177,7 @@ export default class Display extends Vue {
 	@Watch('textAlign')
 	changeTextAlign(val: string): void {
 		this.$ipcRenderer.invoke(EfsOn.WRITECONFIG, { textAlign: val }).then((res) => {
-			if (process.env.NODE_ENV == 'development') {
+			if (AppModule.isDev) {
 				console.info(`%c${JSON.stringify(res)}`, `color: ${this.$vuetify.theme.themes.dark.info}`);
 			}
 		});

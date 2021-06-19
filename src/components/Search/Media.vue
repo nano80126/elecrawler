@@ -164,6 +164,7 @@
 			</v-col>
 		</v-row>
 
+		<!-- height: 32+88+12+12 = 144 -->
 		<div
 			class="min-scroll y info-scroll mt-3 pr-3"
 			:style="{ height: `${$root.webHeight - 144}px` }"

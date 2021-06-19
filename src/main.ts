@@ -163,7 +163,6 @@ new Vue({
 												imageSize: doc.imageSize || undefined,
 											};
 
-											console.info('crawl lyrics', lyricsObj);
 											// this.$emit('getLyricByID', lyricsObj);
 											LyModule.saveLyrics(lyricsObj);
 											PlayerModule.setVideoTitle(videoTitle || '');

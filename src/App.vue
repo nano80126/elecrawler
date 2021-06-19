@@ -1,7 +1,7 @@
 <template>
 	<div v-show="SHOW">
 		<v-app>
-			<v-app-bar app flat height="32" color="blue-grey darken-4">
+			<v-app-bar app flat :height="appbarHeight" color="blue-grey darken-4">
 				<div class="window-drag header ml-n4" />
 				<!--  -->
 				<div class="" style="width: 90px">
@@ -44,7 +44,7 @@
 			</v-app-bar>
 
 			<!-- brown darken-2 -->
-			<v-navigation-drawer app dark permanent mini-variant mini-variant-width="64" class="">
+			<v-navigation-drawer app dark permanent mini-variant :mini-variant-width="navigationWidth" class="">
 				<v-img
 					class="nav-back"
 					position="left 55% center"
@@ -221,6 +221,10 @@
 				<router-view />
 			</v-main>
 
+			<!-- <v-footer app inset padless :height="footerHeight">
+				<v-col class="py-0 text-center">{{ new Date().getFullYear() }} — <strong>Vuetify</strong></v-col>
+			</v-footer> -->
+
 			<v-bottom-sheet v-model="bottomSheet" inset>
 				<v-sheet class="text-center rounded-t-lg" color="blue-grey darken-3">
 					<EmbedPlayer :sheet="bottomSheet" />
@@ -310,6 +314,9 @@ export default class App extends Vue {
 	// $root!: {
 	// 	webHeight: number;
 	// };
+	private appbarHeight = 32;
+	private navigationWidth = 64;
+	private footerHeight = 24;
 
 	/**image of nav */
 	private navImg = require('@/assets/nav3.jpg');
@@ -347,7 +354,7 @@ export default class App extends Vue {
 	// }
 
 	get isDev(): boolean {
-		return process.env.NODE_ENV == 'development';
+		return AppModule.isDev;
 	}
 
 	get overlay(): boolean {
