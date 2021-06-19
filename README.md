@@ -41,6 +41,7 @@ YouTube music player App create by electron
 1. [x] Moving get port method to list.vue mounted 
 1. [ ] Add next and last video mathods
 1. [ ] Change playing mode not affect tray menu
+1. [ ] Add foot bar for copy right and resolution
  
 ### Known Warning
 

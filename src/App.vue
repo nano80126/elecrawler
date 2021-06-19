@@ -278,13 +278,10 @@
 			</v-overlay> -->
 
 			<!-- no used -->
-			<div v-if="false" class="fixed-right-bottom text-right">
-				<span>Resolution:</span>
-				{{ $root.webWidth }} x {{ $root.webHeight }} &lt; = &gt; {{ $root.screenWidth }} x
-				{{ $root.screenHeight }}
-				<br />
-				<span class="mt-2" v-text="'breakpoint:'" />
-				{{ $vuetify.breakpoint.name }}
+			<div v-if="isDev" class="fixed-right-bottom subtitle-2">
+				<!-- <span class="mr-2">Electron: {{ isElectron }}</span> -->
+				<span class="mr-2">resolution: {{ $root.webWidth }} x {{ $root.webHeight }}</span>
+				<span class="mr-2">breakpoint: {{ $vuetify.breakpoint.name }}</span>
 			</div>
 		</v-app>
 	</div>
@@ -348,6 +345,10 @@ export default class App extends Vue {
 	// get contentHeight(): string {
 	// 	return `${this.$root.$data.webHeight - 38}px`;
 	// }
+
+	get isDev(): boolean {
+		return process.env.NODE_ENV == 'development';
+	}
 
 	get overlay(): boolean {
 		return AppModule.overlay;

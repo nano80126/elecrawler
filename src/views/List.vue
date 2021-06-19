@@ -3,7 +3,11 @@
 		<v-row no-gutters align="stretch" justify="start">
 			<v-col
 				class="pl-3"
-				:style="{ 'min-height': `${$root.webHeight - 44}px`, 'max-width': isTwoColumn ? '416px' : null }"
+				:style="{
+					'min-height': `${$root.webHeight - 44}px`,
+					'min-width': '416px',
+					'max-width': isTwoColumn ? '416px' : null,
+				}"
 			>
 				<!-- , 'max-width': isTwoColumn ? '416px' : null  -->
 				<div class="d-flex align-center justify-center">
