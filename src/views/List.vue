@@ -4,7 +4,7 @@
 			<v-col
 				class="pl-3"
 				:style="{
-					'min-height': `${$root.webHeight - 44}px`,
+					'min-height': `${$root.webHeight - 44 - 24}px`,
 					'min-width': '416px',
 					'max-width': isTwoColumn ? '416px' : null,
 				}"
@@ -29,18 +29,12 @@
 						<v-icon small>fa fa-sync</v-icon>
 					</v-btn>
 				</div>
-				<!-- </v-col>
-				<v-col
-					cols="12"
-					class="pl-3"
-					:style="{ 'min-height': `${$root.webHeight - 84}px`, 'max-width': isTwoColumn ? '416px' : null }"
-				> -->
 
 				<!-- height: 32+40+8+12 = 92 -->
 				<v-list two-line class="transparent mt-2 py-0">
 					<v-virtual-scroll
 						:items="filterList"
-						:height="$root.webHeight - 92"
+						:height="$root.webHeight - 92 - 24"
 						item-height="72"
 						class="min-scroll y"
 					>
@@ -134,8 +128,9 @@
 					cols
 					class="px-3"
 					style="border-left: 1px solid rgba(150, 150, 150, 0.5)"
-					:style="{ 'min-height': `${$root.webHeight - 44}px` }"
+					:style="{ height: `${$root.webHeight - 44 - 24}px` }"
 				>
+					<!-- :style="{ height: `${$root.webHeight - 44 - 24}px` }" -->
 					<!-- <div class="d-flex align-center" style="height:100%;"> -->
 					<transition name="fadeIn" mode="out-in">
 						<template v-if="lyricsObj">

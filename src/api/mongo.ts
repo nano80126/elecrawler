@@ -51,7 +51,6 @@ export function createMongoConnection(): Promise<void> {
 			});
 
 			ipcMain.handle('listFindOne', async (e, args) => {
-				e.sender.send('listFindTest', args);
 				return await list.findOne(args.query);
 			});
 

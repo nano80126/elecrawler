@@ -167,7 +167,7 @@
 		<!-- height: 32+88+12+12 = 144 -->
 		<div
 			class="min-scroll y info-scroll mt-3 pr-3"
-			:style="{ height: `${$root.webHeight - 144}px` }"
+			:style="{ height: isMainWindow ? `${$root.webHeight - 144 - 24}px` : `${$root.webHeight - 144}px` }"
 			@scroll.stop="showMenu = false"
 		>
 			<v-row no-gutters align="start" justify="start">
@@ -378,6 +378,10 @@ export default class Media extends Vue {
 	private imgSize = { width: 0, height: 0 };
 	/**圖片縮放率 */
 	private imgZoomRatio = 0;
+	/**是否為 Main Window */
+	get isMainWindow(): boolean {
+		return AppModule.isMain;
+	}
 	/**當前顯示URL */
 	get activedURL(): string {
 		return this.urlObj[this.urlIndex].videoUrl || '';

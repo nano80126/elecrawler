@@ -27,6 +27,8 @@ export interface AppState {
 	isDev: boolean;
 	/**是否為 electron */
 	isElectron: boolean;
+	/**是否為主視窗 */
+	isMain: boolean;
 	/**圖片路徑 */
 	picPath: string;
 	/**後端 port */
@@ -46,6 +48,7 @@ class Common extends VuexModule implements AppState {
 	//
 	public isDev = process.env.NODE_ENV == 'development' ? true : false;
 	public isElectron = process.env.IS_ELECTRON ? true : false;
+	public isMain = false;
 	public picPath = '';
 	public port = 0;
 
@@ -84,6 +87,12 @@ class Common extends VuexModule implements AppState {
 			timeout: bar.timeout || 3000,
 			text: bar.text || '',
 		});
+	}
+
+	/**設為主視窗 */
+	@Mutation
+	setMain(bool: boolean) {
+		this.isMain = bool;
 	}
 
 	/**變更 圖片 儲存路徑 */

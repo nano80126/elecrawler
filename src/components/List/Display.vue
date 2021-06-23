@@ -14,7 +14,7 @@
 		<v-card-text
 			class="text-darken-2 font-weight-bold lyric-body py-0"
 			style="position: relative"
-			:style="{ height: `${$root.webHeight - 241}px` }"
+			:style="{ height: `${$root.webHeight - 241 - 24}px` }"
 		>
 			<transition name="fadeIn" mode="out-in">
 				<v-img

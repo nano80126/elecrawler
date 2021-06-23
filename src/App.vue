@@ -221,9 +221,11 @@
 				<router-view />
 			</v-main>
 
-			<!-- <v-footer app inset padless :height="footerHeight">
-				<v-col class="py-0 text-center">{{ new Date().getFullYear() }} — <strong>Vuetify</strong></v-col>
-			</v-footer> -->
+			<v-footer app inset padless :height="footerHeight">
+				<v-col class="py-0 text-right">
+					&copy; {{ new Date().getFullYear() }} <strong>EleCrawler</strong>
+				</v-col>
+			</v-footer>
 
 			<v-bottom-sheet v-model="bottomSheet" inset>
 				<v-sheet class="text-center rounded-t-lg" color="blue-grey darken-3">

@@ -189,8 +189,8 @@ new Vue({
 		this.readConfig();
 		//
 		this.registerGlobalHotkey();
-
-		// window.test();
+		//
+		AppModule.setMain(true);
 	},
 
 	mounted() {
@@ -205,10 +205,10 @@ new Vue({
 
 		this.loadUrlInList();
 
-		this.$ipcRenderer.on('listFindTest', (e, args) => {
-			// console.info(e);
-			console.info(args);
-		});
+		// this.$ipcRenderer.on('listFindTest', (e, args) => {
+		// 	console.info(e);
+		// 	console.info(args);
+		// });
 
 		/**web worker test */
 		// const worker = new Worker('./worker/index.ts', { type: 'module' });

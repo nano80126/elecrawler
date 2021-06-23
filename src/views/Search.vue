@@ -6,7 +6,7 @@
 				cols
 				class="pl-3"
 				:style="{
-					'min-height': `${$root.webHeight - 44}px`,
+					'min-height': `${$root.webHeight - 44 - 24}px`,
 					'max-width': isTwoColumn || isThreeColumn ? '416px' : null,
 				}"
 			>
@@ -96,7 +96,7 @@
 							<!-- :style="{height: `${($root.webHeight - 136) / 2 - 12}px`" -->
 							<div
 								class="min-scroll y success-scroll"
-								:style="{ height: `${($root.webHeight - 136) * (2 / 5) - 12}px` }"
+								:style="{ height: `${($root.webHeight - 136 - 24) * (2 / 5) - 12}px` }"
 							>
 								<lyricCard :lyricsObj="lyricsObj" :exist.sync="lyricsObj.exist" />
 							</div>
@@ -110,7 +110,7 @@
 							bench="1"
 							:items="searchList"
 							item-height="150"
-							:height="($root.webHeight - 136) * (lyricsObj && !isTwoColumn ? 3 / 5 : 1)"
+							:height="($root.webHeight - 136 - 24) * (lyricsObj && !isTwoColumn ? 3 / 5 : 1)"
 						>
 							<template v-slot="{ item }">
 								<v-card :key="item.id" class="mx-auto mr-3" outlined min-height="130">
@@ -175,7 +175,7 @@
 				>
 					<!-- {{ this.lyricsObj ? this.lyricsObj.exist : null }} -->
 					<template v-if="lyricsObj">
-						<div class="min-scroll y primary-scroll" :style="{ height: `${$root.webHeight - 44}px` }">
+						<div class="min-scroll y primary-scroll" :style="{ height: `${$root.webHeight - 44 - 24}px` }">
 							<lyricCard :lyricsObj="lyricsObj" :exist.sync="lyricsObj.exist" />
 						</div>
 					</template>
@@ -242,10 +242,8 @@ import { EcrawlerOn, EwindowOn } from '@/types/enum';
 export default class Search extends Vue {
 	/**搜尋清單 */
 	private searchList: IlistSearched[] = [];
-
 	/**歌詞物件 */
 	private lyricsObj: IlyricsSearched | null = null;
-
 	/**搜尋歌手 */
 	private artist = '';
 	/**搜尋歌曲名 */
