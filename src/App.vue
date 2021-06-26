@@ -222,7 +222,11 @@
 			</v-main>
 
 			<v-footer app inset padless :height="footerHeight">
-				<v-col class="py-0 text-right">
+				<v-col v-if="isDev" class="py-0 text-right">
+					<span class="mr-2">resolution: {{ $root.webWidth }} x {{ $root.webHeight }}</span>
+					<span class="mr-2">breakpoint: {{ $vuetify.breakpoint.name }}</span>
+				</v-col>
+				<v-col v-else class="py-0 text-right" style="opacity: 0.8">
 					&copy; {{ new Date().getFullYear() }} <strong>EleCrawler</strong>
 				</v-col>
 			</v-footer>

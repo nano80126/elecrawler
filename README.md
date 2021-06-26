@@ -41,8 +41,11 @@ YouTube music player App create by electron
 1. [x] Moving get port method to list.vue mounted 
 1. [ ] Add next and last video mathods
 1. [x] Change playing mode not affect tray menu
-1. [ ] Add foot bar for copy right and resolution
-1. [ ] Adjust media.vue height in panel
+1. [x] Add foot bar for copy right and resolution
+1. [x] Adjust media.vue height in panel
+1. [x] Media.vue set back up for rectAbs and rectPercent 
+    * Bug exist (not reject or resolve rect)
+    * Recheck mechanism
  
 ### Known Warning
 

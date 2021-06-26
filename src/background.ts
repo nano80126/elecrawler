@@ -386,9 +386,7 @@ function createSplash(): void {
 				crawlerRegister(),
 				registerSharpHandler(),
 				createMongoConnection(),
-			]).then((res) => {
-				console.log(res);
-
+			]).then(() => {
 				createWindow();
 			});
 

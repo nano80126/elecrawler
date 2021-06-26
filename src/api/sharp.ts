@@ -4,8 +4,8 @@ import { ipcMain, dialog } from 'electron';
 import { picPath } from './fs';
 
 /**註冊 sharp 處理程序 */
-export function registerSharpHandler(): Promise<string> {
-	return new Promise(resolve => {
+export function registerSharpHandler(): Promise<void> {
+	return new Promise((resolve) => {
 		ipcMain.handle('videoCover', async (e, args) => {
 			const imgUrl = `http://img.youtube.com/vi/${args.ID}/maxresdefault.jpg`;
 			console.log(imgUrl);
@@ -27,7 +27,7 @@ export function registerSharpHandler(): Promise<string> {
 		ipcMain.handle('dialogImage', async () => {
 			try {
 				const path = await dialog.showOpenDialog({
-					filters: [{ name: 'Images', extensions: ['jpg', 'png', 'bmp'] }]
+					filters: [{ name: 'Images', extensions: ['jpg', 'png', 'bmp'] }],
 				});
 				// path.then(res => {}).catch(err)
 				console.log(path);
@@ -93,12 +93,7 @@ export function registerSharpHandler(): Promise<string> {
 				const image = sharp(Buffer.from(buffer));
 
 				const promise = [];
-				promise.push(
-					image
-						.clone()
-						.toFormat('jpeg')
-						.toFile(`${picPath}\\${key}.jpg`)
-				);
+				promise.push(image.clone().toFormat('jpeg').toFile(`${picPath}\\${key}.jpg`));
 
 				if (size.width > 0 && size.height > 0) {
 					promise.push(
@@ -117,6 +112,6 @@ export function registerSharpHandler(): Promise<string> {
 			}
 		});
 
-		resolve('');
+		resolve();
 	});
 }

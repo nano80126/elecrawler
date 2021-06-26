@@ -133,10 +133,7 @@ new Vue({
 
 						PlayerModule.loadPlayerByID(videoID);
 
-						// code above for loading video
-						console.warn(videoID);
-						console.warn(this.$route.name);
-						// code below for get lyric object
+						// code above for loading video // code below for get lyric object
 
 						this.$ipcRenderer
 							.invoke('listFindOne', {

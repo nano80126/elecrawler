@@ -146,7 +146,7 @@ async function lyricsCrawl(subUrl: string): Promise<{}> {
 }
 
 /**註冊爬蟲程序 */
-export function crawlerRegister(): Promise<string> {
+export function crawlerRegister(): Promise<void> {
 	return new Promise((resolve) => {
 		ipcMain.on(EcrawlerOn.LIST, async (e, args) => {
 			const { artist, title } = args;
@@ -176,6 +176,7 @@ export function crawlerRegister(): Promise<string> {
 			return ret;
 		});
 
-		resolve('add handler of crawler');
+		// resolve('add handler of crawler');
+		resolve();
 	});
 }

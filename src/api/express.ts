@@ -7,7 +7,7 @@ import portfinder from 'portfinder';
 // import { app as electron } from 'electron';
 
 /**初始化express */
-export function initializeExpress(): Promise<string> {
+export function initializeExpress(): Promise<void> {
 	return new Promise((resolve) => {
 		const app = express();
 		const router = express.Router();
@@ -74,7 +74,8 @@ export function initializeExpress(): Promise<string> {
 
 				app.listen(port, 'localhost', () => {
 					console.log(`Http Server Started On Port ${port} :)`);
-					resolve('create express server successfully');
+					// resolve('create express server successfully');
+					resolve();
 				});
 			}
 		);

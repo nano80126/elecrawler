@@ -72,7 +72,7 @@ export function registerFileOperation(): Promise<void> {
 }
 
 /**載入 config */
-export function loadConfig() {
+export function loadConfig(): Promise<void> {
 	return new Promise((resolve) => {
 		const exist = fs.existsSync(jsonPath);
 		if (!exist) {
@@ -83,7 +83,7 @@ export function loadConfig() {
 			config = cfg;
 		}
 
-		resolve('load config successfully');
+		resolve();
 	});
 }
 

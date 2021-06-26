@@ -13,7 +13,8 @@
 
 			<v-main class="pl-3">
 				<transition name="slideInOut" mode="out-in">
-					<lyricMedia v-if="lyricsObj" :panelWindow="true" :extendImage="false" :lyricsObj="lyricsObj" />
+					<lyricMedia v-if="lyricsObj" :extendImage="false" :lyricsObj="lyricsObj" />
+					<!-- :panelWindow="true"  -->
 				</transition>
 			</v-main>
 

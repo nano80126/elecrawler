@@ -3,8 +3,9 @@
 		<v-row no-gutters align="start" justify="start" class="mr-3">
 			<v-col cols="12">
 				<v-toolbar flat dense height="40" color="transparent" class="px-0">
+					<!-- v-if="!panelWindow" -->
 					<v-btn
-						v-if="!panelWindow"
+						v-if="isMainWindow"
 						icon
 						small
 						class="ml-n4"
@@ -28,7 +29,7 @@
 						dense
 						hide-details
 						placeholder="YouTubeのリンク"
-						:class="!panelWindow ? 'ml-3' : 'ml-n4'"
+						:class="isMainWindow ? 'ml-3' : 'ml-n4'"
 						@mousewheel="mouseWheel"
 						@blur="fieldBlur"
 					>
@@ -58,7 +59,7 @@
 							<v-btn
 								icon
 								outlined
-								class="ml-2"
+								class="ml-3 mr-n4"
 								color="primary lighten-2"
 								dark
 								width="36"
@@ -77,19 +78,17 @@
 			</v-col>
 
 			<v-col cols="12" class="mt-3 d-flex align-center">
-				<!-- <v-chip v-show="fieldHover">{{ urlIndex }}</v-chip> -->
 				<v-chip class="mr-2 pr-4" color="light-blue" text-color="white">
 					{{ imgSize.width }} &times; {{ imgSize.height }}
 					<v-icon right small>fas fa-expand</v-icon>
 				</v-chip>
-
+				<!-- // -->
 				<v-chip class="mr-2 pr-4" color="light-green" text-color="white">
 					{{ $lodash.round(imgZoomRatio * 100, 2) }}
 					<v-icon right small>fas fa-percentage</v-icon>
 				</v-chip>
 				<v-spacer />
-				<!--  -->
-
+				<!-- // -->
 				<v-tooltip bottom>
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn
@@ -106,7 +105,7 @@
 					</template>
 					<span>{{ $t('getYouTubeCover') }}</span>
 				</v-tooltip>
-
+				<!-- // -->
 				<v-tooltip bottom open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn
@@ -123,16 +122,16 @@
 					</template>
 					<span>{{ $t('selectImage') }}</span>
 				</v-tooltip>
-
+				<!-- // -->
 				<v-tooltip bottom open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn
 							icon
 							outlined
 							class="ml-2"
-							:class="{ 'blue-grey darken-2': onRect }"
+							:class="{ 'blue-grey darken-2': canRectCapture }"
 							:disabled="!imgBuffer"
-							@click="onRect = !onRect"
+							@click="canRectCapture = !canRectCapture"
 							v-bind="attrs"
 							v-on="on"
 						>
@@ -141,7 +140,7 @@
 					</template>
 					<span>{{ $t('avatarImage') }}</span>
 				</v-tooltip>
-
+				<!-- // -->
 				<v-tooltip bottom open-delay="300">
 					<template v-slot:activator="{ on, attrs }">
 						<v-btn icon outlined class="ml-2" @click="removeImage" v-bind="attrs" v-on="on">
@@ -150,17 +149,6 @@
 					</template>
 					<span>{{ $t('removeImage') }}</span>
 				</v-tooltip>
-
-				<!--  -->
-				<!-- <v-divider vertical class="mx-2" />
-				<v-tooltip bottom open-delay="300">
-					<template v-slot:activator="{ on, attrs }">
-						<v-btn outlined icon v-bind="attrs" v-on="on" @click="saveMedia">
-							<v-icon small>fas fa-download</v-icon>
-						</v-btn>
-					</template>
-					<span>{{ $t('save') }}</span>
-				</v-tooltip> -->
 			</v-col>
 		</v-row>
 
@@ -168,7 +156,7 @@
 		<div
 			class="min-scroll y info-scroll mt-3 pr-3"
 			:style="{ height: isMainWindow ? `${$root.webHeight - 144 - 24}px` : `${$root.webHeight - 144}px` }"
-			@scroll.stop="showMenu = false"
+			@scroll.stop="scrollStop"
 		>
 			<v-row no-gutters align="start" justify="start">
 				<v-col cols="12" class="">
@@ -179,6 +167,7 @@
 						>
 							<div
 								tabindex="0"
+								ref="paste-zone"
 								class="paste-zone"
 								@paste="onPaste"
 								@focus="canPaste = true"
@@ -195,10 +184,13 @@
 								@dragleave.capture="dragging = false"
 								@drop.capture="dragging = false"
 								ref="imgCard"
-								@mousedown="rectOn"
+								:ripple="!canRectCapture"
+								@mousedown.left="rectOn"
+								@mousedown.right="rectRst"
 								@mouseup="rectOff"
 								@mousemove="crossMove"
 								@mouseleave="crossReset"
+								@click="focusPasteZone"
 							>
 								<transition name="imagFadeIn">
 									<v-img
@@ -212,7 +204,7 @@
 										@load="updateRatio"
 										style="border-radius: inherit; margin: auto"
 									>
-										<template v-if="onRect">
+										<template v-if="canRectCapture">
 											<div id="small-region" ref="region" />
 											<div id="crosshair-h" class="hair" ref="hairH" />
 											<div id="crosshair-v" class="hair" ref="hairV" />
@@ -267,11 +259,15 @@
 				</v-col>
 			</v-row>
 
-			<!-- <template v-if="false">
+			<template v-if="true">
 				<div>
 					abs: {{ rectAbs }}
 					<br />
+					abs: {{ rectAbsBack }}
+					<br />
 					%: {{ rectPercent }}
+					<br />
+					%: {{ rectPercentBack }}
 					<br />
 					imgSize: {{ imgSize }}
 					<br />
@@ -287,7 +283,7 @@
 				<div v-for="item in urlObj" :key="item.id">
 					{{ item }}
 				</div>
-			</template> -->
+			</template>
 		</div>
 
 		<v-menu
@@ -330,7 +326,7 @@ import { EfsOn } from '@/types/enum';
 })
 export default class Media extends Vue {
 	/**是否為panel window */
-	@Prop({ required: false, default: false }) panelWindow?: boolean;
+	// @Prop({ required: false, default: false }) panelWindow?: boolean;
 
 	/**是否可以切換大圖 */
 	@Prop({ required: false, default: true }) canExtendImage?: boolean;
@@ -358,7 +354,7 @@ export default class Media extends Vue {
 	/**是否可以貼上？當圖片區域focus時為true */
 	private canPaste = false;
 	/**是否可以框選icon */
-	private onRect = false;
+	private canRectCapture = false;
 	/**是否開始框選icon */
 	private onRectStart = false;
 
@@ -374,6 +370,11 @@ export default class Media extends Vue {
 	private rectAbs: Irectangle = { x: 0, y: 0, width: 0, height: 0 };
 	/**縮圖Rectangle Percent */
 	private rectPercent: Irectangle = { x: 0, y: 0, width: 0, height: 0 };
+	/**縮圖Rectangle absolute */
+	private rectAbsBack: Irectangle = { x: 0, y: 0, width: 0, height: 0 };
+	/**縮圖Rectangle Percent */
+	private rectPercentBack: Irectangle = { x: 0, y: 0, width: 0, height: 0 };
+
 	/**圖片原始大小 */
 	private imgSize = { width: 0, height: 0 };
 	/**圖片縮放率 */
@@ -408,14 +409,17 @@ export default class Media extends Vue {
 		this.loadLyricsObj();
 	}
 
-	@Watch('onRect')
+	@Watch('canRectCapture')
 	onOnRectChanged(bool: boolean): void {
 		if (bool) {
 			const keyon = (e: KeyboardEvent) => {
 				if (e.key == 'Escape') {
-					this.onRect = false;
+					this.canRectCapture = false;
 					this.onRectStart = false;
-					this.showMenu = false;
+					if (this.showMenu) {
+						this.rejectRect();
+						this.showMenu = false;
+					}
 
 					this.$nextTick(() => {
 						window.removeEventListener('keyup', keyon);
@@ -528,11 +532,13 @@ export default class Media extends Vue {
 		});
 	}
 
+	/**新增 Url */
 	private addUrl(): void {
 		this.urlObj.push({ videoUrl: '' });
 		this.urlIndex = this.urlObj.length - 1;
 	}
 
+	/**取得 YouTubew 圖片 */
 	private async getVideoImg(e: Event): Promise<void> {
 		e.preventDefault();
 		e.stopPropagation();
@@ -563,6 +569,14 @@ export default class Media extends Vue {
 		}
 	}
 
+	/**Paste Zone 獲得焦點 */
+	private focusPasteZone() {
+		if (!this.canRectCapture) {
+			(this.$refs['paste-zone'] as HTMLElement).focus();
+		}
+	}
+
+	/**黏貼事件 */
 	private onPaste(e: ClipboardEvent): void {
 		e.preventDefault();
 		e.stopPropagation();
@@ -599,6 +613,7 @@ export default class Media extends Vue {
 		(e.target as HTMLElement).blur();
 	}
 
+	/**圖檔路徑 Change 事件 */
 	private onChange(e: Event) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -629,6 +644,7 @@ export default class Media extends Vue {
 		(e.target as HTMLInputElement).value = ''; // set file content to null
 	}
 
+	/**Dialog 選擇圖片 */
 	private dialogImage() {
 		this.disableDialog = true;
 
@@ -750,6 +766,7 @@ export default class Media extends Vue {
 		}
 	}
 
+	/**移除圖片, 重置 rect */
 	private removeImage(): void {
 		this.imgBuffer = null; // 重置 imgBuffer
 		this.imgSize.width = this.imgSize.height = 0; // 重置 imgSize
@@ -757,7 +774,7 @@ export default class Media extends Vue {
 		Object.assign(this.rectAbs, { x: 0, y: 0, width: 0, height: 0 }); // 重置 rect
 		Object.assign(this.rectPercent, { x: 0, y: 0, width: 0, height: 0 }); // 重置 rect
 		// // // // //
-		this.onRect = false;
+		this.canRectCapture = false;
 		this.onRectStart = false;
 		this.showMenu = false;
 	}
@@ -776,9 +793,9 @@ export default class Media extends Vue {
 	// 	}
 	// }
 
-	/**mousemove evemt, show mouse position txt, if mousedown capture icon */
+	/**Mousemove Evemt, show mouse position txt, if mousedown capture icon */
 	private crossMove(e: MouseEvent): void {
-		if (!this.imgBuffer || !this.onRect) return;
+		if (!this.imgBuffer || !this.canRectCapture) return;
 
 		const x = e.offsetX - 2 < 0 ? 0 : e.offsetX - 2;
 		const y = e.offsetY - 2 < 0 ? 0 : e.offsetY - 2;
@@ -804,9 +821,9 @@ export default class Media extends Vue {
 		}
 	}
 
-	/**mouseleave event, reset crosshair, position text */
+	/**Mouseleave Event, reset crosshair, position text */
 	private crossReset(e: MouseEvent) {
-		if (!this.imgBuffer || !this.onRect) return;
+		if (!this.imgBuffer || !this.canRectCapture) return;
 
 		(this.$refs.hairH as HTMLDivElement).style.top = '0';
 		(this.$refs.hairV as HTMLDivElement).style.left = '0';
@@ -824,12 +841,20 @@ export default class Media extends Vue {
 		// }
 	}
 
-	/**mousedown event, start capture region */
+	/**Mousedown Event, start capture region */
 	private rectOn(e: MouseEvent) {
-		if (!this.imgBuffer || !this.onRect) return;
+		if (!this.imgBuffer || !this.canRectCapture) return;
+
+		if (this.showMenu) {
+			this.rejectRect();
+			this.showMenu = false;
+			return;
+		}
 		// 左鍵按下
 		if (e.button == 0) {
 			this.onRectStart = true;
+			Object.assign(this.rectAbsBack, this.rectAbs); // backup rectAbs setting
+			Object.assign(this.rectPercentBack, this.rectPercent); // backup rectPercent setting
 
 			this.$nextTick(() => {
 				const w = (this.$refs.img as Vue).$el.clientWidth;
@@ -847,20 +872,21 @@ export default class Media extends Vue {
 				region.style.left = `${this.rectAbs.x / w}%`;
 				region.style.top = `${this.rectAbs.y / h}%`;
 
-				this.$nextTick(() => {
-					this.showMenu = false;
-				});
+				// this.$nextTick(() => {
+				// 	this.showMenu = false;
+				// });
 			});
 		}
 	}
 
-	/**mouseup event, check region size and show menu */
+	/**Mouseup Event, check region size and show menu */
 	private rectOff(e: MouseEvent) {
-		if (!this.imgBuffer || !this.onRect) return;
+		if (!this.imgBuffer || !this.canRectCapture) return;
 
 		// 左鍵放開
 		if (e.button == 0 && this.onRectStart) {
 			this.onRectStart = false;
+			if (this.rectAbs.width <= 5 || this.rectAbs.height <= 5) return;
 
 			this.$nextTick(() => {
 				const region = this.$refs.region as HTMLDivElement;
@@ -873,13 +899,15 @@ export default class Media extends Vue {
 				this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
 				this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
 				this.$nextTick(() => {
-					if (this.rectAbs.width <= 5 || this.rectAbs.height <= 5) return;
-					else if (
+					// if (this.rectAbs.width <= 5 || this.rectAbs.height <= 5) return;
+					// else
+					if (
 						(this.imgSize.width * this.rectPercent.width) / 100 >= 128 &&
 						(this.imgSize.height * this.rectPercent.height) / 100 >= 128
 					) {
 						this.showMenu = true;
 					} else {
+						this.rejectRect();
 						AppModule.snackbar({ text: 'サイズが足りない(128x128以上)', color: Colors.Info });
 					}
 				});
@@ -887,6 +915,29 @@ export default class Media extends Vue {
 		}
 	}
 
+	/**重置 Rect */
+	private rectRst() {
+		if (!this.imgBuffer || !this.canRectCapture) return;
+
+		Object.assign(this.rectAbs, { x: 0, y: 0, width: 0, height: 0 });
+		Object.assign(this.rectPercent, { x: 0, y: 0, width: 0, height: 0 });
+
+		const regionFreeze = this.$refs['region-freeze'] as HTMLDivElement;
+		regionFreeze.style.left = `${this.rectPercent.x}%`;
+		regionFreeze.style.top = `${this.rectPercent.y}%`;
+		regionFreeze.style.width = `${this.rectPercent.width}%`;
+		regionFreeze.style.height = `${this.rectPercent.height}%`;
+		// set temp rect min
+		const region = this.$refs.region as HTMLDivElement;
+		region.style.left = region.style.top = '0';
+		region.style.width = region.style.height = '0';
+		// close menu
+		this.$nextTick(() => {
+			this.showMenu = false;
+		});
+	}
+
+	/**更新縮放率 */
 	private updateRatio() {
 		this.$nextTick(() => {
 			if (this.$refs.img) {
@@ -895,18 +946,35 @@ export default class Media extends Vue {
 		});
 	}
 
+	/**視窗 resize 事件 */
 	private resize = this.$lodash.debounce(() => {
-		this.showMenu = false;
+		if (this.showMenu) {
+			this.rejectRect();
+			this.showMenu = false;
+		}
 		this.updateRatio();
 	}, 300);
 
-	private rejectRect() {
-		// Object.keys(this.rectAbs).forEach(k => (this.rectAbs[k] = 0));
-		// Object.keys(this.rectPercent).forEach(k => (this.rectPercent[k] = 0));
-		Object.assign(this.rectAbs, { x: 0, y: 0, width: 0, height: 0 });
-		Object.assign(this.rectPercent, { x: 0, y: 0, width: 0, height: 0 });
+	/**scroll 滾動 */
+	private scrollStop() {
+		if (this.showMenu) {
+			this.rejectRect();
+			this.showMenu = false;
+		}
 	}
 
+	/**拒絕框選 Rect */
+	private rejectRect() {
+		// 復原到紀錄的rect
+		Object.assign(this.rectAbs, this.rectAbsBack);
+		Object.assign(this.rectPercent, this.rectPercentBack);
+		//
+		const region = this.$refs.region as HTMLDivElement;
+		region.style.left = region.style.top = '0';
+		region.style.width = region.style.height = '0';
+	}
+
+	/**接受框選 Rect */
 	private acceptRect() {
 		const regionFreeze = this.$refs['region-freeze'] as HTMLDivElement;
 		regionFreeze.style.left = `${this.rectPercent.x}%`;
@@ -915,9 +983,10 @@ export default class Media extends Vue {
 		regionFreeze.style.height = `${this.rectPercent.height}%`;
 		// set temp rect min
 		const region = this.$refs.region as HTMLDivElement;
+		region.style.left = region.style.top = '0';
 		region.style.width = region.style.height = '0';
 		//
-		this.onRect = false;
+		this.canRectCapture = false;
 	}
 }
 </script>
