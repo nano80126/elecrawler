@@ -13,6 +13,8 @@ export interface IconfigLocale {
 export interface Iconfig extends IconfigText, IconfigLocale {
 	x?: number;
 	y?: number;
+	width?: number;
+	height?: number;
 }
 
 /**interface of song list crawled */

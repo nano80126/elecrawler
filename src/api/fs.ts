@@ -88,7 +88,7 @@ export function loadConfig(): Promise<void> {
 }
 
 /**儲存 config */
-export function saveConfig(args = {}): void {
+export function saveConfig(args?: { x: number; y: number }): void {
 	Object.assign(config, args);
 
 	// 排序 config

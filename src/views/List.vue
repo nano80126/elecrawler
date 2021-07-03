@@ -261,6 +261,12 @@ export default class List extends Vue {
 				const flatten = this.$lodash.flatten(filter).map((e) => e?.videoID) as string[];
 				AppModule.setPlayList(flatten);
 
+				///  如果設置 shuffle mode 在載入 playList 之前，call setShufflePlayList()
+				// if (PlayerModule.playerShuffle && AppModule.shuffledPlayList == []) {
+				// 	AppModule.setShufflePlayList();
+				// }
+				///
+
 				const iconArray = doc.map((item) => item.iconPath || undefined);
 				this.$ipcRenderer
 					.invoke('loadBuffer', { path: iconArray })
@@ -275,10 +281,10 @@ export default class List extends Vue {
 					});
 
 				// show all songs
-				if (process.env.NODE_ENV == 'development') {
-					const toStr = doc.map((item) => `${item.title} / ${item.artist}`);
-					console.info(`%c${toStr.join(', ')}`, `color: ${this.$vuetify.theme.themes.dark.accent}`);
-				}
+				// if (process.env.NODE_ENV == 'development') {
+				// 	const toStr = doc.map((item) => `${item.title} / ${item.artist}`);
+				// 	console.info(`%c${toStr.join(', ')}`, `color: ${this.$vuetify.theme.themes.dark.accent}`);
+				// }
 
 				/// /// /// /// /// /// /// /// /// 先判斷不存在 /// 否則會被refresh刷掉
 				if (!this.lyricsObj) this.lyricsObj = LyModule.lyricObj;

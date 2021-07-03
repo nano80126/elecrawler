@@ -259,7 +259,7 @@
 				</v-col>
 			</v-row>
 
-			<template v-if="true">
+			<!-- <template v-if="true">
 				<div>
 					abs: {{ rectAbs }}
 					<br />
@@ -283,7 +283,7 @@
 				<div v-for="item in urlObj" :key="item.id">
 					{{ item }}
 				</div>
-			</template>
+			</template> -->
 		</div>
 
 		<v-menu

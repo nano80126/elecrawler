@@ -7,12 +7,12 @@
 				<div class="" style="width: 90px">
 					<!-- slider no used now -->
 					<v-slider
+						v-model="slider"
 						ref="slider1"
 						class="no-drag no-hover"
 						min="0"
-						max="100"
-						step="1"
-						value="100"
+						max="0.6"
+						step="0.05"
 						hide-details
 					/>
 				</div>
@@ -51,9 +51,10 @@
 					transition="fade-transition"
 					:src="navImg"
 					style="opacity: 0.6"
+					:style="{ opacity: slider }"
 				/>
 				<!-- :src="require('@/assets/nav3.jpg')" -->
-				<div class="window-drag left" style="opacity: 0.5" />
+				<div :class="{ 'window-drag left': !menu }" />
 				<!--  -->
 				<v-list flat class="no-drag">
 					<v-tooltip right transition="scroll-x-transition" open-delay="300">
@@ -84,17 +85,16 @@
 						</span>
 					</v-tooltip>
 
-					<!-- <v-tooltip right transition="scroll-x-transition" open-delay="300">
+					<v-tooltip right transition="scroll-x-transition" open-delay="300">
 						<template v-slot:activator="{ attrs, on }">
 							<v-list-item exact v-bind="attrs" v-on="on" @click="TestFunc">
 								<v-list-item-content>
 									<v-icon small>fas fa-random</v-icon>
-									{{ menu }}
 								</v-list-item-content>
 							</v-list-item>
 						</template>
 						<span>Test</span>
-					</v-tooltip> -->
+					</v-tooltip>
 				</v-list>
 
 				<template v-slot:append>
@@ -126,7 +126,7 @@
 						</v-tooltip>
 						<!-- </v-list> -->
 
-						<v-menu rounded right min-width="150" v-model="menu" close-on-click>
+						<v-menu rounded right min-width="150" v-model="menu" close-on-click close-on-content-click>
 							<template v-slot:activator="{ on: menu, attrs }">
 								<!-- <v-list flat class="no-drag"> -->
 								<v-tooltip right transition="scroll-x-transition" open-delay="300">
@@ -324,6 +324,7 @@ export default class App extends Vue {
 	private navigationWidth = 64;
 	private footerHeight = 24;
 
+	private slider = 0.6;
 	/**image of nav */
 	private navImg = require('@/assets/nav3.jpg');
 	/**Show after mounted */
@@ -393,7 +394,6 @@ export default class App extends Vue {
 		this.$router.beforeEach((to, from, next) => {
 			next();
 		});
-
 		// AppModule.changeOverlay(true);
 	}
 
@@ -462,7 +462,12 @@ export default class App extends Vue {
 	}
 
 	private TestFunc() {
-		AppModule.snackbar({ text: 'test' });
+		// AppModule.snackbar({ text: 'test' });
+		// // // //
+		// const idx = AppModule.shuffledPlayList.indexOf(PlayerModule.videoID);
+		// console.log(idx, AppModule.shuffledPlayList.length);
+		console.log(AppModule.playList);
+		console.log(AppModule.shuffledPlayList);
 	}
 }
 </script>

@@ -41,6 +41,7 @@
 
 	"end": "End",
 
-	"loop": "Loop",
-	"shuffle": "Shuffle"
+	"loopPlay": "Loop",
+	"orderPlay": "Order",
+	"shufflePlay": "Shuffle"
 }

@@ -3,12 +3,21 @@ import store from '@/store/index';
 import { LyModule } from './lyrics'; // for destroy lyrics obj
 import { EtrayOn } from '@/types/enum';
 
+interface IplayModeInput {
+	/**新 Value */
+	bool: boolean;
+	/**是否通知後端有變更 */
+	toBackground: boolean;
+}
+
 export interface PlayerState {
 	intervalArray: Array<number>;
 	/**播放器 */
 	player: YT.Player | null;
 	/**循環播放 */
 	playerLoop: boolean;
+	/**順序播放 */
+	playerOrder: boolean;
 	/**隨機播放 */
 	playerShuffle: boolean;
 	/**播放器狀態 */
@@ -26,6 +35,7 @@ export default class Player extends VuexModule implements PlayerState {
 	public intervalArray: Array<number> = [];
 	public player: YT.Player | null = null;
 	public playerLoop = false;
+	public playerOrder = false;
 	public playerShuffle = false;
 	public playerState = -1;
 	public playerVolume = 75;
@@ -42,6 +52,16 @@ export default class Player extends VuexModule implements PlayerState {
 	get volume(): number {
 		return this.playerVolume;
 	}
+
+	// /**播放器現在進度 */
+	// get currentTime(): number {
+	// 	return this.player?.getCurrentTime() || 0;
+	// }
+
+	// /**播放器 Duration */
+	// get duration(): number {
+	// 	return this.player?.getDuration() || 0;
+	// }
 
 	/// Mutation
 
@@ -89,6 +109,7 @@ export default class Player extends VuexModule implements PlayerState {
 		LyModule.clearLyric();
 	}
 
+	/**Queue a video By ID */
 	@Mutation
 	cuePlayerByID(id: string): void {
 		if (this.player) {
@@ -99,6 +120,7 @@ export default class Player extends VuexModule implements PlayerState {
 		}
 	}
 
+	/**Load and Play a video By ID*/
 	@Mutation
 	loadPlayerByID(id: string): void {
 		if (this.player) {
@@ -121,15 +143,15 @@ export default class Player extends VuexModule implements PlayerState {
 	}
 
 	@Mutation
-	backward10(): void {
-		const curr = this.player?.getCurrentTime();
-		if (curr) this.player?.seekTo(curr - 10, true);
+	backward10(curr: number): void {
+		const time = curr - 10;
+		this.player?.seekTo(time, true);
 	}
 
 	@Mutation
-	forward10(): void {
-		const curr = this.player?.getCurrentTime();
-		if (curr) this.player?.seekTo(curr + 10, true);
+	forward10(curr: number): void {
+		const time = curr + 10;
+		this.player?.seekTo(time, true);
 	}
 
 	@Mutation
@@ -167,17 +189,24 @@ export default class Player extends VuexModule implements PlayerState {
 
 	/**變更 loop */
 	@Mutation
-	// videoLoop(/**new value */ bool: boolean, /**send to background? */ toBackground: boolean): void {
-	videoLoop(args: { /**new value */ bool: boolean; /**send to background? */ toBackground: boolean }): void {
+	videoLoop(args: IplayModeInput): void {
 		this.playerLoop = args.bool;
 		if (args.toBackground) window.ipcRenderer.send(EtrayOn.MODE, { loop: args.bool });
 	}
 
+	/**變更 order */
+	@Mutation
+	videoOrder(args: IplayModeInput): void {
+		this.playerOrder = args.bool;
+		if (args.toBackground) window.ipcRenderer.send(EtrayOn.MODE, { order: args.bool });
+	}
+
 	/**變更 shffle */
 	@Mutation
-	videoShuffle(args: { /**new value */ bool: boolean; /**send to background? */ toBackground: boolean }): void {
+	videoShuffle(args: IplayModeInput): void {
 		this.playerShuffle = args.bool;
 		if (args.toBackground) window.ipcRenderer.send(EtrayOn.MODE, { shuffle: args.bool });
+		// if (args.bool) AppModule.setShufflePlayList();
 	}
 
 	/**更改播放中影片ID */

@@ -80,6 +80,7 @@ declare module 'vue/types/vue' {
 		$ipcRenderer: IpcRenderer;
 		$shell: Shell;
 		$eventNames(): Array<string>;
+
 		// _events: { getLyricByID: [Function] };
 	}
 }
@@ -120,58 +121,24 @@ new Vue({
 	watch: {
 		'$store.getters.playState'(state: YT.PlayerState) {
 			if (state == YT.PlayerState.ENDED) {
-				const loop = PlayerModule.playerLoop;
-				const shuffle = PlayerModule.playerShuffle;
-				if (loop) window.setTimeout(() => PlayerModule.playVideo(), 1500);
-				else if (shuffle)
+				if (PlayerModule.playerLoop) window.setTimeout(() => PlayerModule.playVideo(), 1500);
+				else if (PlayerModule.playerOrder)
 					window.setTimeout(() => {
-						// if route is List, show overlay
 						if (this.$route.name == 'List') AppModule.changeOverlay(true);
-
-						const arr = this.$lodash.without(AppModule.playList, PlayerModule.videoID);
-						const videoID = arr[this.$lodash.random(0, arr.length - 1)];
-
+						/// /// /// ///
+						const videoID = AppModule.nextOrderedVideoID;
 						PlayerModule.loadPlayerByID(videoID);
-
-						// code above for loading video // code below for get lyric object
-
-						this.$ipcRenderer
-							.invoke('listFindOne', {
-								query: {
-									videoArr: { $elemMatch: { videoID: videoID } },
-								},
-							})
-							.then(async (doc: IsongList) => {
-								const videoTitle = doc.videoArr?.find((e) => e.videoID == videoID)?.videoTitle;
-								// const res = await this.$ipcRenderer.invoke(EcrawlerOn.LYRICS, { url: doc.lyricsUrl });
-								this.$ipcRenderer
-									.invoke(EcrawlerOn.LYRICS, { url: doc.lyricsUrl })
-									.then((doc2: { obj: IlyricsObj }) => {
-										this.$nextTick(() => {
-											const { obj } = doc2;
-
-											const lyricsObj: IlyricsDisplayObj = {
-												lyricsKey: obj.lyricsKey,
-												lyricsUrl: obj.lyricsUrl,
-												title: obj.title,
-												artist: obj.artist,
-												lyrics: obj.lyrics,
-												imagePath: doc.imagePath || undefined,
-												imageSize: doc.imageSize || undefined,
-											};
-
-											// this.$emit('getLyricByID', lyricsObj);
-											LyModule.saveLyrics(lyricsObj);
-											PlayerModule.setVideoTitle(videoTitle || '');
-										});
-									});
-							})
-							.catch((err) => {
-								AppModule.snackbar({ text: err, color: Colors.Error });
-							})
-							.finally(() => {
-								AppModule.changeOverlay(false);
-							});
+						/// /// /// ///
+						this.loadLyricsObj(videoID);
+					}, 1500);
+				else if (PlayerModule.playerShuffle)
+					window.setTimeout(() => {
+						if (this.$route.name == 'List') AppModule.changeOverlay(true);
+						/// /// /// ///
+						const videoID = AppModule.nextShuffledVideoID;
+						PlayerModule.loadPlayerByID(videoID);
+						/// /// /// ///
+						this.loadLyricsObj(videoID);
 					}, 1500);
 			}
 		},
@@ -201,6 +168,11 @@ new Vue({
 		};
 
 		this.loadUrlInList();
+
+		/**載入 LyrcsObj */
+		this.$on('loadLyricsObj', (args: { videoID: string }) => {
+			this.loadLyricsObj(args.videoID);
+		});
 
 		// this.$ipcRenderer.on('listFindTest', (e, args) => {
 		// 	console.info(e);
@@ -273,16 +245,25 @@ new Vue({
 
 			this.$ipcRenderer.on(EtrayMode.MODESINGLE, () => {
 				PlayerModule.videoLoop({ bool: false, toBackground: false });
+				PlayerModule.videoOrder({ bool: false, toBackground: false });
 				PlayerModule.videoShuffle({ bool: false, toBackground: false });
 			});
 
 			this.$ipcRenderer.on(EtrayMode.MODELOOP, () => {
 				PlayerModule.videoLoop({ bool: true, toBackground: false });
+				PlayerModule.videoOrder({ bool: false, toBackground: false });
+				PlayerModule.videoShuffle({ bool: false, toBackground: false });
+			});
+
+			this.$ipcRenderer.on(EtrayMode.MODEORDER, () => {
+				PlayerModule.videoLoop({ bool: false, toBackground: false });
+				PlayerModule.videoOrder({ bool: true, toBackground: false });
 				PlayerModule.videoShuffle({ bool: false, toBackground: false });
 			});
 
 			this.$ipcRenderer.on(EtrayMode.MODESHUFFLE, () => {
 				PlayerModule.videoLoop({ bool: false, toBackground: false });
+				PlayerModule.videoOrder({ bool: false, toBackground: false });
 				PlayerModule.videoShuffle({ bool: true, toBackground: false });
 			});
 		},
@@ -297,6 +278,53 @@ new Vue({
 				})
 				.catch((err) => {
 					this.$store.commit('snackbar', { text: err, color: Colors.Error });
+				});
+		},
+
+		/**更新 Lyrics 物件*/
+		loadLyricsObj(videoID: string) {
+			// if (videoID == '') return;
+
+			this.$ipcRenderer
+				.invoke('listFindOne', {
+					query: {
+						videoArr: { $elemMatch: { videoID: videoID } },
+					},
+				})
+				.then(async (doc: IsongList) => {
+					const videoTitle = doc.videoArr?.find((e) => e.videoID == videoID)?.videoTitle;
+					// const res = await this.$ipcRenderer.invoke(EcrawlerOn.LYRICS, { url: doc.lyricsUrl });
+					this.$ipcRenderer
+						.invoke(EcrawlerOn.LYRICS, { url: doc.lyricsUrl })
+						.then((doc2: { obj: IlyricsObj }) => {
+							this.$nextTick(() => {
+								const { obj } = doc2;
+
+								const lyricsObj: IlyricsDisplayObj = {
+									lyricsKey: obj.lyricsKey,
+									lyricsUrl: obj.lyricsUrl,
+									title: obj.title,
+									artist: obj.artist,
+									lyrics: obj.lyrics,
+									imagePath: doc.imagePath || undefined,
+									imageSize: doc.imageSize || undefined,
+								};
+
+								// this.$emit('getLyricByID', lyricsObj);
+								LyModule.saveLyrics(lyricsObj);
+								PlayerModule.setVideoTitle(videoTitle || '');
+							});
+						})
+						.finally(() => {
+							AppModule.changeOverlay(false);
+						});
+				})
+				.catch((err) => {
+					AppModule.snackbar({ text: err, color: Colors.Error });
+					AppModule.changeOverlay(false);
+				})
+				.finally(() => {
+					// AppModule.changeOverlay(false);
 				});
 		},
 	},

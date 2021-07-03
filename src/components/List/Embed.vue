@@ -92,11 +92,21 @@
 							<v-list width="250px" flat class="py-0 grey darken-2">
 								<v-list-item @click.prevent="toggleLoop">
 									<v-list-item-icon>
-										<v-icon small>fas fa-retweet</v-icon>
+										<v-icon small>fas fa-redo</v-icon>
 									</v-list-item-icon>
 									<v-list-item-title class="d-flex">
-										<span>{{ $t('loop') }}</span>
-										<v-icon v-show="loop" class="ml-auto" small>fas fa-check</v-icon>
+										<span>{{ $t('loopPlay') }}</span>
+										<v-icon v-show="loopPlay" class="ml-auto" small>fas fa-check</v-icon>
+									</v-list-item-title>
+								</v-list-item>
+								<v-list-item @click.prevent="toggleOrder">
+									<v-list-item-icon>
+										<v-icon small style="transform: scaleX(0.75); width: 12px">fas fa-bars</v-icon>
+										<v-icon small>fa fa-long-arrow-alt-down</v-icon>
+									</v-list-item-icon>
+									<v-list-item-title class="d-flex">
+										<span>{{ $t('orderPlay') }}</span>
+										<v-icon v-show="orderPlay" class="ml-auto" small>fas fa-check</v-icon>
 									</v-list-item-title>
 								</v-list-item>
 								<v-list-item @click.prevent="toggleShuffle">
@@ -104,8 +114,8 @@
 										<v-icon small>fas fa-random</v-icon>
 									</v-list-item-icon>
 									<v-list-item-title class="d-flex">
-										<span>{{ $t('shuffle') }}</span>
-										<v-icon v-show="shuffle" class="ml-auto" small>fas fa-check</v-icon>
+										<span>{{ $t('shufflePlay') }}</span>
+										<v-icon v-show="shufflePlay" class="ml-auto" small>fas fa-check</v-icon>
 									</v-list-item-title>
 								</v-list-item>
 							</v-list>
@@ -178,23 +188,33 @@ export default class Embed extends Vue {
 		return this.playState == 0 || this.playState == 2 || this.playState == 5;
 	}
 
-	/**取得 loop */
-	get loop(): boolean {
+	/**取得 Loop Play */
+	get loopPlay(): boolean {
 		return PlayerModule.playerLoop;
 	}
 
-	/**設定 loop */
-	set loop(value: boolean) {
+	/**設定 Loop Play */
+	set loopPlay(value: boolean) {
 		PlayerModule.videoLoop({ bool: value, toBackground: true });
 	}
 
-	/**取得 shuffle */
-	get shuffle(): boolean {
+	/**設定 List Play */
+	get orderPlay(): boolean {
+		return PlayerModule.playerOrder;
+	}
+
+	/**設定 Order Play */
+	set orderPlay(value: boolean) {
+		PlayerModule.videoOrder({ bool: value, toBackground: true });
+	}
+
+	/**取得 Shuffle Play */
+	get shufflePlay(): boolean {
 		return PlayerModule.playerShuffle;
 	}
 
-	/**設定 shuffle */
-	set shuffle(value: boolean) {
+	/**設定 Shuffle Play */
+	set shufflePlay(value: boolean) {
 		PlayerModule.videoShuffle({ bool: value, toBackground: true });
 	}
 
@@ -233,9 +253,6 @@ export default class Embed extends Vue {
 				break;
 			case 1: // YT.PlayerState.PLAYING
 				PlayerModule.pushIntervalArr(
-					// setInterval(() => {
-					// 	this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
-					// }, 250)
 					window.setInterval(() => {
 						this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
 					}, 250)
@@ -262,7 +279,8 @@ export default class Embed extends Vue {
 				this.IframeAPIReady(value);
 			} else {
 				this.progressCurr = 0;
-				PlayerModule.cuePlayerByID(value);
+				PlayerModule.loadPlayerByID(value); // 會自動播放
+				// PlayerModule.cuePlayerByID(value);	// 不會自動播放
 			}
 		}
 	}
@@ -314,6 +332,7 @@ export default class Embed extends Vue {
 					// PlayerModule.playerState = 5;
 					PlayerModule.changeState(5); // 5: 可播放
 					PlayerModule.setVideoID(id); // 更新video id
+					PlayerModule.playVideo(); // 播放
 				},
 			},
 		});
@@ -336,9 +355,6 @@ export default class Embed extends Vue {
 					break;
 				case 1:
 					PlayerModule.pushIntervalArr(
-						// setInterval(() => {
-						// 	this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
-						// }, 250)
 						window.setInterval(() => {
 							this.progressCurr = PlayerModule.player?.getCurrentTime() || this.progressCurr;
 						}, 250)
@@ -377,36 +393,85 @@ export default class Embed extends Vue {
 	private videoPause(): void {
 		PlayerModule.pauseVideo();
 	}
-	/**倒退10sec */
+	/**倒退 10sec */
 	private backward10(): void {
-		PlayerModule.backward10();
+		// 一定不為 undefinded
+		const curr = PlayerModule.player?.getCurrentTime() as number;
+		PlayerModule.backward10(curr);
+		this.progress = (curr - 10 < 0 ? 0 : (curr - 10) / this.progressMax) * 100; // 更新 progress
 	}
-	/**快進10sec */
+	/**快進 10sec */
 	private forward10(): void {
-		PlayerModule.forward10();
+		// 一定不為 undefinded
+		const curr = PlayerModule.player?.getCurrentTime() as number;
+		PlayerModule.forward10(curr);
+		this.progress = (curr + 10 > this.progressMax ? this.progressMax : curr + 10 / this.progressMax) * 100; // 更新 progress
 	}
 	/**上一首歌 */
 	private lastVideo(): void {
-		console.info('play last video');
+		if (this.$route.name == 'List') AppModule.changeOverlay(true);
+
+		let videoID = '';
+		if (this.orderPlay) {
+			videoID = AppModule.lastOrderedVideoID;
+			PlayerModule.loadPlayerByID(videoID);
+			this.$root.$emit('loadLyricsObj', { videoID });
+		} else if (this.shufflePlay) {
+			videoID = AppModule.lastShuffledVideoID;
+			PlayerModule.loadPlayerByID(videoID);
+			this.$root.$emit('loadLyricsObj', { videoID });
+		} else {
+			// single mode, loop mode
+			this.progressChange(0);
+			AppModule.changeOverlay(false);
+		}
+		// 釋放 focus
+		(document.activeElement as HTMLInputElement).blur();
 	}
 	/**下一首歌 */
 	private nextVideo(): void {
-		console.info('play next video');
+		if (this.$route.name == 'List') AppModule.changeOverlay(true);
+
+		let videoID = '';
+		if (this.orderPlay) {
+			videoID = AppModule.nextOrderedVideoID;
+			PlayerModule.loadPlayerByID(videoID);
+			this.$root.$emit('loadLyricsObj', { videoID });
+		} else if (this.shufflePlay) {
+			videoID = AppModule.nextShuffledVideoID;
+			PlayerModule.loadPlayerByID(videoID);
+			this.$root.$emit('loadLyricsObj', { videoID });
+		} else {
+			// single mode, loop mode
+			this.progressChange(100);
+			AppModule.changeOverlay(false);
+		}
+		// 釋放 focus
+		(document.activeElement as HTMLInputElement).blur();
 	}
 	/**切換Loop */
 	private toggleLoop() {
-		this.shuffle = false;
-		this.loop = !this.loop;
+		PlayerModule.videoOrder({ bool: false, toBackground: false });
+		PlayerModule.videoShuffle({ bool: false, toBackground: false });
+		this.loopPlay = !this.loopPlay;
+	}
+	/**切換Order */
+	private toggleOrder() {
+		PlayerModule.videoLoop({ bool: false, toBackground: false });
+		PlayerModule.videoShuffle({ bool: false, toBackground: false });
+		this.orderPlay = !this.orderPlay;
 	}
 	/**切換Shuffle */
 	private toggleShuffle() {
-		this.loop = false;
-		this.shuffle = !this.shuffle;
+		PlayerModule.videoLoop({ bool: false, toBackground: false });
+		PlayerModule.videoOrder({ bool: false, toBackground: false });
+		this.shufflePlay = !this.shufflePlay;
 	}
 
 	/**進度條變更 */
-	private progressChange(e: number) {
-		PlayerModule.videoProgress((this.progressMax * e) / 100);
+	private progressChange(value: number) {
+		PlayerModule.videoProgress((this.progressMax * value) / 100);
+		this.progress = value;
 		// this.$root.$player.seekTo((this.progressMax * e) / 100);
 	}
 }

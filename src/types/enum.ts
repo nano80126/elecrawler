@@ -40,6 +40,8 @@ export enum EtrayMode {
 	MODESINGLE = 'mode-single',
 	/**change play mode to loop */
 	MODELOOP = 'mode-loop',
+	/**change play mode to order */
+	MODEORDER = 'mode-order',
 	/**change play mode to shuffle */
 	MODESHUFFLE = 'mode-shuffle',
 }

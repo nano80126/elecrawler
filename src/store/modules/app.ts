@@ -1,5 +1,7 @@
 import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from '@/store/index';
+import { first, last, shuffle } from 'lodash';
+import { PlayerModule } from './player';
 
 /**snackbar 顏色 */
 export enum Colors {
@@ -22,6 +24,7 @@ export interface AppState {
 	subWindow: Window | null;
 	/**overlay 是否顯示 */
 	overlay: boolean;
+	/**snackbar array */
 	snackbars: Isnackbar[];
 	/**是否為 development */
 	isDev: boolean;
@@ -29,13 +32,15 @@ export interface AppState {
 	isElectron: boolean;
 	/**是否為主視窗 */
 	isMain: boolean;
-	/**圖片路徑 */
-	picPath: string;
 	/**後端 port */
 	port: number;
+	/**圖片路徑 */
+	picPath: string;
 	/**播放列表 video ID */
 	playList: string[];
-	/**歌詞列表 Lyrics Url */
+	/**隨機播放列表 */
+	shuffledPlayList: string[];
+	/**歌詞列表 Lyrics Url, 用來比對是否已經在列表裡 */
 	urlList: string[];
 }
 
@@ -49,20 +54,67 @@ class Common extends VuexModule implements AppState {
 	public isDev = process.env.NODE_ENV == 'development' ? true : false;
 	public isElectron = process.env.IS_ELECTRON ? true : false;
 	public isMain = false;
-	public picPath = '';
 	public port = 0;
-
+	public picPath = '';
+	//
 	public playList: Array<string> = [];
+	public shuffledPlayList: Array<string> = [];
 	public urlList: Array<string> = [];
 
-	/// getters
+	/**隱藏的snackbars */
 	get barsHidden(): number {
 		return this.snackbars.filter((x) => !x.show).length;
 	}
 
+	/**可見的snackbars */
 	get barsVisible(): number {
 		return this.snackbars.filter((x) => x.show).length;
 	}
+
+	/**上一首排序 videoID */
+	get lastOrderedVideoID(): string {
+		const idx = this.playList.indexOf(PlayerModule.videoID);
+		if (this.playList[idx - 1]) {
+			return this.playList[idx - 1];
+		} else {
+			return last(this.playList) as string;
+		}
+	}
+
+	/**下一首排序 videoID */
+	get nextOrderedVideoID(): string {
+		const idx = this.playList.indexOf(PlayerModule.videoID);
+		if (this.playList[idx + 1]) {
+			return this.playList[idx + 1];
+		} else {
+			return first(this.playList) as string;
+		}
+	}
+
+	/**上一首隨機 videoID */
+	get lastShuffledVideoID(): string {
+		const idx = this.shuffledPlayList.indexOf(PlayerModule.videoID);
+		if (this.shuffledPlayList[idx - 1]) {
+			return this.shuffledPlayList[idx - 1];
+		} else {
+			return last(this.shuffledPlayList) as string;
+		}
+	}
+
+	/**下一首隨機 videoID */
+	get nextShuffledVideoID(): string {
+		const idx = this.shuffledPlayList.indexOf(PlayerModule.videoID);
+		if (this.shuffledPlayList[idx + 1]) {
+			return this.shuffledPlayList[idx + 1];
+		} else {
+			return first(this.shuffledPlayList) as string;
+		}
+	}
+
+	// /**亂數playList */
+	// get randomPlayList(): string[] {
+	// 	return shuffle(this.playList);
+	// }
 
 	@Mutation
 	setSubWindow(window: Window | null): void {
@@ -111,7 +163,15 @@ class Common extends VuexModule implements AppState {
 	@Mutation
 	setPlayList(list: string[]): void {
 		this.playList = list;
+
+		if (this.shuffledPlayList.length == 0) this.shuffledPlayList = shuffle(this.playList);
 	}
+
+	// /**洗牌播放列表 */
+	// @Mutation
+	// setShufflePlayList() {
+	// 	this.shuffledPlayList = shuffle(this.playList);
+	// }
 
 	/**儲存歌詞URL列表 */
 	@Mutation

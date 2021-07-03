@@ -41,6 +41,7 @@
 
 	"end": "結束",
 
-	"loop": "循環播放",
-	"shuffle": "隨機播放"
+	"loopPlay": "循環播放",
+	"orderPlay": "順序播放",
+	"shufflePlay": "隨機播放"
 }

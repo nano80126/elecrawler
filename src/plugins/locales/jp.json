@@ -42,6 +42,7 @@
 
 	"end": "終わり",
 
-	"loop": "ループ再生",
-	"shuffle": "シャッフル再生"
+	"loopPlay": "ループ再生",
+	"orderPlay": "リスト再生",
+	"shufflePlay": "シャッフル再生"
 }

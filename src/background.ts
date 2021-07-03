@@ -2,7 +2,7 @@
 
 declare const __static: string;
 
-import { app, protocol, BrowserWindow, ipcMain, Tray, Menu, MenuItem, shell } from 'electron';
+import { app, protocol, BrowserWindow, ipcMain, Tray, Menu, MenuItem } from 'electron';
 // import { Worker, isMainThread } from 'worker_threads';
 // import { execFile, fork, spawn } from 'child_process';
 import path from 'path';
@@ -86,6 +86,7 @@ function createTrayMenu(): Promise<void> {
 						click: () => win?.webContents.send(EtrayMode.MODESINGLE),
 					},
 					{ type: 'radio', label: 'Loop', click: () => win?.webContents.send(EtrayMode.MODELOOP) },
+					{ type: 'radio', label: 'Order', click: () => win?.webContents.send(EtrayMode.MODEORDER) },
 					{ type: 'radio', label: 'Shuffle', click: () => win?.webContents.send(EtrayMode.MODESHUFFLE) },
 				],
 			},
@@ -150,8 +151,10 @@ function createWindow() {
 		title: 'EleCrawler',
 		backgroundColor: '#212121',
 		minWidth: 480,
+		// width: (config as Iconfig).width || 480,
 		width: 480,
 		minHeight: 720,
+		// height: (config as Iconfig).height || 960,
 		height: 960,
 		///
 		x: (config as Iconfig).x || 30,
@@ -328,7 +331,7 @@ function createWindow() {
 	win.on('close', () => {
 		/**關閉前紀錄現在視窗位置 */
 		const bound = win?.getBounds();
-		saveConfig({ x: bound?.x, y: bound?.y });
+		saveConfig(bound ? { x: bound.x, y: bound.y } : undefined);
 	});
 
 	win.on('closed', () => {
@@ -338,8 +341,6 @@ function createWindow() {
 
 /**Create splash screen */
 function createSplash(): void {
-	console.log('create splash');
-	// console.log('create splash', new Date() - d);
 	// Create the splash window
 	splash = new BrowserWindow({
 		// backgroundColor: '#212121',
@@ -531,14 +532,16 @@ function panelOn() {
 // // // // // // // // // // // // // // // // // // // Tray 操作
 
 function trayOn() {
-	ipcMain.on(EtrayOn.MODE, (e, args: { loop: boolean; shuffle: boolean }) => {
+	ipcMain.on(EtrayOn.MODE, (e, args: { loop?: boolean; order?: boolean; shuffle?: boolean }) => {
 		if (contextMenu) {
-			const { loop, shuffle } = args;
+			const { loop, order, shuffle } = args;
 			// first items means mode, second items means mode selections
 			if (loop) {
 				(contextMenu.items[2].submenu?.items[1] as MenuItem).checked = true;
-			} else if (shuffle) {
+			} else if (order) {
 				(contextMenu.items[2].submenu?.items[2] as MenuItem).checked = true;
+			} else if (shuffle) {
+				(contextMenu.items[2].submenu?.items[3] as MenuItem).checked = true;
 			} else {
 				(contextMenu.items[2].submenu?.items[0] as MenuItem).checked = true;
 			}

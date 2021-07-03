@@ -46,6 +46,11 @@ YouTube music player App create by electron
 1. [x] Media.vue set back up for rectAbs and rectPercent 
     * Bug exist (not reject or resolve rect)
     * Recheck mechanism
+1. [x] Auto play after loading video
+
+1. [ ] Disable right click when shuffle mode is not enabled
+
+1. [ ] Add small mode and restore normal mode
  
 ### Known Warning
 
