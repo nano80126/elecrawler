@@ -85,7 +85,7 @@
 						</span>
 					</v-tooltip>
 
-					<v-tooltip right transition="scroll-x-transition" open-delay="300">
+					<!-- <v-tooltip right transition="scroll-x-transition" open-delay="300">
 						<template v-slot:activator="{ attrs, on }">
 							<v-list-item exact v-bind="attrs" v-on="on" @click="TestFunc">
 								<v-list-item-content>
@@ -94,9 +94,10 @@
 							</v-list-item>
 						</template>
 						<span>Test</span>
-					</v-tooltip>
+					</v-tooltip> -->
 				</v-list>
 
+				<!-- nav append -->
 				<template v-slot:append>
 					<v-list flat class="no-drag">
 						<v-tooltip right transition="scroll-x-transition" open-delay="300">
@@ -180,7 +181,7 @@
 								</v-menu>
 
 								<v-divider class="grey darken-2" />
-								<v-list-item @click="openPicDir">
+								<v-list-item @click="openImgDirectory">
 									<v-list-item-content>
 										<v-list-item-title>
 											<!-- 画像ディレクトリ -->
@@ -394,7 +395,6 @@ export default class App extends Vue {
 		this.$router.beforeEach((to, from, next) => {
 			next();
 		});
-		// AppModule.changeOverlay(true);
 	}
 
 	mounted(): void {
@@ -415,34 +415,34 @@ export default class App extends Vue {
 	}
 
 	// methods
-	private windowMin() {
+	private windowMin(): void {
 		this.$ipcRenderer.send(EwindowOn.WINDOWMIN);
 	}
 
-	private windowMax() {
+	private windowMax(): void {
 		this.$ipcRenderer.send(EwindowOn.WINDOWMAX);
 	}
 
-	private windowRestore() {
+	private windowRestore(): void {
 		this.$ipcRenderer.send(EwindowOn.WINDOWRESTORE);
 	}
 
-	private windowHide() {
+	private windowHide(): void {
 		this.$ipcRenderer.send(EwindowOn.WINDOWHIDE);
 	}
 
-	private appClose() {
-		// window close // if all window closed, then app will close too
+	/**關閉 App */
+	private appClose(): void {
 		this.$ipcRenderer.send(EwindowOn.WINDOWCLOSE);
 	}
 
-	private openPicDir() {
+	/**開啟圖片路徑 */
+	private openImgDirectory() {
 		this.$shell.openPath(AppModule.picPath);
 	}
 
-	private dataEmpty() {
-		// 清空 list
-		// 清空 path directory
+	/**清楚清單、圖片 */
+	private dataEmpty(): void {
 		this.$ipcRenderer
 			.invoke('listRemove', { query: {} })
 			.then((res) => {
@@ -461,13 +461,13 @@ export default class App extends Vue {
 			.finally(() => (this.dialog = false));
 	}
 
-	private TestFunc() {
+	private TestFunc(): void {
 		// AppModule.snackbar({ text: 'test' });
 		// // // //
 		// const idx = AppModule.shuffledPlayList.indexOf(PlayerModule.videoID);
 		// console.log(idx, AppModule.shuffledPlayList.length);
-		console.log(AppModule.playList);
-		console.log(AppModule.shuffledPlayList);
+		// console.log(AppModule.playList);
+		// console.log(AppModule.shuffledPlayList);
 	}
 }
 </script>

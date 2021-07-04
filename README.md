@@ -48,10 +48,11 @@ YouTube music player App create by electron
     * Recheck mechanism
 1. [x] Auto play after loading video
 
-1. [ ] Disable right click when shuffle mode is not enabled
-
+1. [x] ~Disable right click when shuffle mode is not enabled~
+    * return to start or end in loop and single mode
 1. [ ] Add small mode and restore normal mode
- 
+
+1. [ ] Test disable modal mode in panel
 ### Known Warning
 
 1. Mongodb bundle warning in production environment
