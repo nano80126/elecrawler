@@ -87,3 +87,21 @@ export enum EplayHotkey {
 	/**pause video */
 	PAUSEVIDEO = 'pause-video',
 }
+
+/**mongo handle or on */
+export enum EmongoOn {
+	/**find data in history collection */
+	HISTORYFIND = 'history-find',
+	/**save data in history collection */
+	HISTORYSAVE = 'history-save',
+	/**find some in list collection */
+	LISTFIND = 'list-find',
+	/**find one in list collection */
+	LISTFINDONE = 'list-find-one',
+	/**save data in list collection (unique, upsert) */
+	LISTSAVE = 'list-save',
+	/**remove some in list collection */
+	LISTREMOVE = 'list-remove',
+	/**remove one in list collection */
+	LISTREMOVEONE = 'list-remove-one',
+}

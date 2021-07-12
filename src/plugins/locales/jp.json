@@ -39,6 +39,9 @@
 
 	"search_alt": "サーチ",
 	"delete": "削除",
+	"deleteQuestion": "このアイテム削除してもよろしいでしょうか",
+	"confirm": "確認",
+	"cancel": "キャンセル",
 
 	"end": "終わり",
 

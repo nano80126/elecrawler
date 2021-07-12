@@ -31,6 +31,7 @@ import { AppModule, Colors } from '@/store/modules/app';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 
 import { IlyricsSearched } from '@/types/renderer';
+import { EmongoOn } from '@/types/enum';
 
 @Component
 export default class Board extends Vue {
@@ -49,7 +50,7 @@ export default class Board extends Vue {
 	private listAdd() {
 		if (!this.exist) {
 			// this.$parent.listAdd();
-			const ret = this.$ipcRenderer.invoke('listSave', {
+			const ret = this.$ipcRenderer.invoke(EmongoOn.LISTSAVE, {
 				query: { lyricsKey: this.lyricsObj.obj.lyricsKey },
 				data: {
 					$set: {

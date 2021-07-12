@@ -38,6 +38,9 @@
 
 	"search_alt": "尋找",
 	"delete": "刪除",
+	"deleteQuestion": "你確定要刪除這個項目嗎",
+	"confirm": "確定",
+	"cancel": "取消",
 
 	"end": "結束",
 

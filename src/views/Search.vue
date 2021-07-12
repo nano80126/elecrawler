@@ -231,7 +231,7 @@ import { AppModule, Colors } from '@/store/modules/app';
 
 import { Component, Vue } from 'vue-property-decorator';
 import { Ikeywords, IlistSearched, IlyricsSearched } from '@/types/renderer';
-import { EcrawlerOn, EwindowOn } from '@/types/enum';
+import { EcrawlerOn, EwindowOn, EmongoOn } from '@/types/enum';
 
 @Component({
 	components: {
@@ -280,7 +280,7 @@ export default class Search extends Vue {
 
 	created(): void {
 		this.$ipcRenderer
-			.invoke('historyFind', { query: {}, sort: { datetime: -1 } })
+			.invoke(EmongoOn.HISTORYFIND, { query: {}, sort: { datetime: -1 } })
 			.then((res: Ikeywords[]) => {
 				// forEach + setTimeout for animation load
 				if (res.length > 0) {
@@ -368,7 +368,7 @@ export default class Search extends Vue {
 	/**關鍵字紀錄 */
 	private keywordSave(artist: string, title: string) {
 		this.$ipcRenderer
-			.invoke('historySave', {
+			.invoke(EmongoOn.HISTORYSAVE, {
 				query: { artist, title },
 				data: {
 					$set: {
@@ -449,11 +449,14 @@ export default class Search extends Vue {
 	/**展開寬度，三段 */
 	private expandWidth() {
 		if (this.$root.$data.webWidth < 960) {
-			this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 960, height: this.windowHeight });
+			// this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 960, height: this.windowHeight });
+			this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 960 });
 		} else if (this.$root.$data.webWidth < 1440) {
-			this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 1680, height: this.windowHeight });
+			// this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 1680, height: this.windowHeight });
+			this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 1680 });
 		} else {
-			this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 480, height: this.windowHeight });
+			// this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 480, height: this.windowHeight });
+			this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 480 });
 			this.extendImage = false;
 		}
 	}

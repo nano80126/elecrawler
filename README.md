@@ -53,6 +53,24 @@ YouTube music player App create by electron
 1. [ ] Add small mode and restore normal mode
 
 1. [ ] Test disable modal mode in panel
+
+1. [ ] Double check when remove item from list
+    * after removing item from list update urlList (in main.ts)
+
+1. [ ] ~Move enum to separated file~
+    * Don't do this because some module can't build in front end
+
+1. [x] Design delete dialog
+    * thumbnail
+    * actions (OK, cancel)
+
+1. [ ] Get thumbnial url from youtube data api
+
+1. [ ] Embeddable but can't be played (ex. 夜に駆ける)
+
+### Try indexDB
+
+
 ### Known Warning
 
 1. Mongodb bundle warning in production environment

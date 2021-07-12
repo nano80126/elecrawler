@@ -2,7 +2,7 @@
 import { MongoClient } from 'mongodb';
 import { ipcMain } from 'electron';
 import moment from 'moment';
-// import { argv } from 'process';
+import { EmongoOn } from '@/types/enum';
 
 /**use this after calling createMongoConnection()  */
 let mongoCLient: MongoClient;
@@ -30,7 +30,7 @@ export function createMongoConnection(): Promise<void> {
 				},
 			});
 
-			ipcMain.handle('historyFind', async (e, args) => {
+			ipcMain.handle(EmongoOn.HISTORYFIND, async (e, args) => {
 				return await history
 					.find(args.query || {})
 					.sort(args.sort || {})
@@ -38,35 +38,35 @@ export function createMongoConnection(): Promise<void> {
 					.toArray();
 			});
 
-			ipcMain.handle('historySave', async (e, args) => {
+			ipcMain.handle(EmongoOn.HISTORYSAVE, async (e, args) => {
 				const ret = await history.updateOne(args.query, args.data, { upsert: true });
 				return ret.result;
 			});
 
-			ipcMain.handle('listFind', async (e, args) => {
+			ipcMain.handle(EmongoOn.LISTFIND, async (e, args) => {
 				return await list
 					.find(args.query || {})
 					.sort(args.sort || {})
 					.toArray();
 			});
 
-			ipcMain.handle('listFindOne', async (e, args) => {
+			ipcMain.handle(EmongoOn.LISTFINDONE, async (e, args) => {
 				return await list.findOne(args.query);
 			});
 
-			ipcMain.handle('listSave', async (e, args) => {
+			ipcMain.handle(EmongoOn.LISTSAVE, async (e, args) => {
 				await list.createIndex({ lyricsKey: 1 }, { unique: true });
 
 				const ret = await list.updateOne(args.query, args.data, { upsert: true });
 				return ret.result;
 			});
 
-			ipcMain.handle('listRemove', async (e, args) => {
+			ipcMain.handle(EmongoOn.LISTREMOVE, async (e, args) => {
 				const ret = await list.deleteMany(args.query);
 				return ret.result;
 			});
 
-			ipcMain.handle('listRemoveOne', async (e, args) => {
+			ipcMain.handle(EmongoOn.LISTREMOVEONE, async (e, args) => {
 				const ret = await list.deleteOne(args.query);
 				return ret.result;
 			});

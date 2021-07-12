@@ -317,7 +317,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
 import { IlyricsSearched, IyouTubeObj, IsongList, Irectangle } from '@/types/renderer';
 import { OutputInfo } from 'sharp';
-import { EfsOn } from '@/types/enum';
+import { EfsOn, EmongoOn } from '@/types/enum';
 
 @Component({
 	components: {
@@ -442,7 +442,7 @@ export default class Media extends Vue {
 	/**載入歌詞物件，包含影片與圖片 */
 	private loadLyricsObj() {
 		this.$ipcRenderer
-			.invoke('listFindOne', { query: { lyricsKey: this.lyricsObj.obj.lyricsKey } })
+			.invoke(EmongoOn.LISTFINDONE, { query: { lyricsKey: this.lyricsObj.obj.lyricsKey } })
 			.then((doc: IsongList) => {
 				if (doc.imagePath) {
 					this.$ipcRenderer
@@ -510,6 +510,7 @@ export default class Media extends Vue {
 							},
 						})
 						.then((res) => {
+							// console.log(res);
 							if (res.data.items[0].status.embeddable) {
 								this.$set(
 									this.urlObj,
@@ -699,7 +700,7 @@ export default class Media extends Vue {
 					this.urlObj.forEach((e) => (e.artist = e.artist?.replace(/(^\s+)|(\s+$)/g, '')));
 
 					this.$ipcRenderer
-						.invoke('listSave', {
+						.invoke(EmongoOn.LISTSAVE, {
 							query: { lyricsKey: obj.lyricsKey },
 							data: {
 								$set: {
@@ -739,7 +740,7 @@ export default class Media extends Vue {
 			this.urlObj.forEach((e) => (e.artist = e.artist?.replace(/(^\s+)|(\s+$)/g, '')));
 
 			this.$ipcRenderer
-				.invoke('listSave', {
+				.invoke(EmongoOn.LISTSAVE, {
 					query: { lyricsKey: obj.lyricsKey },
 					data: {
 						$set: {

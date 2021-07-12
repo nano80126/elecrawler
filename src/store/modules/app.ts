@@ -1,6 +1,6 @@
 import { getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from '@/store/index';
-import { first, last, shuffle } from 'lodash';
+import { first, last, pull, random, shuffle } from 'lodash';
 import { PlayerModule } from './player';
 
 /**snackbar 顏色 */
@@ -167,6 +167,18 @@ class Common extends VuexModule implements AppState {
 		if (this.shuffledPlayList.length == 0) this.shuffledPlayList = shuffle(this.playList);
 	}
 
+	/**播放列表插入 */
+	@Mutation
+	insertPlayList(videoID: string): void {
+		this.playList.push(videoID);
+
+		if (this.shuffledPlayList.length != this.playList.length) {
+			// 取得隨機數 0 ~ (length - 2)
+			const rndIdx = random(0, this.playList.length - 2);
+			this.shuffledPlayList.splice(rndIdx, 0, videoID);
+		}
+	}
+
 	// /**洗牌播放列表 */
 	// @Mutation
 	// setShufflePlayList() {
@@ -179,10 +191,16 @@ class Common extends VuexModule implements AppState {
 		this.urlList = list;
 	}
 
-	/**新增歌詞URL進列表 */
+	/**新增歌詞 URL 進列表 */
 	@Mutation
 	addUrlList(url: string): void {
 		this.urlList.push(url);
+	}
+
+	/**從列表移除 URL */
+	@Mutation
+	removeUrlList(url: string): void {
+		pull(this.urlList, url);
 	}
 }
 

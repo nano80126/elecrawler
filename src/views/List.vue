@@ -28,6 +28,12 @@
 					<v-btn icon color="info" class="mr-3 blue-grey darken-4" height="40" width="40" @click="loadList">
 						<v-icon small>fa fa-sync</v-icon>
 					</v-btn>
+
+					<v-btn text outlined height="40" min-width="0" width="15" class="px-0" @click="expandWidth">
+						<v-icon x-small class="mx-0">
+							{{ $root.webWidth >= 960 ? 'fas fa-caret-left' : 'fas fa-caret-right' }}
+						</v-icon>
+					</v-btn>
 				</div>
 
 				<!-- height: 32+40+8+12 = 92 -->
@@ -106,7 +112,7 @@
 											</template>
 											<v-divider />
 
-											<v-list-item @click="singleRemove(item.lyricsKey, $event)">
+											<v-list-item @click="listRemoveOne(item)">
 												<v-icon small>fas fa-times</v-icon>
 												<span class="ml-3">
 													{{ $t('delete') }}
@@ -158,8 +164,40 @@
 			</transition>
 		</v-row>
 
+		<v-dialog v-model="listRemoveModal" persistent max-width="360">
+			<v-card v-if="modalItem" class="mx-auto rounded-lg" outlined>
+				<v-card-title class="py-2 px-4 error--text"> {{ $t('delete') }}? </v-card-title>
+				<v-divider />
+
+				<v-list-item>
+					<v-list-item-content>
+						<v-list-item-title>{{ modalItem.title }}</v-list-item-title>
+						<v-list-item-subtitle>{{ modalItem.artist }}</v-list-item-subtitle>
+					</v-list-item-content>
+
+					<v-list-item-avatar size="80" color="grey darken-2">
+						<v-img
+							v-if="modalItem.icon"
+							class="mx-auto"
+							:src="`data:image/jpeg;base64,${modalItem.icon.toString('base64')}`"
+						/>
+						<v-icon v-else large>far fa-image</v-icon>
+					</v-list-item-avatar>
+				</v-list-item>
+
+				<v-divider />
+				<v-card-actions>
+					<v-btn width="120" color="warning" @click="ResolveModal">{{ $t('confirm') }}</v-btn>
+					<v-btn width="120" class="ml-auto" color="info" @click="listRemoveModal = false">
+						{{ $t('cancel') }}
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
 		<!--   absolute-->
-		<!-- <v-menu v-model="showMenu" offset-y :position-x="menuX" :position-y="menuY" fixed min-width="150">
+		<!-- 
+		<v-menu v-model="showMenu" offset-y :position-x="menuX" :position-y="menuY" fixed min-width="150">
 			<v-list color="blue-grey lighten-2">
 				<v-list-item>1</v-list-item>
 				<v-list-item>2</v-list-item>
@@ -178,7 +216,7 @@ import { LyModule } from '@/store/modules/lyrics';
 import { PlayerModule } from '@/store/modules/player';
 import { OutputInfo } from 'sharp';
 import { IlyricsDisplayObj, IlyricsObj, IsongList, IsongListWithIcon } from '@/types/renderer';
-import { EcrawlerOn, EfsOn, EpanelOn, EwindowOn } from '@/types/enum';
+import { EcrawlerOn, EfsOn, EpanelOn, EwindowOn, EmongoOn } from '@/types/enum';
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
 // import { getModule } from 'vuex-module-decorators';
@@ -203,6 +241,12 @@ export default class List extends Vue {
 	private videoID: string | null = null;
 	/**影片Title，Embed用 */
 	// private videoTitle: string | null = null;
+	/**列表刪除 互動視窗 顯示旗標 */
+	private listRemoveModal = false;
+	/**互動視窗圖片 */
+	private modalItem: IsongListWithIcon | null = null;
+	/**同意刪除 */
+	private ModalResolve = false;
 
 	get isTwoColumn(): boolean {
 		return this.$root.$data.webWidth >= 960;
@@ -230,7 +274,7 @@ export default class List extends Vue {
 		// 		console.info('$emit lyricsObj', this.lyricsObj);
 		// 	});
 		// }
-		console.info(this.$root.$eventNames());
+		// console.info(this.$root.$eventNames());
 	}
 
 	mounted(): void {
@@ -249,13 +293,14 @@ export default class List extends Vue {
 
 	/**展開視窗 */
 	private expandWidth() {
-		if (!this.isTwoColumn) this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 1680 });
+		if (this.$root.$data.webWidth < 960) this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 1680 });
+		else this.$ipcRenderer.send(EwindowOn.WINDOWWIDTH, { width: 480 });
 	}
 
 	/**刷新列表 */
 	private loadList() {
 		this.$ipcRenderer
-			.invoke('listFind', { query: {}, sort: { artist: 1, title: 1, datetime: -1 } })
+			.invoke(EmongoOn.LISTFIND, { query: {}, sort: { artist: 1, title: 1, datetime: -1 } })
 			.then((doc: IsongList[]) => {
 				const filter = this.$lodash.filter(doc, 'videoArr').map((e) => e.videoArr);
 				const flatten = this.$lodash.flatten(filter).map((e) => e?.videoID) as string[];
@@ -282,8 +327,9 @@ export default class List extends Vue {
 
 				// show all songs
 				// if (process.env.NODE_ENV == 'development') {
-				// 	const toStr = doc.map((item) => `${item.title} / ${item.artist}`);
-				// 	console.info(`%c${toStr.join(', ')}`, `color: ${this.$vuetify.theme.themes.dark.accent}`);
+				// const toStr = doc.map((item) => `${item.title} / ${item.artist}`);
+				// console.info(`%c${toStr.join(', ')}`, `color: ${this.$vuetify.theme.themes.dark.accent}`);
+				// console.info(toStr);
 				// }
 
 				/// /// /// /// /// /// /// /// /// 先判斷不存在 /// 否則會被refresh刷掉
@@ -297,7 +343,7 @@ export default class List extends Vue {
 	/**取得歌詞資訊 */
 	private async getLyric(item: IsongListWithIcon, videoID: string, videoTitle: string) {
 		AppModule.changeOverlay(true);
-		this.expandWidth();
+		if (!this.isTwoColumn) this.expandWidth();
 
 		if (!videoID) PlayerModule.destroyPlayer();
 
@@ -327,22 +373,58 @@ export default class List extends Vue {
 		});
 	}
 
-	/**刪除歌詞(包含圖片等) */
-	private singleRemove(key: string) {
-		this.$ipcRenderer
-			.invoke('listRemoveOne', { query: { lyricsKey: key } })
-			.then((res) => {
-				if (res.ok > 0) {
-					this.$ipcRenderer.send(EfsOn.REMOVEPIC, {
-						files: [`${key}.jpg`, `${key}.icon.jpg`],
-					});
+	/**Modal Resolve */
+	private ResolveModal() {
+		this.ModalResolve = true; // 同意刪除
+		this.listRemoveModal = false; // 關閉 modal
+	}
 
-					const index = this.$lodash.findIndex(this.list, ['lyricsKey', key]);
-					this.list.splice(index, 1);
+	/**刪除歌詞(包含圖片等) */
+	private listRemoveOne(item: IsongListWithIcon) {
+		new Promise((resolve, reject) => {
+			const key = item.lyricsKey;
+
+			this.modalItem = item;
+			this.listRemoveModal = true;
+			this.ModalResolve = false;
+
+			const modalInterval = window.setInterval(() => {
+				if (!this.listRemoveModal) {
+					window.clearInterval(modalInterval);
+					if (this.ModalResolve) {
+						this.ModalResolve = false;
+						resolve(key);
+					} else {
+						reject();
+					}
 				}
+			}, 200);
+		})
+			.then((key) => {
+				this.$ipcRenderer
+					.invoke(EmongoOn.LISTREMOVEONE, { query: { lyricsKey: key } })
+					.then((res) => {
+						if (res.ok > 0) {
+							// 刪除圖片
+							this.$ipcRenderer.send(EfsOn.REMOVEPIC, {
+								files: [`${key}.jpg`, `${key}.icon.jpg`],
+							});
+							// 刪除 list 項目
+							const index = this.$lodash.findIndex(this.list, ['lyricsKey', key]);
+							this.list.splice(index, 1);
+							// 刪除 urlList
+							AppModule.removeUrlList(item.lyricsUrl);
+						}
+					})
+					.catch((err) => {
+						AppModule.snackbar({ text: err, color: Colors.Error });
+					});
 			})
-			.catch((err) => {
-				AppModule.snackbar({ text: err, color: Colors.Error });
+			.catch(() => {
+				// nothing to do
+			})
+			.finally(() => {
+				this.modalItem = null;
 			});
 	}
 

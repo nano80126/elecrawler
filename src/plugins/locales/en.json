@@ -38,6 +38,9 @@
 
 	"search_alt": "Search",
 	"delete": "Delete",
+	"deleteQuestion": "Are you sure you want to delete this item",
+	"confirm": "Confirm",
+	"cancel": "Cancel",
 
 	"end": "End",
 

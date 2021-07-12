@@ -303,7 +303,7 @@ import Embed from '@/components/List/Embed.vue';
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { AppModule, Colors, Isnackbar } from '@/store/modules/app';
-import { EfsOn, EwindowOn } from './types/enum';
+import { EfsOn, EwindowOn, EmongoOn } from '@/types/enum';
 
 // import nav from '@/assets/nav3.jpg';
 
@@ -441,10 +441,10 @@ export default class App extends Vue {
 		this.$shell.openPath(AppModule.picPath);
 	}
 
-	/**清楚清單、圖片 */
+	/**清除清單、圖片 */
 	private dataEmpty(): void {
 		this.$ipcRenderer
-			.invoke('listRemove', { query: {} })
+			.invoke(EmongoOn.LISTREMOVE, { query: {} })
 			.then((res) => {
 				if (res.ok > 0) {
 					this.$ipcRenderer.invoke(EfsOn.EMPTYDIR).then((res) => {

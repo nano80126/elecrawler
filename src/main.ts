@@ -22,6 +22,7 @@ import qs, { stringify } from 'qs';
 import { LyModule } from '@/store/modules/lyrics';
 import { IdisplayConfig, IlyricsDisplayObj, IlyricsObj, IsongList } from '@/types/renderer';
 import { EwindowOn, EtrayMode, EtrayVolume, EcrawlerOn, EfsOn, EplayHotkey } from '@/types/enum';
+import { EmongoOn } from '@/types/enum';
 import '@/style.scss';
 
 /// ///
@@ -120,6 +121,7 @@ new Vue({
 
 	watch: {
 		'$store.getters.playState'(state: YT.PlayerState) {
+			// console.log(state);
 			if (state == YT.PlayerState.ENDED) {
 				if (PlayerModule.playerLoop) window.setTimeout(() => PlayerModule.playVideo(), 1500);
 				else if (PlayerModule.playerOrder)
@@ -271,7 +273,7 @@ new Vue({
 		/**載入Url List, 比對用 */
 		loadUrlInList() {
 			this.$ipcRenderer
-				.invoke('listFind', { query: {}, sort: { datetime: 1 } })
+				.invoke(EmongoOn.LISTFIND, { query: {}, sort: { datetime: 1 } })
 				.then((doc: IsongList[]) => {
 					const urlList = doc.map((item) => item.lyricsUrl);
 					AppModule.setUrlList(urlList);
@@ -286,7 +288,7 @@ new Vue({
 			// if (videoID == '') return;
 
 			this.$ipcRenderer
-				.invoke('listFindOne', {
+				.invoke(EmongoOn.LISTFINDONE, {
 					query: {
 						videoArr: { $elemMatch: { videoID: videoID } },
 					},
