@@ -216,7 +216,7 @@ import { LyModule } from '@/store/modules/lyrics';
 import { PlayerModule } from '@/store/modules/player';
 import { OutputInfo } from 'sharp';
 import { IlyricsDisplayObj, IlyricsObj, IsongList, IsongListWithIcon } from '@/types/renderer';
-import { EcrawlerOn, EfsOn, EpanelOn, EwindowOn, EmongoOn } from '@/types/enum';
+import { EcrawlerOn, EfsOn, EpanelOn, EwindowOn, EmongoOn, EsharpOn } from '@/types/enum';
 
 import { Component, Vue, Watch } from 'vue-property-decorator';
 // import { getModule } from 'vuex-module-decorators';
@@ -314,7 +314,7 @@ export default class List extends Vue {
 
 				const iconArray = doc.map((item) => item.iconPath || undefined);
 				this.$ipcRenderer
-					.invoke('loadBuffer', { path: iconArray })
+					.invoke(EsharpOn.LOADIMAGEBYPATH, { path: iconArray })
 					.then((res: { data: Buffer; info: OutputInfo }[]) => {
 						doc.forEach((e, i) => {
 							if (res[i]) Object.assign(e, { icon: Buffer.from(res[i].data) });

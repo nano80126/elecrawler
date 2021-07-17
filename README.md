@@ -54,7 +54,7 @@ YouTube music player App create by electron
 
 1. [ ] Test disable modal mode in panel
 
-1. [ ] Double check when remove item from list
+1. [x] Double check when remove item from list
     * after removing item from list update urlList (in main.ts)
 
 1. [ ] ~Move enum to separated file~
@@ -64,9 +64,18 @@ YouTube music player App create by electron
     * thumbnail
     * actions (OK, cancel)
 
-1. [ ] Get thumbnial url from youtube data api
+1. [ ] ~Get thumbnial url from youtube data api~
+    * combine youtube data api and get video cover
 
 1. [ ] Embeddable but can't be played (ex. 夜に駆ける)
+
+1. [x] Add enum of sharp APi 
+
+1. [x]] Bug when change image
+    * Set null first
+
+1. [ ] Not all message using i18n
+    * media.vue
 
 ### Try indexDB
 

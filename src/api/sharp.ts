@@ -2,12 +2,13 @@ import axios from 'axios';
 import sharp from 'sharp';
 import { ipcMain, dialog } from 'electron';
 import { picPath } from './fs';
+import { EsharpOn } from '@/types/enum';
 
 /**註冊 sharp 處理程序 */
 export function registerSharpHandler(): Promise<void> {
 	return new Promise((resolve) => {
-		ipcMain.handle('videoCover', async (e, args) => {
-			const imgUrl = `http://img.youtube.com/vi/${args.ID}/maxresdefault.jpg`;
+		ipcMain.handle(EsharpOn.GETVIDEOIMAGE, async (e, args) => {
+			const imgUrl = args.ID ? `http://img.youtube.com/vi/${args.ID}/maxresdefault.jpg` : args.URL;
 			console.log(imgUrl);
 
 			try {
@@ -24,13 +25,11 @@ export function registerSharpHandler(): Promise<void> {
 			}
 		});
 
-		ipcMain.handle('dialogImage', async () => {
+		ipcMain.handle(EsharpOn.LOADIMAGEBYDIALOG, async () => {
 			try {
 				const path = await dialog.showOpenDialog({
 					filters: [{ name: 'Images', extensions: ['jpg', 'png', 'bmp'] }],
 				});
-				// path.then(res => {}).catch(err)
-				console.log(path);
 
 				if (!path.canceled) {
 					const filePath = path.filePaths[0];
@@ -49,7 +48,7 @@ export function registerSharpHandler(): Promise<void> {
 			}
 		});
 
-		ipcMain.handle('loadBuffer', async (e, args) => {
+		ipcMain.handle(EsharpOn.LOADIMAGEBYPATH, async (e, args) => {
 			const { path } = args;
 
 			try {
@@ -71,7 +70,7 @@ export function registerSharpHandler(): Promise<void> {
 			}
 		});
 
-		ipcMain.handle('toBuffer', async (e, args) => {
+		ipcMain.handle(EsharpOn.TOBUFFER, async (e, args) => {
 			const { buffer, path } = args;
 
 			try {
@@ -86,7 +85,7 @@ export function registerSharpHandler(): Promise<void> {
 			}
 		});
 
-		ipcMain.handle('saveImage', async (e, args) => {
+		ipcMain.handle(EsharpOn.SAVEIMAGE, async (e, args) => {
 			const { buffer, key, size } = args;
 			// size = {left: x, top: y, width: w, height: h}
 			try {

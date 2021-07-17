@@ -19,7 +19,7 @@
 			<v-divider />
 
 			<v-card-text
-				class="teal--text text--lighten-1 font-weight-bold lyric-body"
+				class="grey--text text--lighten-1 font-weight-bold lyric-body"
 				v-html="lyricsObj.obj.lyrics || `<span>${$t('noLyricsExist')}</span>`"
 			/>
 		</v-card>

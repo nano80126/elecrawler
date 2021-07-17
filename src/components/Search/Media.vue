@@ -209,12 +209,6 @@
 											<div id="crosshair-h" class="hair" ref="hairH" />
 											<div id="crosshair-v" class="hair" ref="hairV" />
 											<span id="mousepos" ref="pos" v-text="'X:0, Y:0'" />
-
-											<!-- min size 128 x 128 -->
-											<!-- <div id="icon-region" ref="iconRegion" /> -->
-											<!-- <span id="mousepos" ref="pos">
-												{{ `X:${mousePos.x}, Y:${mousePos.y}` }}
-											</span> -->
 										</template>
 										<div id="small-region-freeze" ref="region-freeze" />
 									</v-img>
@@ -317,7 +311,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
 import { IlyricsSearched, IyouTubeObj, IsongList, Irectangle } from '@/types/renderer';
 import { OutputInfo } from 'sharp';
-import { EfsOn, EmongoOn } from '@/types/enum';
+import { EfsOn, EmongoOn, EsharpOn } from '@/types/enum';
 
 @Component({
 	components: {
@@ -365,7 +359,6 @@ export default class Media extends Vue {
 	private showMenu = false;
 	/**menu 位置 */
 	private menuPos = { x: 0, y: 0 };
-
 	/**縮圖Rectangle absolute */
 	private rectAbs: Irectangle = { x: 0, y: 0, width: 0, height: 0 };
 	/**縮圖Rectangle Percent */
@@ -374,11 +367,13 @@ export default class Media extends Vue {
 	private rectAbsBack: Irectangle = { x: 0, y: 0, width: 0, height: 0 };
 	/**縮圖Rectangle Percent */
 	private rectPercentBack: Irectangle = { x: 0, y: 0, width: 0, height: 0 };
-
 	/**圖片原始大小 */
 	private imgSize = { width: 0, height: 0 };
 	/**圖片縮放率 */
 	private imgZoomRatio = 0;
+	/** */
+	// private thumbnailList: Array<string> = [];
+
 	/**是否為 Main Window */
 	get isMainWindow(): boolean {
 		return AppModule.isMain;
@@ -446,7 +441,7 @@ export default class Media extends Vue {
 			.then((doc: IsongList) => {
 				if (doc.imagePath) {
 					this.$ipcRenderer
-						.invoke('loadBuffer', { path: doc.imagePath })
+						.invoke(EsharpOn.LOADIMAGEBYPATH, { path: doc.imagePath })
 						.then((res: { data: Buffer; info: OutputInfo }) => {
 							this.imgBuffer = Buffer.from(res.data);
 
@@ -494,9 +489,6 @@ export default class Media extends Vue {
 
 	/**URL Text filed不為Focus狀態，呼叫YouTube v3 API */
 	private fieldBlur(/*e*/): void {
-		// this.urlObj = this.urlObj.filter(o => {
-		// 	return o.url && o.url.length > 0;
-		// });
 		this.urlObj.forEach((item, itemKey: number) => {
 			if (item.videoUrl.length > 0) {
 				const id = item.videoUrl.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
@@ -510,12 +502,26 @@ export default class Media extends Vue {
 							},
 						})
 						.then((res) => {
-							// console.log(res);
 							if (res.data.items[0].status.embeddable) {
+								const thumbs = res.data.items[0].snippet.thumbnails;
+								const thumbsArray = Object.keys(thumbs)
+									.map((key) => {
+										// Object 轉陣列
+										return thumbs[key];
+									})
+									.sort((a, b) => {
+										// 大小排序
+										return b.width - a.width;
+									});
+
 								this.$set(
 									this.urlObj,
 									itemKey,
-									Object.assign(item, { videoID: id[0], videoTitle: res.data.items[0].snippet.title })
+									Object.assign(item, {
+										videoID: id[0],
+										videoTitle: res.data.items[0].snippet.title,
+										thumbnail: thumbsArray.length > 0 ? thumbsArray[0] : undefined,
+									})
 								);
 							} else {
 								AppModule.snackbar({ text: this.$t('notEmbeddable') as string, color: Colors.Info });
@@ -544,11 +550,10 @@ export default class Media extends Vue {
 		e.preventDefault();
 		e.stopPropagation();
 
-		// const videoID = this.urlObj[0].url.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-		const videoID = this.activedURL.match(/(?<=^https:\/\/.+?v=).{11}(?=.*$)/);
-		if (videoID && videoID[0].length == 11) {
+		const thumbnailUrl = this.urlObj[this.urlIndex].thumbnail?.url;
+		if (thumbnailUrl) {
 			this.$ipcRenderer
-				.invoke('videoCover', { ID: videoID })
+				.invoke(EsharpOn.GETVIDEOIMAGE, { URL: thumbnailUrl })
 				.then((res) => {
 					if (res.Error) {
 						AppModule.snackbar({ text: res.message, color: Colors.Error });
@@ -566,7 +571,9 @@ export default class Media extends Vue {
 					AppModule.snackbar({ text: err, color: Colors.Error });
 				});
 		} else {
-			AppModule.snackbar({ text: '無効なURL', color: Colors.Warning });
+			// AppModule.snackbar({ text: '無効なURL', color: Colors.Warning });
+			// AppModule.snackbar({ text: this.$t('invalidURL') as string, color: Colors.Warning });
+			AppModule.snackbar({ text: this.$t('unableGetThumbnail') as string, color: Colors.Warning });
 		}
 	}
 
@@ -592,18 +599,23 @@ export default class Media extends Vue {
 		const file = items[0] as File;
 		const reader = new FileReader();
 
-		reader.addEventListener('load', (e: ProgressEvent<FileReader>) => {
-			const buf = e.target?.result;
+		reader.addEventListener('load', (loadEvent: ProgressEvent<FileReader>) => {
+			const buf = loadEvent.target?.result;
 
 			this.$ipcRenderer
-				.invoke('toBuffer', { buffer: buf })
+				.invoke(EsharpOn.TOBUFFER, { buffer: buf })
 				.then((res) => {
-					this.imgBuffer = Buffer.from(res.data);
+					this.imgBuffer = null; // 先設為 null, 否則大小會有問題
 
-					const { width, height } = res.info;
 					this.$nextTick(() => {
-						this.$set(this.imgSize, 'width', width);
-						this.$set(this.imgSize, 'height', height);
+						this.imgBuffer = Buffer.from(res.data);
+
+						const { width, height } = res.info;
+						this.$nextTick(() => {
+							this.$set(this.imgSize, 'width', width);
+							this.$set(this.imgSize, 'height', height);
+						});
+						(e.target as HTMLElement).blur();
 					});
 				})
 				.catch((err) => {
@@ -611,7 +623,6 @@ export default class Media extends Vue {
 				});
 		});
 		reader.readAsArrayBuffer(file);
-		(e.target as HTMLElement).blur();
 	}
 
 	/**圖檔路徑 Change 事件 */
@@ -628,14 +639,18 @@ export default class Media extends Vue {
 		const filePath = items && items[0].path;
 
 		this.$ipcRenderer
-			.invoke('toBuffer', { path: filePath })
+			.invoke(EsharpOn.TOBUFFER, { path: filePath })
 			.then((res: { data: Buffer; info: OutputInfo }) => {
-				this.imgBuffer = Buffer.from(res.data);
+				this.imgBuffer = null;
 
-				const { width, height } = res.info;
 				this.$nextTick(() => {
-					this.$set(this.imgSize, 'width', width);
-					this.$set(this.imgSize, 'height', height);
+					this.imgBuffer = Buffer.from(res.data);
+
+					const { width, height } = res.info;
+					this.$nextTick(() => {
+						this.$set(this.imgSize, 'width', width);
+						this.$set(this.imgSize, 'height', height);
+					});
 				});
 			})
 			.catch((err) => {
@@ -650,15 +665,19 @@ export default class Media extends Vue {
 		this.disableDialog = true;
 
 		this.$ipcRenderer
-			.invoke('dialogImage')
+			.invoke(EsharpOn.LOADIMAGEBYDIALOG)
 			.then((res: { data: Buffer; info: OutputInfo }) => {
 				if (res.data !== null) {
-					this.imgBuffer = Buffer.from(res.data);
+					this.imgBuffer = null;
 
-					const { width, height } = res.info;
 					this.$nextTick(() => {
-						this.$set(this.imgSize, 'width', width);
-						this.$set(this.imgSize, 'height', height);
+						this.imgBuffer = Buffer.from(res.data);
+
+						const { width, height } = res.info;
+						this.$nextTick(() => {
+							this.$set(this.imgSize, 'width', width);
+							this.$set(this.imgSize, 'height', height);
+						});
 					});
 				}
 			})
@@ -673,13 +692,15 @@ export default class Media extends Vue {
 	/**儲存Media資料 */
 	private saveMedia(): void {
 		if (this.imgBuffer) {
+			// 圖片存在
+
 			const x = Math.round((this.imgSize.width * this.rectPercent.x) / 100);
 			const y = Math.round((this.imgSize.height * this.rectPercent.y) / 100);
 			const w = Math.round((this.imgSize.width * this.rectPercent.width) / 100);
 			const h = Math.round((this.imgSize.height * this.rectPercent.height) / 100);
 
 			this.$ipcRenderer
-				.invoke('saveImage', {
+				.invoke(EsharpOn.SAVEIMAGE, {
 					buffer: this.imgBuffer,
 					key: this.lyricsObj.obj.lyricsKey,
 					size: { left: x, top: y, width: w, height: h },
@@ -731,6 +752,7 @@ export default class Media extends Vue {
 					});
 				});
 		} else {
+			// 圖片不存在
 			const { obj } = this.lyricsObj;
 
 			this.urlIndex = 0;
@@ -780,21 +802,7 @@ export default class Media extends Vue {
 		this.showMenu = false;
 	}
 
-	// private iconWheel(e: WheelEvent): void {
-	// 	e.preventDefault();
-	// 	const width = (this.$refs.iconRegion as HTMLLIElement).clientWidth + 2; // 2 is border
-	// 	const height = (this.$refs.iconRegion as HTMLLIElement).clientHeight + 2; // 2 is border
-
-	// 	if (e.deltaY < 0) {
-	// 		(this.$refs.iconRegion as HTMLLIElement).style.width = `${width + 20}px`;
-	// 		(this.$refs.iconRegion as HTMLLIElement).style.height = `${height + 20}px`;
-	// 	} else if (e.deltaY > 0) {
-	// 		(this.$refs.iconRegion as HTMLLIElement).style.width = `${width - 20}px`;
-	// 		(this.$refs.iconRegion as HTMLLIElement).style.height = `${height - 20}px`;
-	// 	}
-	// }
-
-	/**Mousemove Evemt, show mouse position txt, if mousedown capture icon */
+	/**Mousemove Event, show mouse position txt, if mousedown capture icon */
 	private crossMove(e: MouseEvent): void {
 		if (!this.imgBuffer || !this.canRectCapture) return;
 
@@ -831,15 +839,6 @@ export default class Media extends Vue {
 		(this.$refs.pos as HTMLSpanElement).innerText = 'X:0, Y:0';
 
 		this.rectOff(e);
-		// e.buttons & 0b1 左鍵 // mouse leave, show menu
-		// if ((e.buttons & 0b01) == 0b01 && this.onRectStart) {
-		// 	this.onRectStart = false;
-		// 	this.$nextTick(() => {
-		// 		this.menuPos.x = e.offsetX < this.rectAbs.x ? e.x + this.rectAbs.width : e.x;
-		// 		this.menuPos.y = e.offsetY < this.rectAbs.y ? e.y + this.rectAbs.height : e.y;
-		// 		this.showMenu = true;
-		// 	});
-		// }
 	}
 
 	/**Mousedown Event, start capture region */
@@ -872,10 +871,6 @@ export default class Media extends Vue {
 				region.style.height = '0';
 				region.style.left = `${this.rectAbs.x / w}%`;
 				region.style.top = `${this.rectAbs.y / h}%`;
-
-				// this.$nextTick(() => {
-				// 	this.showMenu = false;
-				// });
 			});
 		}
 	}

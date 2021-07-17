@@ -40,6 +40,7 @@ export interface IyouTubeObj {
 	videoTitle?: string;
 	artist?: string;
 	cover?: boolean;
+	thumbnail?: { width: number; height: number; url: string };
 }
 
 /**interface rect for icon region */

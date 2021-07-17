@@ -105,3 +105,16 @@ export enum EmongoOn {
 	/**remove one in list collection */
 	LISTREMOVEONE = 'list-remove-one',
 }
+
+export enum EsharpOn {
+	/**Load image buffer */
+	LOADIMAGEBYPATH = 'load-image-by-path',
+	/**Load */
+	LOADIMAGEBYDIALOG = 'load-image-by-dialog',
+	/**Get YouTube Video background image */
+	GETVIDEOIMAGE = 'get-video-image',
+	/**Convert path top buffer */
+	TOBUFFER = 'to-buffer',
+	/**Change buffer to image and save */
+	SAVEIMAGE = 'save-image',
+}

@@ -115,7 +115,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import { LyModule } from '@/store/modules/lyrics';
 import { AppModule, Colors } from '@/store/modules/app';
 import { IdisplayText, IlyricsDisplayObj } from '@/types/renderer';
-import { EfsOn } from '@/types/enum';
+import { EfsOn, EsharpOn } from '@/types/enum';
 
 @Component
 export default class Display extends Vue {
@@ -204,7 +204,7 @@ export default class Display extends Vue {
 	/**載入背景圖 */
 	private backimgLoad() {
 		this.$ipcRenderer
-			.invoke('loadBuffer', { path: this.lyricsObj?.imagePath })
+			.invoke(EsharpOn.LOADIMAGEBYPATH, { path: this.lyricsObj?.imagePath })
 			.then((res) => {
 				this.image = Buffer.from(res.data);
 			})

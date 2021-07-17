@@ -1,6 +1,8 @@
 {
+	"//-comment1": null,
 	"message": "哈囉!!",
 
+	"//-comment2": null,
 	"search": "搜尋",
 	"list": "清單",
 	"player": "播放器",
@@ -11,21 +13,25 @@
 	"exit": "結束",
 	"close": "關閉",
 
+	"//-comment3": null,
 	"singer": "歌手名",
 	"song": "曲名",
 	"keyWord": "關鑑字",
 	"link": "連結",
 	"doSearchLyrics": "嗨，尋找歌詞吧!!",
 
+	"//-comment4": null,
 	"addListToAccess": "加入清單以開始操作本功能",
 	"addList": "加入清單",
 	"inList": "已在清單",
 	"noLyricsExist": "",
 
+	"//-comment5": null,
 	"youtubeUrl": "YouTube連結",
 	"total": "合計",
 	"externalBrowser": "在外部瀏覽搜尋歌曲",
 	"getYouTubeCover": "取得YouTube預覽圖片",
+	"invalidURL": "Invalid URL",
 	"selectImage": "圖片選擇",
 	"avatarImage": "預覽圖截取",
 	"removeImage": "刪除圖片",
@@ -36,6 +42,7 @@
 	"noImage": "剪貼簿中沒有圖片",
 	"invalidImage": "無效的圖片",
 
+	"//-comment6": null,
 	"search_alt": "尋找",
 	"delete": "刪除",
 	"deleteQuestion": "你確定要刪除這個項目嗎",
@@ -44,6 +51,7 @@
 
 	"end": "結束",
 
+	"//-comment7": null,
 	"loopPlay": "循環播放",
 	"orderPlay": "順序播放",
 	"shufflePlay": "隨機播放"
