@@ -227,6 +227,14 @@ new Vue({
 				}
 			});
 
+			this.$ipcRenderer.on(EplayHotkey.TOGGLEVIDEO, () => {
+				if (PlayerModule.player && PlayerModule.playing) {
+					PlayerModule.pauseVideo();
+				} else {
+					PlayerModule.playVideo();
+				}
+			});
+
 			this.$ipcRenderer.on(EtrayVolume.VOLUMEPLUS, () => {
 				if (PlayerModule.player) {
 					PlayerModule.videoPlusVolume(5);

@@ -86,6 +86,8 @@ export enum EplayHotkey {
 	PLAYVIDEO = 'play-video',
 	/**pause video */
 	PAUSEVIDEO = 'pause-video',
+	/**Toggle play/pause video */
+	TOGGLEVIDEO = 'toggle-video',
 }
 
 /**mongo handle or on */

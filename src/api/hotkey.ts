@@ -1,6 +1,7 @@
 import { globalShortcut } from 'electron';
 import { win } from '@/background';
 import { EplayHotkey, EtrayVolume } from '@/types/enum';
+import { ESTALE } from 'constants';
 
 /** 註冊 global 快捷鍵 */
 export function globalRegisterHotkey(): Promise<void> {
@@ -19,23 +20,27 @@ export function globalRegisterHotkey(): Promise<void> {
 
 		globalShortcut.register('Alt+F5', () => {
 			if (win) {
-				win.webContents.send(EplayHotkey.PLAYVIDEO);
+				win.webContents.send(EplayHotkey.TOGGLEVIDEO);
 			}
 		});
+
+		// globalShortcut.register('Alt+F6', () => {
+		// 	if (win) {
+		// 		win.webContents.send(EplayHotkey.PAUSEVIDEO);
+		// 	}
+		// });
 
 		globalShortcut.register('Alt+F6', () => {
-			if (win) {
-				win.webContents.send(EplayHotkey.PAUSEVIDEO);
+			if (!win?.isVisible()) {
+				win?.show();
+			} else {
+				win?.hide();
 			}
 		});
 
-		globalShortcut.register('Alt+F7', () => {
-			win?.show();
-		});
-
-		globalShortcut.register('Alt+F8', () => {
-			win?.hide();
-		});
+		// globalShortcut.register('Alt+F8', () => {
+		// 	win?.hide();
+		// });
 
 		resolve();
 	});

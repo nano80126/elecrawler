@@ -334,6 +334,9 @@ export default class Embed extends Vue {
 					PlayerModule.setVideoID(id); // 更新video id
 					PlayerModule.playVideo(); // 播放
 				},
+				onError: (e) => {
+					console.error(e);
+				},
 			},
 		});
 		PlayerModule.createPlayer(py);

@@ -53,6 +53,11 @@ export default class Player extends VuexModule implements PlayerState {
 		return this.playerVolume;
 	}
 
+	/**是否播放中 */
+	get playing(): boolean {
+		return this.playState == 1;
+	}
+
 	// /**播放器現在進度 */
 	// get currentTime(): number {
 	// 	return this.player?.getCurrentTime() || 0;
