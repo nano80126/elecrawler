@@ -17,3 +17,7 @@ YouTube music player App create by electron
 - Japanese
 - English
 - Chinese
+
+### To do list
+
+* Rebuild and migrate to latest version of vue and electron 
